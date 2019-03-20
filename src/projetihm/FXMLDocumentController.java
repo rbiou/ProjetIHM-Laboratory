@@ -12,6 +12,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -28,9 +29,11 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private ImageView homeIcon, expIcon, upletIcon, eyeIcon, addIcon;
     @FXML
-    private AnchorPane topPanel, welcomePanel, navPanel, loginPanel, menuPanel, insertPanel, viewPanel, upletPanel;
+    private AnchorPane topPanel, welcomePanel, navPanel, loginPanel, menuPanel, insertPanel, viewPanel;
     @FXML
-    private Label welcomeLabel, loginErrorLabel, frequenceLabel, a3Label;
+    private ScrollPane viewdetailsPanel, upletPanel;
+    @FXML
+    private Label welcomeLabel, loginErrorLabel, frequenceLabel, a3Label, frequenceviewLabel, a3viewLabel, datalibelleLabel, dataequipeLabel, datastatutLabel, dataa1Label, dataa2Label, datadatetransmissionLabel, datafrequenceLabel, datatypeLabel, datadatedemandeLabel, datadatedebutLabel, datanbslotsLabel, datadureeLabel, dataa3Label;
     @FXML
     private TableView viewTable;
     @FXML
@@ -143,10 +146,19 @@ public class FXMLDocumentController implements Initializable {
     private void ajoutExperience(ActionEvent event) {
         //
     }
+    
+    @FXML
+    private void searchExperience(ActionEvent event) {
+        //
+    }
+    
+    @FXML
+    private void sendResults(ActionEvent event) {
+        //
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
     }
-
 }
