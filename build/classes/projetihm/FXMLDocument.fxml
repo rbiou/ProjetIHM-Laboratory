@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane id="AnchorPane" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="projetihm.FXMLDocumentController">
+   <children>
+      <AnchorPane fx:id="navPanel" prefHeight="500.0" prefWidth="700.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <AnchorPane prefHeight="500.0" prefWidth="110.0" style="-fx-background-color: #88d9e6;" AnchorPane.bottomAnchor="0.0" AnchorPane.topAnchor="0.0">
+               <children>
+                  <ImageView fx:id="homeIcon" fitHeight="60.0" fitWidth="56.0" layoutX="27.0" layoutY="36.0" onMouseClicked="#setHomePanel" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@home_white.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="expIcon" fitHeight="60.0" fitWidth="56.0" layoutX="27.0" layoutY="102.0" onMouseClicked="#setExperiencePanel" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@flask_black.png" />
+                     </image>
+                  </ImageView>
+               </children>
+            </AnchorPane>
+            <AnchorPane fx:id="topPanel" prefHeight="104.0" prefWidth="590.0" style="-fx-background-color: #bdbdbd;" visible="false" AnchorPane.leftAnchor="110.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+               <children>
+                  <ImageView fitHeight="67.0" fitWidth="66.0" layoutX="23.0" layoutY="19.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@flask_black.png" />
+                     </image>
+                  </ImageView>
+                  <Label layoutX="95.0" layoutY="37.0" prefHeight="31.0" prefWidth="192.0" text="Experience">
+                     <font>
+                        <Font name="Bebas" size="30.0" />
+                     </font>
+                  </Label>
+                  <ImageView fx:id="upletIcon" fitHeight="40.0" fitWidth="66.0" layoutX="527.0" layoutY="54.0" pickOnBounds="true" preserveRatio="true" AnchorPane.rightAnchor="20.0">
+                     <image>
+                        <Image url="@circle_black.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="eyeIcon" fitHeight="40.0" fitWidth="49.0" layoutX="447.0" layoutY="54.0" pickOnBounds="true" preserveRatio="true" AnchorPane.rightAnchor="100.0">
+                     <image>
+                        <Image url="@eye_white.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="addIcon" fitHeight="40.0" fitWidth="66.0" layoutX="487.0" layoutY="54.0" pickOnBounds="true" preserveRatio="true" AnchorPane.rightAnchor="60.0">
+                     <image>
+                        <Image url="@add_black.png" />
+                     </image>
+                  </ImageView>
+               </children>
+            </AnchorPane>
+            <AnchorPane fx:id="welcomePanel" layoutX="110.0" prefHeight="104.0" prefWidth="590.0" AnchorPane.leftAnchor="110.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+               <children>
+                  <Label fx:id="welcomeLabel" layoutX="371.0" layoutY="40.0" prefHeight="24.0" prefWidth="150.0" text="Bienvenue XXXX" AnchorPane.rightAnchor="80.0">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Label>
+                  <ImageView fx:id="powerIcon" fitHeight="47.0" fitWidth="50.0" layoutX="521.0" layoutY="29.0" onMouseClicked="#logOff" pickOnBounds="true" preserveRatio="true" AnchorPane.rightAnchor="20.0">
+                     <image>
+                        <Image url="@power_black.png" />
+                     </image>
+                  </ImageView>
+               </children>
+            </AnchorPane>
+            <AnchorPane fx:id="menuPanel" layoutX="110.0" layoutY="104.0" prefHeight="398.0" prefWidth="590.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="110.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="104.0">
+               <children>
+                  <Rectangle fx:id="expMenuButton" arcHeight="5.0" arcWidth="5.0" fill="#bdbdbd" height="60.0" layoutX="80.0" layoutY="70.0" onMouseClicked="#setExperiencePanel" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="190.0" />
+                  <ImageView fx:id="expMenuIcon" fitHeight="47.0" fitWidth="47.0" layoutX="80.0" layoutY="77.0" onMouseClicked="#setExperiencePanel" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@flask_black.png" />
+                     </image>
+                  </ImageView>
+                  <Label fx:id="expMenuLabel" layoutX="140.0" layoutY="90.0" onMouseClicked="#setExperiencePanel" prefHeight="20.0" prefWidth="110.0" text="EXPERIENCE">
+                     <font>
+                        <Font name="Bebas" size="20.0" />
+                     </font>
+                  </Label>
+               </children>
+            </AnchorPane>
+         </children>
+      </AnchorPane>
+      <AnchorPane fx:id="loginPanel" layoutX="1.0" prefHeight="500.0" prefWidth="700.0" style="-fx-alignment: CENTER;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <Label layoutX="237.0" layoutY="130.0" prefHeight="51.0" prefWidth="226.0" scaleZ="0.0" text="CONNEXION" textAlignment="CENTER" AnchorPane.topAnchor="130.0">
+               <font>
+                  <Font name="Bebas" size="50.0" />
+               </font>
+            </Label>
+            <TextField fx:id="mailTextField" layoutX="237.0" layoutY="208.0" prefHeight="25.0" prefWidth="226.0" promptText="Saisir votre email..." AnchorPane.topAnchor="210.0" />
+            <Button fx:id="connexionButton" layoutX="427.0" layoutY="277.0" mnemonicParsing="false" onAction="#connectUser" style="-fx-background-color: #88d9e6;" text="Connexion" AnchorPane.topAnchor="300.0" />
+            <Label fx:id="loginErrorLabel" layoutX="237.0" layoutY="272.0" text="error" textFill="RED" visible="false" AnchorPane.topAnchor="270.0" />
+            <PasswordField fx:id="passwordTextField" layoutX="237.0" layoutY="240.0" prefHeight="25.0" prefWidth="226.0" promptText="Saisir votre mot de passe..." />
+         </children>
+      </AnchorPane>
+   </children>
+</AnchorPane>
