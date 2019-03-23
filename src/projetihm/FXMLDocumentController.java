@@ -38,22 +38,23 @@ import javafx.util.Callback;
 public class FXMLDocumentController implements Initializable {
 
     @FXML
-    private ImageView homeIcon, expIcon, upletIcon, eyeIcon, addIcon;
+    private ImageView homeIcon, expIcon, upletIcon, eyeIcon, addIcon, plaqueIcon;
     @FXML
-    private AnchorPane topPanel, welcomePanel, navPanel, loginPanel, menuPanel, insertPanel, viewPanel;
+    private AnchorPane topPanel, welcomePanel, navPanel, loginPanel, menuPanel, insertPanel, viewPanel, upletPanel;
     @FXML
-    private ScrollPane viewdetailsPanel, upletPanel;
+    private ScrollPane viewdetailsPanel, plaqueScrollPane; 
     @FXML
     private Label fonctionLabel, welcomeLabel, loginErrorLabel, frequenceLabel, a3Label, frequenceviewLabel, a3viewLabel, datalibelleLabel, dataequipeLabel, datastatutLabel, dataa1Label, dataa2Label, datadatetransmissionLabel, datafrequenceLabel, datatypeLabel, datadatedemandeLabel, datadatedebutLabel, datanbslotsLabel, datadureeLabel, dataa3Label;
     @FXML
     private TableView viewTable;
-        private TextField mailTextField, passwordTextField, frequenceTextField, a3TextField, libelleTextField, a1TextField, a2TextField, nbSlotTextField, dureeExpTextField;
+    @FXML
+    private TextField mailTextField, passwordTextField, frequenceTextField, a3TextField, libelleTextField, a1TextField, a2TextField, nbSlotTextField, dureeExpTextField;
     @FXML
     private DatePicker  dateDemandeDate; 
     @FXML
     private RadioButton ouiRadio, nonRadio;
     @FXML
-    private ComboBox equipeComboBox, typeExpComboBox;
+    private ComboBox equipeComboBox, typeExpComboBox, typeCelluleComboBox;
     @FXML
     private TableView viewTableView;
     @FXML
@@ -120,6 +121,7 @@ public class FXMLDocumentController implements Initializable {
         welcomePanel.setVisible(false);
         menuPanel.setVisible(false);
         viewPanel.setVisible(true);
+        plaqueScrollPane.setVisible(false);
         eyeIcon.setImage(new Image(getClass().getResource("eye_white.png").toExternalForm()));
         addIcon.setImage(new Image(getClass().getResource("add_black.png").toExternalForm()));
         upletIcon.setImage(new Image(getClass().getResource("circle_black.png").toExternalForm()));
@@ -135,10 +137,24 @@ public class FXMLDocumentController implements Initializable {
         viewPanel.setVisible(false);
         upletPanel.setVisible(false);
         insertPanel.setVisible(false);
+        plaqueScrollPane.setVisible(false); 
         homeIcon.setImage(new Image(getClass().getResource("home_white.png").toExternalForm()));
         expIcon.setImage(new Image(getClass().getResource("flask_black.png").toExternalForm()));
     }
 
+    @FXML
+    private void setPlaquePanel(MouseEvent event) {
+        eyeIcon.setImage(new Image(getClass().getResource("eye_black.png").toExternalForm()));
+        addIcon.setImage(new Image(getClass().getResource("add_black.png").toExternalForm()));
+        upletIcon.setImage(new Image(getClass().getResource("circle_black.png").toExternalForm()));
+        plaqueIcon.setImage(new Image(getClass().getResource("square_white.png").toExternalForm()));
+        topPanel.setVisible(true);
+        viewPanel.setVisible(false);
+        insertPanel.setVisible(false);
+        upletPanel.setVisible(false);
+        plaqueScrollPane.setVisible(true); 
+    }
+    
     @FXML
     private void setViewPanel(MouseEvent event) {
         //Récupération des données
@@ -181,9 +197,11 @@ public class FXMLDocumentController implements Initializable {
         eyeIcon.setImage(new Image(getClass().getResource("eye_white.png").toExternalForm()));
         addIcon.setImage(new Image(getClass().getResource("add_black.png").toExternalForm()));
         upletIcon.setImage(new Image(getClass().getResource("circle_black.png").toExternalForm()));
+         plaqueIcon.setImage(new Image(getClass().getResource("square_black.png").toExternalForm()));
         viewPanel.setVisible(true);
         insertPanel.setVisible(false);
         upletPanel.setVisible(false);
+        plaqueScrollPane.setVisible(false); 
     }
 
     @FXML
@@ -191,9 +209,11 @@ public class FXMLDocumentController implements Initializable {
         eyeIcon.setImage(new Image(getClass().getResource("eye_black.png").toExternalForm()));
         addIcon.setImage(new Image(getClass().getResource("add_white.png").toExternalForm()));
         upletIcon.setImage(new Image(getClass().getResource("circle_black.png").toExternalForm()));
+        plaqueIcon.setImage(new Image(getClass().getResource("square_black.png").toExternalForm()));
         viewPanel.setVisible(false);
         insertPanel.setVisible(true);
         upletPanel.setVisible(false);
+        plaqueScrollPane.setVisible(false);
         equipeComboBox.getItems().clear();
         typeExpComboBox.getItems().clear();
         ///////////////////////////////////////////////////////////////////////////////
@@ -217,9 +237,13 @@ public class FXMLDocumentController implements Initializable {
         eyeIcon.setImage(new Image(getClass().getResource("eye_black.png").toExternalForm()));
         addIcon.setImage(new Image(getClass().getResource("add_black.png").toExternalForm()));
         upletIcon.setImage(new Image(getClass().getResource("circle_white.png").toExternalForm()));
+        plaqueIcon.setImage(new Image(getClass().getResource("square_black.png").toExternalForm()));
+        plaqueScrollPane.setVisible(false);
         viewPanel.setVisible(false);
         insertPanel.setVisible(false);
         upletPanel.setVisible(true);
+        typeCelluleComboBox.getItems().clear(); 
+        typeCelluleComboBox.getItems().addAll("cancéreuses", "non-cancéreuses");
     }
 
     @FXML
@@ -242,7 +266,7 @@ public class FXMLDocumentController implements Initializable {
         ouiRadio.setSelected(false);
     }
 
- @FXML
+    @FXML
     private void ajoutExperience(ActionEvent event) {   
             String libelle = libelleTextField.getText(); 
             LocalDate date = dateDemandeDate.getValue();
@@ -289,10 +313,9 @@ public class FXMLDocumentController implements Initializable {
             System.out.println(e);
         }
     }
-
+    
     @FXML
-    private void searchExperience(ActionEvent event
-    ) {
+    private void searchExperience(ActionEvent event) {
         //
     }
 
