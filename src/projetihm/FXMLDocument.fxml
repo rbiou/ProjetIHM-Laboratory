@@ -8,6 +8,7 @@
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
@@ -18,9 +19,9 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="AnchorPane" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="projetihm.FXMLDocumentController">
+<AnchorPane id="AnchorPane" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/8.0.191" xmlns:fx="http://javafx.com/fxml/1" fx:controller="projetihm.FXMLDocumentController">
     <children>
-        <AnchorPane fx:id="navPanel" prefHeight="500.0" prefWidth="700.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <AnchorPane fx:id="navPanel" prefHeight="500.0" prefWidth="700.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <children>
                 <AnchorPane prefHeight="500.0" prefWidth="110.0" style="-fx-background-color: #88d9e6;" AnchorPane.bottomAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <children>
@@ -67,11 +68,16 @@
                 </AnchorPane>
                 <AnchorPane fx:id="welcomePanel" layoutX="110.0" prefHeight="104.0" prefWidth="590.0" AnchorPane.leftAnchor="110.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <children>
-                        <Label fx:id="welcomeLabel" layoutX="371.0" layoutY="40.0" prefHeight="24.0" prefWidth="150.0" text="Bienvenue XXXX" AnchorPane.rightAnchor="80.0">
+                        <Label fx:id="welcomeLabel" layoutX="305.0" layoutY="29.0" prefHeight="27.0" prefWidth="200.0" text="Bienvenue XXXX" AnchorPane.rightAnchor="116.0">
                             <font>
                                 <Font size="18.0" />
                             </font>
                         </Label>
+                  <Label fx:id="fonctionLabel" layoutX="355.0" layoutY="52.0" prefHeight="27.0" prefWidth="200.0" text="Fonction : XXXX" AnchorPane.rightAnchor="116.0">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Label>
                         <ImageView fx:id="powerIcon" fitHeight="47.0" fitWidth="50.0" layoutX="521.0" layoutY="29.0" onMouseClicked="#logOff" pickOnBounds="true" preserveRatio="true" AnchorPane.rightAnchor="20.0">
                             <image>
                                 <Image url="@power_black.png" />
@@ -189,23 +195,14 @@
                         <TextField layoutX="209.0" layoutY="35.0" promptText="Rechercher par équipe..." />
                         <DatePicker layoutX="380.0" layoutY="35.0" promptText="Rechercher par date..." />
                         <Button fx:id="searchButton" layoutX="246.0" layoutY="75.0" mnemonicParsing="false" onAction="#searchExperience" style="-fx-background-color: #88d9e6;" text="Rechercher" />
-                        <TableView fx:id="viewTable" layoutX="33.0" layoutY="127.0" prefHeight="257.0" prefWidth="522.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="130.0">
-                            <columns>
-                                <TableColumn prefWidth="75.0" text="Libellé" />
-                                <TableColumn prefWidth="75.0" text="Type" />
-                                <TableColumn prefWidth="75.0" text="Date de demande" />
-                                <TableColumn prefWidth="75.0" text="Equipe commanditaire" />
-                                <TableColumn prefWidth="75.0" text="Lancer" />
-                                <TableColumn prefWidth="75.0" text="Statut" />
-                                <TableColumn prefWidth="75.0" text="Détails" />
-                            </columns>
+                        <TableView fx:id="viewTableView" layoutX="33.0" layoutY="127.0" prefHeight="257.0" prefWidth="522.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="130.0">
                             <columnResizePolicy>
                                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                             </columnResizePolicy>
                         </TableView>
                     </children>
                 </AnchorPane>
-                <AnchorPane fx:id="insertPanel" layoutX="110.0" layoutY="104.0" prefHeight="396.0" prefWidth="621.0" visible="false">
+                <AnchorPane fx:id="insertPanel" layoutX="110.0" layoutY="104.0" prefHeight="396.0" prefWidth="621.0">
                     <children>
                         <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#dad9d9" height="246.0" layoutX="8.0" layoutY="67.0" stroke="TRANSPARENT" strokeType="INSIDE" width="609.0" />
                         <Label fx:id="libelleLabel" layoutX="85.0" layoutY="86.0" text="Libellé* : ">
@@ -213,27 +210,22 @@
                                 <Font size="14.0" />
                             </font>
                         </Label>
-                        <Label fx:id="dateDemandeLabel" layoutX="14.0" layoutY="123.0" text="Date de demande* : ">
+                        <Label fx:id="dateDemandeLabel" layoutX="14.0" layoutY="153.0" text="Date de demande* : ">
                             <font>
                                 <Font size="14.0" />
                             </font>
                         </Label>
-                        <Label fx:id="dateDebLabel" layoutX="42.0" layoutY="158.0" text="Date de début : ">
+                        <Label fx:id="typeExpLabel" layoutX="13.0" layoutY="191.0" text="Type d'expérience* : ">
                             <font>
                                 <Font size="14.0" />
                             </font>
                         </Label>
-                        <Label fx:id="typeExpLabel" layoutX="13.0" layoutY="194.0" text="Type d'expérience* : ">
+                        <Label fx:id="a1Label" layoutX="109.0" layoutY="227.0" text="a1* : ">
                             <font>
                                 <Font size="14.0" />
                             </font>
                         </Label>
-                        <Label fx:id="a1Label" layoutX="109.0" layoutY="230.0" text="a1* : ">
-                            <font>
-                                <Font size="14.0" />
-                            </font>
-                        </Label>
-                        <Label fx:id="a2Label" layoutX="109.0" layoutY="262.0" text="a2* : ">
+                        <Label fx:id="a2Label" layoutX="109.0" layoutY="259.0" text="a2* : ">
                             <font>
                                 <Font size="14.0" />
                             </font>
@@ -267,15 +259,15 @@
                         <RadioButton fx:id="nonRadio" layoutX="541.0" layoutY="189.0" mnemonicParsing="false" onAction="#expSuiviTempsNo" text="Non" />
                         <TextField fx:id="libelleTextField" layoutX="146.0" layoutY="84.0" promptText="Saisir le libellé">
                             <font>
-                                <Font name="System Italic" size="11.0" />
+                                <Font size="11.0" />
                             </font>
                         </TextField>
-                        <TextField fx:id="a1TextField" layoutX="147.0" layoutY="228.0" promptText="Saisir la valeur de a1">
+                        <TextField fx:id="a1TextField" layoutX="147.0" layoutY="225.0" promptText="Saisir la valeur de a1">
                             <font>
                                 <Font name="System Italic" size="11.0" />
                             </font>
                         </TextField>
-                        <TextField fx:id="a2TextField" layoutX="147.0" layoutY="260.0" promptText="Saisir la valeur de a2">
+                        <TextField fx:id="a2TextField" layoutX="147.0" layoutY="257.0" promptText="Saisir la valeur de a2">
                             <font>
                                 <Font name="System Italic" size="11.0" />
                             </font>
@@ -285,8 +277,7 @@
                                 <Font name="System Italic" size="11.0" />
                             </font>
                         </TextField>
-                        <DatePicker fx:id="dateDemandeDate" layoutX="147.0" layoutY="120.0" prefHeight="25.0" prefWidth="137.0" />
-                        <DatePicker fx:id="dateDebDate" layoutX="147.0" layoutY="155.0" prefHeight="25.0" prefWidth="137.0" />
+                        <DatePicker fx:id="dateDemandeDate" layoutX="147.0" layoutY="150.0" prefHeight="25.0" prefWidth="137.0" />
                         <TextField fx:id="nbSlotTextField" layoutX="475.0" layoutY="83.0" promptText="Saisir le nombre de slots par uplet">
                             <font>
                                 <Font name="System Italic" size="11.0" />
@@ -303,12 +294,13 @@
                             </font>
                         </TextField>
                         <Button fx:id="AjoutExpButton" layoutX="287.0" layoutY="328.0" mnemonicParsing="false" onAction="#ajoutExperience" style="-fx-background-color: #88d9e6;" text="Ajouter" />
-                        <MenuButton fx:id="typeExpMenuButton" alignment="CENTER" layoutX="147.0" layoutY="193.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="137.0" text="Type d'expérience">
-                            <items>
-                                <MenuItem fx:id="typeExpColo" mnemonicParsing="false" text="Colorimétrique" />
-                                <MenuItem fx:id="typeExpOpa" mnemonicParsing="false" text="Opacimétrique" />
-                            </items>
-                        </MenuButton>
+                  <Label fx:id="nomEquipeLabel" layoutX="18.0" layoutY="117.0" text="Nom de l'équipe* : ">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  <ComboBox fx:id="equipeComboBox" layoutX="147.0" layoutY="115.0" prefHeight="25.0" prefWidth="137.0" promptText="Selectionner l'équipe" />
+                  <ComboBox fx:id="typeExpComboBox" layoutX="147.0" layoutY="185.0" prefHeight="25.0" prefWidth="137.0" promptText="Selectionner le type de l'expérience" />
                     </children>
                 </AnchorPane>
                 <ScrollPane fx:id="viewdetailsPanel" layoutX="110.0" layoutY="104.0" prefHeight="396.0" prefWidth="621.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="110.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="104.0">
@@ -506,7 +498,7 @@
                 </ScrollPane>
             </children>
         </AnchorPane>
-        <AnchorPane fx:id="loginPanel" layoutX="1.0" prefHeight="500.0" prefWidth="700.0" style="-fx-alignment: CENTER;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <AnchorPane fx:id="loginPanel" layoutX="1.0" prefHeight="500.0" prefWidth="700.0" style="-fx-alignment: CENTER;" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <children>
                 <Label layoutX="237.0" layoutY="130.0" prefHeight="51.0" prefWidth="226.0" scaleZ="0.0" text="CONNEXION" textAlignment="CENTER" AnchorPane.topAnchor="130.0">
                     <font>
