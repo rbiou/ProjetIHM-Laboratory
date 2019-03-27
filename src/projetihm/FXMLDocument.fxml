@@ -165,17 +165,14 @@
                                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                             </columnResizePolicy>
                             <columns>
-                                <TableColumn prefWidth="75.0" text="Identifiant du réplicat" />
-                                <TableColumn prefWidth="75.0" text="Rouge : Moyenne" />
-                                <TableColumn prefWidth="75.0" text="Rouge : Ecart-type" />
-                                <TableColumn prefWidth="75.0" text="Vert : moyenne" />
-                                <TableColumn prefWidth="75.0" text="Vert : écart-type" />
-                                <TableColumn prefWidth="75.0" text="Bleu : moyenne" />
-                                <TableColumn prefWidth="75.0" text="Bleu : écart-type" />
-                                <TableColumn prefWidth="75.0" text="Transparence : moyenne" />
-                                <TableColumn prefWidth="75.0" text="Transparence : écart-type" />
+                                <TableColumn prefWidth="75.0" text="Libellé" />
+                                <TableColumn prefWidth="75.0" text="Type" />
+                                <TableColumn prefWidth="75.0" text="Date de demande" />
+                                <TableColumn prefWidth="75.0" text="Equipe commanditaire" />
+                                <TableColumn prefWidth="75.0" text="Lancer" />
+                                <TableColumn prefWidth="75.0" text="Statut" />
+                                <TableColumn prefWidth="75.0" text="Détails" />
                             </columns>
-
                         </TableView>
                     </children>
                 </AnchorPane>
@@ -542,7 +539,7 @@
                                         <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
                                     </rowConstraints>
                                 </GridPane>
-                        <Button fx:id="analyseButton" layoutX="437.0" layoutY="653.0" mnemonicParsing="false" onAction="#connectUser" style="-fx-background-color: #88d9e6;" text="Valider" />
+                                <Button fx:id="analyseButton" layoutX="437.0" layoutY="653.0" mnemonicParsing="false" onAction="#connectUser" style="-fx-background-color: #88d9e6;" text="Valider" />
                             </children>
                         </AnchorPane>
                     </content>

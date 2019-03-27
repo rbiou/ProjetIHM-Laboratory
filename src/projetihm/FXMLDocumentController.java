@@ -175,7 +175,7 @@ public class FXMLDocumentController implements Initializable {
         insertPanel.setVisible(false);
         upletPanel.setVisible(false);
         plaqueScrollPane.setVisible(true);
-        setSlotsPositionChecker(384);
+        setSlotsPositionChecker(96);
     }
 
     private void setSlotsPositionChecker(Integer nb_slots) {
