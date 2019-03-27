@@ -13,11 +13,14 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.shape.Line?>
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="AnchorPane" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="projetihm.FXMLDocumentController">
+<AnchorPane id="AnchorPane" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="projetihm.FXMLDocumentController">
     <children>
         <AnchorPane fx:id="navPanel" prefHeight="500.0" prefWidth="700.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <children>
@@ -62,7 +65,7 @@
                                 <Image url="@add_black.png" />
                             </image>
                         </ImageView>
-                  <ImageView fx:id="plaqueIcon" fitHeight="45.0" fitWidth="30.0" layoutX="578.0" layoutY="59.0" onMouseClicked="#setPlaquePanel" pickOnBounds="true" preserveRatio="true">
+                  <ImageView fx:id="plaqueIcon" fitHeight="40.0" fitWidth="49.0" layoutX="578.0" layoutY="59.0" onMouseClicked="#setPlaquePanel" pickOnBounds="true" preserveRatio="true" AnchorPane.rightAnchor="172.0">
                      <image>
                         <Image url="@square_black.png" />
                      </image>
@@ -464,9 +467,9 @@
                         </AnchorPane>
                     </content>
                 </ScrollPane>
-            <ScrollPane fx:id="plaqueScrollPane" layoutX="110.0" layoutY="104.0" prefHeight="401.0" prefWidth="621.0">
+            <ScrollPane fx:id="plaqueScrollPane" layoutX="110.0" layoutY="104.0" prefHeight="401.0" prefWidth="621.0" visible="false">
                <content>
-                  <AnchorPane fx:id="plaquePanel" prefHeight="659.0" prefWidth="621.0" visible="false">
+                  <AnchorPane fx:id="plaquePanel" prefHeight="659.0" prefWidth="621.0">
                      <children>
                         <Rectangle fx:id="rectangle11" arcHeight="5.0" arcWidth="5.0" fill="#dad9d9" height="117.0" layoutX="16.0" layoutY="62.0" stroke="TRANSPARENT" strokeType="INSIDE" width="575.0" />
                         <Rectangle fx:id="rectangle1" arcHeight="5.0" arcWidth="5.0" fill="#dad9d9" height="66.0" layoutX="16.0" layoutY="194.0" stroke="TRANSPARENT" strokeType="INSIDE" width="575.0" />
@@ -519,7 +522,14 @@
                               <Font name="System Bold" size="15.0" />
                            </font>
                         </Label>
-                        <Rectangle fx:id="rectPlaque" arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="282.0" layoutX="18.0" layoutY="347.0" stroke="BLACK" strokeType="INSIDE" width="575.0" />
+                        <GridPane fx:id="rectPlaque" layoutX="18.0" layoutY="347.0" prefHeight="282.0" prefWidth="575.0">
+                           <columnConstraints>
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                           </columnConstraints>
+                           <rowConstraints>
+                              <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                           </rowConstraints>
+                        </GridPane>
                      </children>
                   </AnchorPane>
                </content>

@@ -9,8 +9,6 @@ import java.sql.*;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.ResourceBundle;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -22,14 +20,15 @@ import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.util.Callback;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.RowConstraints;
 
 /**
  *
@@ -54,6 +53,8 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private RadioButton ouiRadio, nonRadio;
     @FXML
+    private GridPane rectPlaque;
+    @FXML
     private ComboBox equipeComboBox, typeExpComboBox, typeCelluleComboBox;
     @FXML
     private TableView viewTableView;
@@ -69,23 +70,24 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private void connectUser(ActionEvent event) {
         if (mailTextField.getText().isEmpty() == false && passwordTextField.getText().isEmpty() == false) {
-            try {
-                Statement stmt = con.createStatement();
-                ResultSet rs = stmt.executeQuery(
-                        "SELECT PERSONNE.PRENOM_PERSONNE, FONCTION.LIBELLE_FONCTION "
-                        + "FROM PERSONNE "
-                        + "JOIN FONCTION ON PERSONNE.ID_FONCTION = FONCTION.ID_FONCTION "
-                        + "WHERE EMAIL_PERSONNE ='" + mailTextField.getText() + "' AND PASSWORD = '" + passwordTextField.getText() + "'");
-                existingUser = 0;
-                while (rs.next()) {
-                    existingUser = 1;
-                    nameUser = rs.getString(1);
-                    functionUser = rs.getString(2);
-                }
-            } catch (SQLException e) {
-                System.out.println(e);
-            }
-            if (existingUser > 0) {
+//            try {
+//                Statement stmt = con.createStatement();
+//                ResultSet rs = stmt.executeQuery(
+//                        "SELECT PERSONNE.PRENOM_PERSONNE, FONCTION.LIBELLE_FONCTION "
+//                        + "FROM PERSONNE "
+//                        + "JOIN FONCTION ON PERSONNE.ID_FONCTION = FONCTION.ID_FONCTION "
+//                        + "WHERE EMAIL_PERSONNE ='" + mailTextField.getText() + "' AND PASSWORD = '" + passwordTextField.getText() + "'");
+//                existingUser = 0;
+//                while (rs.next()) {
+//                    existingUser = 1;
+//                    nameUser = rs.getString(1);
+//                    functionUser = rs.getString(2);
+//                }
+//            } catch (SQLException e) {
+//                System.out.println(e);
+//            }
+//            if (existingUser > 0) {
+            if (true) {
                 welcomePanel.setVisible(true);
                 welcomeLabel.setText("Bienvenue " + nameUser);
                 welcomeLabel.setVisible(true);
@@ -153,46 +155,72 @@ public class FXMLDocumentController implements Initializable {
         insertPanel.setVisible(false);
         upletPanel.setVisible(false);
         plaqueScrollPane.setVisible(true); 
+        //setSlotsPositionChecker(96);
     }
+    
+    private void setSlotsPositionChecker(Integer nb_slots) {
+        Integer c = 0, l = 0;
+        switch(nb_slots){
+            case 96:
+                c = 12;
+                l = 8;
+            case 384:
+                c = 24;
+                l = 16;
+        }
+        for (int i = 0; i < l; i++){
+            RowConstraints rowConst = new RowConstraints();
+            rowConst.setPercentHeight(100.0 / l);
+            rectPlaque.getRowConstraints().add(rowConst);
+            for (int j = 0; j < c; i++){
+                //System.out.println(i.toString()+' and '+j);
+                //ColumnConstraints colConst = new ColumnConstraints();
+                //colConst.setPercentWidth(100.0 / c);
+                //rectPlaque.getColumnConstraints().add(colConst);
+                //rectPlaque.add(new ComboBox(), j, i);
+            }
+        }
+    }
+   
     
     @FXML
     private void setViewPanel(MouseEvent event) {
         //Récupération des données
         viewData = FXCollections.observableArrayList();
-        try {
-            Statement stmt = con.createStatement();
-            ResultSet rs = stmt.executeQuery(
-                    "SELECT ID_EXPERIENCE, LIBELLE_EXP, TYPE_EXP, DATE_DEMANDE, NOM_EQUIPE, STATUT_EXP "
-                    + "FROM EXPERIENCE "
-                    + "JOIN EQUIPE ON EXPERIENCE.EMAIL_EQUIPE = EQUIPE.EMAIL_EQUIPE");
-            //setCellValueFactory du tableau affiché
-            for (int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
-                //We are using non property style for making dynamic table
-                final int j = i;
-                TableColumn col = new TableColumn(rs.getMetaData().getColumnName(i + 1));
-                col.setCellValueFactory(new Callback<CellDataFeatures<ObservableList, String>, ObservableValue<String>>() {
-                    public ObservableValue<String> call(CellDataFeatures<ObservableList, String> param) {
-                        return new SimpleStringProperty(param.getValue().get(j).toString());
-                    }
-                });
-                viewTableView.getColumns().addAll(col);
-                System.out.println("Column [" + i + "] ");
-            }
-            //Insertion des données dans le tableau
-            while (rs.next()) {
-                //Iterate Row
-                ObservableList<String> row = FXCollections.observableArrayList();
-                for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
-                    //Iterate Column
-                    row.add(rs.getString(i));
-                }
-                System.out.println("Row [1] added " + row);
-                viewData.add(row);
-            }
-            viewTable.setItems(viewData);
-        } catch (SQLException e) {
-            System.out.println(e);
-        }
+//        try {
+//            Statement stmt = con.createStatement();
+//            ResultSet rs = stmt.executeQuery(
+//                    "SELECT ID_EXPERIENCE, LIBELLE_EXP, TYPE_EXP, DATE_DEMANDE, NOM_EQUIPE, STATUT_EXP "
+//                    + "FROM EXPERIENCE "
+//                    + "JOIN EQUIPE ON EXPERIENCE.EMAIL_EQUIPE = EQUIPE.EMAIL_EQUIPE");
+//            //setCellValueFactory du tableau affiché
+//            for (int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
+//                //We are using non property style for making dynamic table
+//                final int j = i;
+//                TableColumn col = new TableColumn(rs.getMetaData().getColumnName(i + 1));
+//                col.setCellValueFactory(new Callback<CellDataFeatures<ObservableList, String>, ObservableValue<String>>() {
+//                    publiremi c ObservableValue<String> call(CellDataFeatures<ObservableList, String> param) {
+//                        return new SimpleStringProperty(param.getValue().get(j).toString());
+//                    }
+//                });
+//                viewTableView.getColumns().addAll(col);
+//                System.out.println("Column [" + i + "] ");
+//            }
+//            //Insertion des données dans le tableau
+//            while (rs.next()) {
+//                //Iterate Row
+//                ObservableList<String> row = FXCollections.observableArrayList();
+//                for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
+//                    //Iterate Column
+//                    row.add(rs.getString(i));
+//                }
+//                System.out.println("Row [1] added " + row);
+//                viewData.add(row);
+//            }
+//            viewTable.setItems(viewData);
+//        } catch (SQLException e) {
+//            System.out.println(e);
+//        }
         //Gestion des pages
         eyeIcon.setImage(new Image(getClass().getResource("eye_white.png").toExternalForm()));
         addIcon.setImage(new Image(getClass().getResource("add_black.png").toExternalForm()));
