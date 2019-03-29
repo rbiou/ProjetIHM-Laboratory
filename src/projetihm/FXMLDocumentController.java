@@ -56,7 +56,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private GridPane rectPlaque;
     @FXML
-    private ComboBox equipeComboBox, typeExpComboBox, typeCelluleComboBox, choixExperienceComboBox, choixReplicatComboBox, choixPlaqueComboBox;
+    private ComboBox equipeComboBox, typeExpComboBox, typeCelluleComboBox, choixExperienceComboBox, choixReplicatComboBox, choixPlaqueComboBox, expSelectedComboBox;
     @FXML
     private TableView viewTableView;
     @FXML
@@ -485,6 +485,18 @@ public class FXMLDocumentController implements Initializable {
         viewPanel.setVisible(false);
         insertPanel.setVisible(false);
         upletPanel.setVisible(true);
+                try {
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery(
+                    "SELECT ID_EXPERIENCE, LIBELLE_EXP, NOM_EQUIPE "
+                    + "FROM EXPERIENCE "
+                    + "JOIN EQUIPE ON EXPERIENCE.EMAIL_EQUIPE = EQUIPE.EMAIL_EQUIPE");
+            while (rs.next()) {
+                expSelectedComboBox.getItems().add(rs.getString(1) + " - " + rs.getString(2) + " - Equipe " + rs.getString(3));
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
     }
 
     /**
@@ -598,19 +610,27 @@ public class FXMLDocumentController implements Initializable {
             warningLabel.setVisible(true);
         }
     }
-        /**
-         * Méthode permettant la recherche d'expérience parmis celle en base de
-         * données selon 3 critères non-obligatoires : - l'équipe commanditaire
-         * - le statut de l'expérience - la date de début de l'expérience
-         *
-         * @param event
-         */
-        @FXML
-        private void searchExperience
-        (ActionEvent event
-        
-        
-        ) {
+
+    /**
+     * Méthode permettant l'ajout d'un uplet
+     *
+     * @param event
+     */
+    @FXML
+    private void ajoutUplet(ActionEvent event) {
+         //
+    }
+
+    /**
+     * Méthode permettant la recherche d'expérience parmis celle en base de
+     * données selon 3 critères non-obligatoires : - l'équipe commanditaire - le
+     * statut de l'expérience - la date de début de l'expérience
+     *
+     * @param event
+     */
+    @FXML
+    private void searchExperience(ActionEvent event
+    ) {
         //
     }
 
@@ -621,18 +641,14 @@ public class FXMLDocumentController implements Initializable {
      * @param event
      */
     @FXML
-        private void sendResults
-        (ActionEvent event
-        
-        ) {
+    private void sendResults(ActionEvent event
+    ) {
         //
     }
 
     /**
      * Méthode de connexion à la base de données Oracle
      */
-    
-
     private void connectServer() {
         try {
             Class.forName("oracle.jdbc.driver.OracleDriver");
@@ -672,3 +688,4 @@ public class FXMLDocumentController implements Initializable {
         connectServer();
     }
 }
+
