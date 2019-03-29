@@ -3,10 +3,13 @@ package projetihm;
 import java.sql.*;
 import java.net.URL;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.ResourceBundle;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
@@ -27,11 +30,12 @@ import javafx.scene.layout.RowConstraints;
 
 /**
  * Controller de notre application de gestion de laboratoire
+ *
  * @author Rémi BIOU, Chloé FOUCHER
  * @version 28/03/2019
  */
 public class FXMLDocumentController implements Initializable {
-    
+
     //Variables FXML
     @FXML
     private ImageView homeIcon, expIcon, upletIcon, eyeIcon, addIcon, plaqueIcon;
@@ -40,7 +44,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private ScrollPane viewdetailsPanel, plaqueScrollPane;
     @FXML
-    private Label fonctionLabel, welcomeLabel, loginErrorLabel, frequenceLabel, a3Label, frequenceviewLabel, a3viewLabel, datalibelleLabel, dataequipeLabel, datastatutLabel, dataa1Label, dataa2Label, datadatetransmissionLabel, datafrequenceLabel, datatypeLabel, datadatedemandeLabel, datadatedebutLabel, datanbslotsLabel, datadureeLabel, dataa3Label;
+    private Label fonctionLabel, welcomeLabel, loginErrorLabel, frequenceLabel, a3Label, frequenceviewLabel, a3viewLabel, datalibelleLabel, dataequipeLabel, datastatutLabel, dataa1Label, dataa2Label, datadatetransmissionLabel, datafrequenceLabel, datatypeLabel, datadatedemandeLabel, datadatedebutLabel, datanbslotsLabel, datadureeLabel, dataa3Label, slotsRestantsLabel, warningLabel;
     @FXML
     private TableView viewTable;
     @FXML
@@ -52,7 +56,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private GridPane rectPlaque;
     @FXML
-    private ComboBox equipeComboBox, typeExpComboBox, typeCelluleComboBox;
+    private ComboBox equipeComboBox, typeExpComboBox, typeCelluleComboBox, choixExperienceComboBox, choixReplicatComboBox, choixPlaqueComboBox;
     @FXML
     private TableView viewTableView;
     @FXML
@@ -60,13 +64,15 @@ public class FXMLDocumentController implements Initializable {
     //Variables d'environnement user
     private static String nameUser, functionUser;
     //Variables non-FXML
-    private Integer existingUser;
+    private Integer existingUser, slots_to_check, nb_checked_slots;
     private Connection con;
     private ObservableList<ObservableList> viewData;
-    
+
     /**
-     * Méthode qui permet de connecter l'utilisateur à notre application en contrôlant ses identifiants
-     * qui renvoie ensuite au tableau de bord de l'application
+     * Méthode qui permet de connecter l'utilisateur à notre application en
+     * contrôlant ses identifiants qui renvoie ensuite au tableau de bord de
+     * l'application
+     *
      * @param event
      */
     @FXML
@@ -76,17 +82,19 @@ public class FXMLDocumentController implements Initializable {
             //Connexion en utilisant la BDD
             try {
                 Statement stmt = con.createStatement();
-                ResultSet rs = stmt.executeQuery(
-                        "SELECT PERSONNE.PRENOM_PERSONNE, FONCTION.LIBELLE_FONCTION "
-                        + "FROM PERSONNE "
-                        + "JOIN FONCTION ON PERSONNE.ID_FONCTION = FONCTION.ID_FONCTION "
-                        + "WHERE EMAIL_PERSONNE ='" + mailTextField.getText() + "' AND PASSWORD = '" + passwordTextField.getText() + "'");
-                existingUser = 0;
-                while (rs.next()) {
-                    existingUser = 1;
-                    nameUser = rs.getString(1);
-                    functionUser = rs.getString(2);
-                }
+//                ResultSet rs = stmt.executeQuery(
+//                        "SELECT PERSONNE.PRENOM_PERSONNE, FONCTION.LIBELLE_FONCTION "
+//                        + "FROM PERSONNE "
+//                        + "JOIN FONCTION ON PERSONNE.ID_FONCTION = FONCTION.ID_FONCTION "
+//                        + "WHERE EMAIL_PERSONNE ='" + mailTextField.getText() + "' AND PASSWORD = ENCRYPTER('" + passwordTextField.getText() + "')");
+                existingUser = 1;
+                nameUser = "Remi";
+                functionUser = "chercheur";
+//                while (rs.next()) {
+//                    existingUser = 1;
+//                    nameUser = rs.getString(1);
+//                    functionUser = rs.getString(2);
+//                }
             } catch (SQLException e) {
                 System.out.println(e);
             }
@@ -118,7 +126,9 @@ public class FXMLDocumentController implements Initializable {
     }
 
     /**
-     * Méthode permettant la déconnexion de l'utilisateur connecté sur l'interface où la méthode est appelée
+     * Méthode permettant la déconnexion de l'utilisateur connecté sur
+     * l'interface où la méthode est appelée
+     *
      * @param event
      */
     @FXML
@@ -131,9 +141,11 @@ public class FXMLDocumentController implements Initializable {
     }
 
     /**
-     * Méthode permettant l'affichage du panel central de gestion des expériences (où l'on retrouve la possibilité
-     * d'ajouter une expérience, une plaque, ...)
-     * ainsi que la gestion de l'UX des menus (surlignage du module où navigue l'utilisateur)
+     * Méthode permettant l'affichage du panel central de gestion des
+     * expériences (où l'on retrouve la possibilité d'ajouter une expérience,
+     * une plaque, ...) ainsi que la gestion de l'UX des menus (surlignage du
+     * module où navigue l'utilisateur)
+     *
      * @param event
      */
     @FXML
@@ -147,7 +159,7 @@ public class FXMLDocumentController implements Initializable {
             insertPanel.setVisible(true);
             upletIcon.setImage(new Image(getClass().getResource("circle_black.png").toExternalForm()));
             addIcon.setImage(new Image(getClass().getResource("add_white.png").toExternalForm()));
-        //Gestion des pages & de l'UX dans le cas d'un utilisateur étant laborantin
+            //Gestion des pages & de l'UX dans le cas d'un utilisateur étant laborantin
         } else if ("laborantin".equals(functionUser)) {
             upletIcon.setVisible(false);
             addIcon.setVisible(false);
@@ -168,9 +180,11 @@ public class FXMLDocumentController implements Initializable {
     }
 
     /**
-     * Méthode permettant l'affichage du panel central permettant d'avoir une vue d'ensemble des fonctionnalités
-     * disponibles à l'utilisateur, ainsi que son profil avec la possibilité de se déconnecter
-     * ainsi que la gestion de l'UX des menus (surlignage du module où navigue l'utilisateur)
+     * Méthode permettant l'affichage du panel central permettant d'avoir une
+     * vue d'ensemble des fonctionnalités disponibles à l'utilisateur, ainsi que
+     * son profil avec la possibilité de se déconnecter ainsi que la gestion de
+     * l'UX des menus (surlignage du module où navigue l'utilisateur)
+     *
      * @param event
      */
     @FXML
@@ -186,17 +200,42 @@ public class FXMLDocumentController implements Initializable {
         homeIcon.setImage(new Image(getClass().getResource("home_white.png").toExternalForm()));
         expIcon.setImage(new Image(getClass().getResource("flask_black.png").toExternalForm()));
     }
-    
+
     /**
-     * Méthode permettant l'affichage du panel central permettant la gestion des plaques et le positionnement des puits
-     * ainsi que la gestion de l'UX des menus (surlignage du module où navigue l'utilisateur)
+     * Méthode permettant l'affichage du panel central permettant la gestion des
+     * plaques et le positionnement des puits ainsi que la gestion de l'UX des
+     * menus (surlignage du module où navigue l'utilisateur)
+     *
      * @param event
      */
     @FXML
     private void setPlaquePanel(MouseEvent event) {
-        //Affichage graphique de la plaque permettant de positionner les expériences sollicités par les chercheurs
-        //Ici, 96 par défaut en attendant la connexion avec la BDD
-        setSlotsPositionChecker(96);
+        //Selection de l'expérience et de l'uplet/réplica à traiter
+        try {
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery(
+                    "SELECT ID_EXPERIENCE, LIBELLE_EXP, NOM_EQUIPE "
+                    + "FROM EXPERIENCE "
+                    + "JOIN EQUIPE ON EXPERIENCE.EMAIL_EQUIPE = EQUIPE.EMAIL_EQUIPE");
+            while (rs.next()) {
+                choixExperienceComboBox.getItems().add(rs.getString(1) + " - " + rs.getString(2) + " - Equipe " + rs.getString(3));
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        //Selection de la plaque à traiter
+        try {
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery(
+                    "SELECT NUM_PLAQUE, TYPE_PLAQUE "
+                    + "FROM PLAQUE "
+                    + "WHERE REFUS = 0");
+            while (rs.next()) {
+                choixPlaqueComboBox.getItems().add("Plaque n° " + rs.getString(1) + " - " + rs.getString(2) + " slots");
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
         //Gestion des pages et de l'UX
         eyeIcon.setImage(new Image(getClass().getResource("eye_black.png").toExternalForm()));
         addIcon.setImage(new Image(getClass().getResource("add_black.png").toExternalForm()));
@@ -208,25 +247,77 @@ public class FXMLDocumentController implements Initializable {
         upletPanel.setVisible(false);
         plaqueScrollPane.setVisible(true);
     }
-    
+
     /**
-     * Méthode permettant l'affichage et la personnalisation de la représentation graphique de la plaque sélectionnée
-     * lors du positionnement des données associés à chaque puit/slot de la part du laborantin
-     * @param nb_slots : paramètre décrivant le nom de slot/puit de la plaque sélectionnée et 
-     *                   determinant alors l'affichage graphique de la plaque à afficher
+     * Méthode permettant de charger les uplets/réplicas associer à l'expérience
+     * lorsque l'utilisateur choisis une expérience, durant l'ajout de réplicas
+     * à une plaque
+     *
+     * @param event
      */
-    private void setSlotsPositionChecker(Integer nb_slots) {
+    @FXML
+    private void loadUpletExperience(ActionEvent event) {
+        try {
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery(
+                    "SELECT ID_UPLET, URGENT, DATE_ECHEANCE "
+                    + "FROM N_UPLET "
+                    + "WHERE ID_EXPERIENCE = " + (choixExperienceComboBox.getValue() + "").split(" ")[0] + " AND ETAT = 'accepté'");
+            choixReplicatComboBox.getItems().clear();
+            while (rs.next()) {
+                Integer urgent = rs.getInt(2);
+                if (urgent == 0) {
+                    choixReplicatComboBox.getItems().add("Uplet n°" + rs.getString(1));
+                } else {
+                    choixReplicatComboBox.getItems().add(0, "Uplet n°" + rs.getString(1) + " - URGENT, à faire avant le " + rs.getString(3).substring(0, 10));
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+    }
+
+    /**
+     * Méthode permettant l'affichage graphique de la plaque permettant de
+     * positionner les expériences sollicités par les chercheurs
+     *
+     * @param event
+     */
+    @FXML
+    private void setSlotsPositionChecker(ActionEvent event) {
+        //Recherche des propriétés de la plaque : slots disponibles, slots occupés
+        //Liste des slots/réplicas occupés
+        ArrayList<ArrayList> taken_slots = new ArrayList<>();
+        //Liste des slots/réplicas cochés par l'utilisateur
+        ArrayList<ArrayList> new_slots = new ArrayList<>();
+        //
+        nb_checked_slots = 0;
+        try {
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery(
+                    "SELECT X,Y, NB_SLOT "
+                    + "FROM SLOT "
+                    + "JOIN N_UPLET ON SLOT.ID_UPLET = N_UPLET.ID_UPLET JOIN EXPERIENCE ON N_UPLET.ID_EXPERIENCE = EXPERIENCE.ID_EXPERIENCE "
+                    + "WHERE NUM_PLAQUE = " + (choixPlaqueComboBox.getValue() + "").split(" ")[2]);
+            choixReplicatComboBox.getItems().clear();
+            while (rs.next()) {
+                slots_to_check = rs.getInt(3);
+                taken_slots.add(new ArrayList<Integer>(Arrays.asList(rs.getInt(1), rs.getInt(2))));
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
         //Re-initialisation des contraintes de dimensionnement de l'affichage graphique de la plaque
         rectPlaque.getRowConstraints().clear();
         rectPlaque.getColumnConstraints().clear();
         //Initiatilasion des variables de boucles, du nombre de colonnes et de lignes à 0
         Integer c = 0, l = 0, i, j;
         //Si la plaque de culture à 96 puits, alors l'affichage doit être sous forme de 12 colonnes et 8 lignes 
-        if (nb_slots == 96) {
+        if ("96".equals((choixPlaqueComboBox.getValue() + "").split(" ")[4])) {
             c = 12;
             l = 8;
-        //Si la plaque de culture à 384 puits, alors l'affichage doit être sous forme de 24 colonnes et 16 lignes 
-        } else if (nb_slots == 384) {
+            //Si la plaque de culture à 384 puits, alors l'affichage doit être sous forme de 24 colonnes et 16 lignes 
+        } else if ("384".equals((choixPlaqueComboBox.getValue() + "").split(" ")[4])) {
             c = 24;
             l = 16;
         }
@@ -235,7 +326,34 @@ public class FXMLDocumentController implements Initializable {
         while (i < l) {
             j = 0;
             while (j < c) {
-                rectPlaque.add(new RadioButton(), j, i);
+                if (taken_slots.contains(Arrays.asList(i, j))) {
+                    RadioButton disableButton = new RadioButton();
+                    disableButton.setDisable(true);
+                    disableButton.setSelected(true);
+                    rectPlaque.add(disableButton, j, i);
+                } else {
+                    RadioButton availableButton = new RadioButton();
+                    availableButton.setStyle("-fx-mark-highlight-color: #88d9e6 ; -fx-mark-color: #88d9e6;");
+                    availableButton.setOnAction(new EventHandler<ActionEvent>() {
+                        @Override
+                        public void handle(ActionEvent event) {
+                            //Nombre de slots/réplicas cochés
+                            new_slots.add(new ArrayList<Integer>(Arrays.asList(GridPane.getColumnIndex(availableButton), GridPane.getRowIndex(availableButton))));
+                            if (availableButton.isSelected()) {
+                                nb_checked_slots++;
+                            } else {
+                                nb_checked_slots--;
+                            }
+                            if (slots_to_check - nb_checked_slots > 0) {
+                                slotsRestantsLabel.setVisible(true);
+                                slotsRestantsLabel.setText((slots_to_check - nb_checked_slots) + " puits restants à déterminer");
+                            } else {
+                                slotsRestantsLabel.setVisible(false);
+                            }
+                        }
+                    });
+                    rectPlaque.add(availableButton, j, i);
+                }
                 j++;
             }
             i++;
@@ -253,10 +371,12 @@ public class FXMLDocumentController implements Initializable {
             rectPlaque.getRowConstraints().add(rowConst);
         }
     }
-    
+
     /**
-     * Méthode permettant l'affichage du panel central permettant la visualisation de toutes les expériences stockées
-     * ainsi que la gestion de l'UX des menus (surlignage du module où navigue l'utilisateur)
+     * Méthode permettant l'affichage du panel central permettant la
+     * visualisation de toutes les expériences stockées ainsi que la gestion de
+     * l'UX des menus (surlignage du module où navigue l'utilisateur)
+     *
      * @param event
      */
     @FXML
@@ -309,8 +429,10 @@ public class FXMLDocumentController implements Initializable {
     }
 
     /**
-     * Méthode permettant l'affichage du panel central permettant l'ajout d'une expérience
-     * ainsi que la gestion de l'UX des menus (surlignage du module où navigue l'utilisateur)
+     * Méthode permettant l'affichage du panel central permettant l'ajout d'une
+     * expérience ainsi que la gestion de l'UX des menus (surlignage du module
+     * où navigue l'utilisateur)
+     *
      * @param event
      */
     @FXML
@@ -323,7 +445,6 @@ public class FXMLDocumentController implements Initializable {
             Statement stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT NOM_EQUIPE FROM EQUIPE");
             while (rs.next()) {
-                System.out.println(rs.getString(1));
                 equipeComboBox.getItems().add(rs.getString(1));
             }
         } catch (Exception e) {
@@ -341,10 +462,12 @@ public class FXMLDocumentController implements Initializable {
         upletPanel.setVisible(false);
         plaqueScrollPane.setVisible(false);
     }
-    
+
     /**
-     * Méthode permettant l'affichage du panel central permettant l'ajout d'un uplet/réplica de la
-     * part du chercheur ainsi que la gestion de l'UX des menus (surlignage du module où navigue l'utilisateur)
+     * Méthode permettant l'affichage du panel central permettant l'ajout d'un
+     * uplet/réplica de la part du chercheur ainsi que la gestion de l'UX des
+     * menus (surlignage du module où navigue l'utilisateur)
+     *
      * @param event
      */
     @FXML
@@ -363,10 +486,12 @@ public class FXMLDocumentController implements Initializable {
         insertPanel.setVisible(false);
         upletPanel.setVisible(true);
     }
-   
+
     /**
-     * Méthode activant l'affichage du formulaire permettant la saisie des paramètres d'une
-     * expérience suivi dans le temps, lors de l'ajout d'une expérience
+     * Méthode activant l'affichage du formulaire permettant la saisie des
+     * paramètres d'une expérience suivi dans le temps, lors de l'ajout d'une
+     * expérience
+     *
      * @param event
      */
     @FXML
@@ -379,10 +504,12 @@ public class FXMLDocumentController implements Initializable {
         a3TextField.setVisible(true);
         nonRadio.setSelected(false);
     }
-    
+
     /**
-     * Méthode désactivant l'affichage du formulaire permettant la saisie des paramètres d'une
-     * expérience suivi dans le temps, lors de l'ajout d'une expérience
+     * Méthode désactivant l'affichage du formulaire permettant la saisie des
+     * paramètres d'une expérience suivi dans le temps, lors de l'ajout d'une
+     * expérience
+     *
      * @param event
      */
     @FXML
@@ -395,83 +522,117 @@ public class FXMLDocumentController implements Initializable {
         a3TextField.setVisible(false);
         ouiRadio.setSelected(false);
     }
-    
+
     /**
      * Méthode permettant l'ajout d'une expérience à la base de données
+     *
      * @param event
      */
     @FXML
     private void ajoutExperience(ActionEvent event) {
         String libelle = libelleTextField.getText();
-        LocalDate date = dateDemandeDate.getValue();
-        System.err.println("Selected date: " + date);
+        LocalDate localdate = dateDemandeDate.getValue();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        String dateString = localdate.format(dateTimeFormatter);
         String frequence = frequenceTextField.getText();
         String a3 = a3TextField.getText();
         String a1 = a1TextField.getText();
-        int a1OK = Integer.parseInt(a1);
         String a2 = a2TextField.getText();
-        int a2OK = Integer.parseInt(a2);
         String nb_slot = nbSlotTextField.getText();
-        int nb_slotOK = Integer.parseInt(nb_slot);
         String duree = dureeExpTextField.getText();
-        int dureeOK = Integer.parseInt(duree);
         String nomEquipe = (String) equipeComboBox.getValue();
-        System.out.println(nomEquipe);
         String typeExp = (String) typeExpComboBox.getValue();
-        try {
-            Statement stmt = con.createStatement();
-            ResultSet rs1 = stmt.executeQuery("SELECT EMAIL_EQUIPE FROM EQUIPE WHERE NOM_EQUIPE ='" + nomEquipe + "'");
-            rs1.next();
-            String email = rs1.getString(1);
-            System.out.println(email);
-        } catch (Exception e) {
-            System.out.println(e);
-        }
+        String email = "";
+        String statut = "à faire";
+        warningLabel.setVisible(false);
 
-        try {
-            if (a3 != null && frequence != null) {
-                int a3OK = Integer.parseInt(a3);
-                int frequenceOK = Integer.parseInt(frequence);
-                System.out.println("insertion1");
-                Statement stmt1 = con.createStatement();
-                ResultSet rs1 = stmt1.executeQuery("INSERT INTO EXPERIENCE (LIBELLE_EXP, EMAIL_EQUIPE, DATE_DEMANDE, TYPE_EXP, A1, A2, NB_SLOT, DUREE_EXP, A3, STATUT_EXP, FREQUENCE) values (libelle, email, date, typeExp, a1OK, a2OK, nb_slotOK, dureeOK, a3OK, 'à faire', frequenceOK)");
-            } else {
-                Statement stmt2 = con.createStatement();
-                ResultSet rs2 = stmt2.executeQuery("INSERT INTO EXPERIENCE (LIBELLE_EXP, EMAIL_EQUIPE, DATE_DEMANDE, TYPE_EXP, A1, A2, NB_SLOT, DUREE_EXP, STATUT_EXP) values (libelle, email, date, typeExp, a1OK, a2OK, nb_slotOK, dureeOK, 'à faire')");
-                System.out.println("insertion2");
+        if (libelle.isEmpty() == false && dateString.isEmpty() == false && a1.isEmpty() == false && a2.isEmpty() == false && nb_slot.isEmpty() == false && duree.isEmpty() == false && nomEquipe.isEmpty() == false && typeExp.isEmpty() == false) {
+
+            //Récupération de l'email de l'équipe selectionnée
+            try {
+                Statement stmt = con.createStatement();
+                ResultSet rs1 = stmt.executeQuery("SELECT EMAIL_EQUIPE FROM EQUIPE WHERE NOM_EQUIPE ='" + nomEquipe + "'");
+                rs1.next();
+                email = rs1.getString(1);
+                System.out.println(email);
+            } catch (SQLException e) {
+                System.out.println(e);
             }
 
-        } catch (Exception e) {
-            System.out.println(e);
+            //requête d'insertion d'une expérience
+            try {
+                if (!"".equals(a3) && !"".equals(frequence)) {
+                    Statement stmt1 = con.createStatement();
+                    ResultSet rs1 = stmt1.executeQuery("INSERT INTO EXPERIENCE (LIBELLE_EXP, EMAIL_EQUIPE, DATE_DEMANDE, TYPE_EXP, A1, A2, NB_SLOT, DUREE_EXP, A3, STATUT_EXP, FREQUENCE) values ('" + libelle + "', '" + email + "', '" + dateString + "', '" + typeExp + "', " + a1 + ", " + a2 + ", " + nb_slot + ", " + duree + ", " + a3 + ", '" + statut + "', '" + frequence + "')");
+                    warningLabel.setText("");
+                    warningLabel.setText("Expérience ajoutée.");
+                    warningLabel.setVisible(true);
+                } else {
+                    Statement stmt2 = con.createStatement();
+                    ResultSet rs2 = stmt2.executeQuery("INSERT INTO EXPERIENCE (LIBELLE_EXP, EMAIL_EQUIPE, DATE_DEMANDE, TYPE_EXP, A1, A2, NB_SLOT, DUREE_EXP, STATUT_EXP) "
+                            + "values ('" + libelle + "', '" + email + "', '" + dateString + "', '" + typeExp + "', " + a1 + ", " + a2 + ", " + nb_slot + ", " + duree + ", '" + statut + "')");
+                    warningLabel.setText("");
+                    warningLabel.setText("Expérience ajoutée.");
+                    warningLabel.setVisible(true);
+                }
+
+            } catch (SQLException e) {
+                System.out.println("Exception SQL : ");
+                while (e != null) {
+                    String message = e.getMessage();
+                    int errorCode = e.getErrorCode();
+//                    if (errorCode == 984) {
+//                        warningLabel.setText("Une valeur saisie est incorrecte.");
+//                    } else if (errorCode == 2290) {
+//                        warningLabel.setText("La valeur de a1 doit être supérieure à celle de a2.");
+//                    }
+                    e = e.getNextException();
+                    warningLabel.setText("");
+                    warningLabel.setText(message + errorCode);
+                    warningLabel.setVisible(true);
+                }
+            }
+        } else {
+            warningLabel.setText("");
+            warningLabel.setText("Tous les champs ne sont pas complets.");
+            warningLabel.setVisible(true);
         }
     }
-    
+        /**
+         * Méthode permettant la recherche d'expérience parmis celle en base de
+         * données selon 3 critères non-obligatoires : - l'équipe commanditaire
+         * - le statut de l'expérience - la date de début de l'expérience
+         *
+         * @param event
+         */
+        @FXML
+        private void searchExperience
+        (ActionEvent event
+        
+        
+        ) {
+        //
+    }
+
     /**
-     * Méthode permettant la recherche d'expérience parmis celle en base de données selon 3 critères non-obligatoires :
-     * - l'équipe commanditaire
-     * - le statut de l'expérience
-     * - la date de début de l'expérience
+     * Méthode permettant l'envoi des résultats de l'expérience sélectionnée à
+     * l'équipe de recherche l'ayant commandité
+     *
      * @param event
      */
     @FXML
-    private void searchExperience(ActionEvent event) {
+        private void sendResults
+        (ActionEvent event
+        
+        ) {
         //
     }
-    
-    /**
-     * Méthode permettant l'envoi des résultats de l'expérience sélectionnée à l'équipe de
-     * recherche l'ayant commandité
-     * @param event
-     */
-    @FXML
-    private void sendResults(ActionEvent event
-    ) {
-        //
-    }
-    
+
     /**
      * Méthode de connexion à la base de données Oracle
      */
+    
+
     private void connectServer() {
         try {
             Class.forName("oracle.jdbc.driver.OracleDriver");
@@ -486,7 +647,7 @@ public class FXMLDocumentController implements Initializable {
             System.out.println("Connection not etablished.");
         }
     }
-    
+
     /**
      * Méthode de déconnexion de la base de données Oracle
      */
@@ -500,11 +661,11 @@ public class FXMLDocumentController implements Initializable {
 //        }
 //        Platform.exit();
 //    }
-    
     /**
      * Méthode d'initialisation des données de l'application()
+     *
      * @param url
-     * @param rb 
+     * @param rb
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
