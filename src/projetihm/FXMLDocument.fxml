@@ -281,6 +281,7 @@
                                 <Font name="System Bold" size="18.0" />
                             </font>
                         </Label>
+                  <Label fx:id="warningLabel" layoutX="32.0" layoutY="326.0" text="Label" textFill="RED" visible="false" />
                     </children>
                 </AnchorPane>
                 <ScrollPane fx:id="viewdetailsPanel" layoutX="110.0" layoutY="104.0" prefHeight="396.0" prefWidth="621.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="110.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="104.0">
@@ -512,7 +513,7 @@
                                         <Font name="System Bold" size="18.0" />
                                     </font>
                                 </Label>
-                                <ComboBox fx:id="choixPlaqueComboBox" layoutX="270.0" layoutY="224.0" prefHeight="25.0" prefWidth="137.0" promptText="Sélectionner une plaque" />
+                                <ComboBox fx:id="choixPlaqueComboBox" layoutX="270.0" layoutY="224.0" onAction="#setSlotsPositionChecker" prefHeight="25.0" prefWidth="137.0" promptText="Sélectionner une plaque" />
                                 <ComboBox fx:id="choixReplicatComboBox" layoutX="303.0" layoutY="140.0" prefHeight="25.0" prefWidth="137.0" promptText="Sélectionner un réplicat" />
                                 <Label fx:id="choixReplicatLabel" layoutX="176.0" layoutY="143.0" text="Choisir un réplicat : ">
                                     <font>
@@ -520,7 +521,7 @@
                                     </font>
                                 </Label>
                                 <Button fx:id="AjoutPlaqueButton" layoutX="473.0" layoutY="295.0" mnemonicParsing="false" onAction="#connectUser" style="-fx-background-color: #88d9e6;" text="Ajouter la plaque" visible="false" />
-                                <ComboBox fx:id="choixExperienceComboBox" layoutX="304.0" layoutY="104.0" prefHeight="25.0" prefWidth="137.0" promptText="Sélectionner un réplicat" />
+                                <ComboBox fx:id="choixExperienceComboBox" layoutX="304.0" layoutY="104.0" onAction="#loadUpletExperience" prefHeight="25.0" prefWidth="137.0" promptText="Sélectionner un réplicat" />
                                 <Label fx:id="choixExperienceLabel" layoutX="150.0" layoutY="106.0" text="Choisir une expérience : ">
                                     <font>
                                         <Font size="14.0" />
@@ -531,7 +532,7 @@
                                         <Font name="System Bold" size="15.0" />
                                     </font>
                                 </Label>
-                                <GridPane fx:id="rectPlaque" alignment="CENTER" layoutX="18.0" layoutY="347.0" prefHeight="282.0" prefWidth="575.0" style="-fx-border-width: 1; -fx-border-color: BLACK;">
+                                <GridPane fx:id="rectPlaque" alignment="CENTER" layoutX="18.0" layoutY="363.0" prefHeight="282.0" prefWidth="575.0" style="-fx-border-width: 1; -fx-border-color: BLACK;">
                                     <columnConstraints>
                                         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
                                     </columnConstraints>
@@ -540,6 +541,7 @@
                                     </rowConstraints>
                                 </GridPane>
                                 <Button fx:id="analyseButton" layoutX="437.0" layoutY="653.0" mnemonicParsing="false" onAction="#connectUser" style="-fx-background-color: #88d9e6;" text="Valider" />
+                        <Label fx:id="slotsRestantsLabel" layoutX="243.0" layoutY="346.0" text="X puits restants à déterminer" visible="false" />
                             </children>
                         </AnchorPane>
                     </content>
