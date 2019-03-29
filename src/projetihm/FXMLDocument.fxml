@@ -482,7 +482,7 @@
                             <children>
                                 <Rectangle fx:id="rectangle11" arcHeight="5.0" arcWidth="5.0" fill="#dad9d9" height="117.0" layoutX="16.0" layoutY="62.0" stroke="TRANSPARENT" strokeType="INSIDE" width="575.0" />
                                 <Rectangle fx:id="rectangle1" arcHeight="5.0" arcWidth="5.0" fill="#dad9d9" height="66.0" layoutX="16.0" layoutY="194.0" stroke="TRANSPARENT" strokeType="INSIDE" width="575.0" />
-                                <Rectangle fx:id="rectangle2" arcHeight="5.0" arcWidth="5.0" fill="#dad9d9" height="92.0" layoutX="25.0" layoutY="242.0" stroke="TRANSPARENT" strokeType="INSIDE" visible="false" width="575.0" />
+                                <Rectangle fx:id="rectangle2" arcHeight="5.0" arcWidth="5.0" fill="#dad9d9" height="92.0" layoutX="16.0" layoutY="238.0" stroke="TRANSPARENT" strokeType="INSIDE" visible="false" width="575.0" />
                                 <Label fx:id="plaqueTitreLabel" layoutX="270.0" layoutY="195.0" text="Plaque" textFill="#479aa7">
                                     <font>
                                         <Font name="System Bold" size="15.0" />
@@ -557,19 +557,6 @@
                 <Button fx:id="connexionButton" layoutX="427.0" layoutY="277.0" mnemonicParsing="false" onAction="#connectUser" style="-fx-background-color: #88d9e6;" text="Connexion" AnchorPane.topAnchor="300.0" />
                 <Label fx:id="loginErrorLabel" layoutX="237.0" layoutY="272.0" text="error" textFill="RED" visible="false" AnchorPane.topAnchor="270.0" />
                 <PasswordField fx:id="passwordTextField" layoutX="237.0" layoutY="240.0" prefHeight="25.0" prefWidth="226.0" promptText="Saisir votre mot de passe..." />
-                <Label layoutX="237.0" layoutY="340.0" text="En attendant la BDD...." />
-                <Label layoutX="237.0" layoutY="357.0" text="Laborantin :">
-                    <font>
-                        <Font name="System Bold" size="12.0" />
-                    </font>
-                </Label>
-                <Label layoutX="237.0" layoutY="374.0" text="Chercheur :">
-                    <font>
-                        <Font name="System Bold Italic" size="12.0" />
-                    </font>
-                </Label>
-                <Label layoutX="314.0" layoutY="357.0" prefHeight="17.0" prefWidth="268.0" text="mail = laborantin ; mdp = laborantin" />
-                <Label layoutX="314.0" layoutY="374.0" prefHeight="17.0" prefWidth="268.0" text="mail = chercheur ; mdp = chercheur" />
             </children>
         </AnchorPane>
     </children>
