@@ -168,9 +168,24 @@ public class FXMLDocumentController implements Initializable {
             viewPanel.setVisible(true);
             eyeIcon.setImage(new Image(getClass().getResource("eye_white.png").toExternalForm()));
             plaqueIcon.setImage(new Image(getClass().getResource("square_black.png").toExternalForm()));
-        }
+        }        
         //Remise à 0 du label warning
         warningLabel.setText("");
+        //remise à 0 des comboBox
+        equipeComboBox.getItems().clear();
+        typeExpComboBox.getItems().clear();
+        //Récupération des équipes enregistrés et ajout à la ComboBox du choix de l'équipe dans le formulaire
+        try {
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT NOM_EQUIPE FROM EQUIPE");
+            while (rs.next()) {
+                equipeComboBox.getItems().add(rs.getString(1));
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        //Ajout des propositions de choix à la ComboBox de choix du type d'expérience
+        typeExpComboBox.getItems().addAll("colorimétrique", "opacimétrique");
         //Gestion des pages et de l'UX
         topPanel.setVisible(true);
         welcomePanel.setVisible(false);
