@@ -147,7 +147,7 @@
                                 <Font size="14.0" />
                             </font>
                         </Label>
-                        <Button fx:id="ajoutUpletButton" layoutX="289.0" layoutY="283.0" mnemonicParsing="false" onAction="#ajoutUplet" style="-fx-background-color: #88d9e6;" text="Ajouter" />
+                        <Button fx:id="ajoutUpletButton" layoutX="502.0" layoutY="284.0" mnemonicParsing="false" onAction="#ajoutUplet" style="-fx-background-color: #88d9e6;" text="Ajouter" />
                         <ComboBox fx:id="nomAgentComboBox" layoutX="288.0" layoutY="120.0" prefWidth="150.0" promptText="Sélectionner le nom de l'agent" />
                         <ComboBox fx:id="typeCelluleComboBox" layoutX="288.0" layoutY="188.0" prefWidth="150.0" promptText="Sélectionner le type de cellules" />
                         <ComboBox fx:id="expSelectedComboBox" layoutX="407.0" layoutY="28.0" prefWidth="150.0" promptText="Sélectionner une expérience" />
@@ -268,7 +268,7 @@
                                 <Font name="System Italic" size="11.0" />
                             </font>
                         </TextField>
-                        <Button fx:id="AjoutExpButton" layoutX="287.0" layoutY="334.0" mnemonicParsing="false" onAction="#ajoutExperience" style="-fx-background-color: #88d9e6;" text="Ajouter" />
+                        <Button fx:id="AjoutExpButton" layoutX="517.0" layoutY="335.0" mnemonicParsing="false" onAction="#ajoutExperience" style="-fx-background-color: #88d9e6;" text="Ajouter" />
                         <Label fx:id="nomEquipeLabel" layoutX="18.0" layoutY="123.0" text="Nom de l'équipe* : ">
                             <font>
                                 <Font size="14.0" />
