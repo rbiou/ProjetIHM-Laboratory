@@ -44,7 +44,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private ScrollPane viewdetailsPanel, plaqueScrollPane;
     @FXML
-    private Label fonctionLabel, welcomeLabel, loginErrorLabel, frequenceLabel, a3Label, frequenceviewLabel, a3viewLabel, datalibelleLabel, dataequipeLabel, datastatutLabel, dataa1Label, dataa2Label, datadatetransmissionLabel, datafrequenceLabel, datatypeLabel, datadatedemandeLabel, datadatedebutLabel, datanbslotsLabel, datadureeLabel, dataa3Label, slotsRestantsLabel, warningLabel;
+    private Label fonctionLabel, welcomeLabel, loginErrorLabel, frequenceLabel, a3Label, frequenceviewLabel, a3viewLabel, datalibelleLabel, dataequipeLabel, datastatutLabel, dataa1Label, dataa2Label, datadatetransmissionLabel, datafrequenceLabel, datatypeLabel, datadatedemandeLabel, datadatedebutLabel, datanbslotsLabel, datadureeLabel, dataa3Label, slotsRestantsLabel, warningLabel, warningUpletLabel;
     @FXML
     private TableView viewTable;
     @FXML
@@ -475,7 +475,7 @@ public class FXMLDocumentController implements Initializable {
     ) {
         //Ajout des propositions de choix à la ComboBox de choix du type de cellules
         typeCelluleComboBox.getItems().clear();
-        typeCelluleComboBox.getItems().addAll("cancéreuses", "non-cancéreuses");
+        typeCelluleComboBox.getItems().addAll("cancéreuse", "non-cancéreuse");
         //Gestion des pages et de l'UX
         eyeIcon.setImage(new Image(getClass().getResource("eye_black.png").toExternalForm()));
         addIcon.setImage(new Image(getClass().getResource("add_black.png").toExternalForm()));
@@ -485,7 +485,9 @@ public class FXMLDocumentController implements Initializable {
         viewPanel.setVisible(false);
         insertPanel.setVisible(false);
         upletPanel.setVisible(true);
-
+        //Remise à 0 des comboBox
+        expSelectedComboBox.getItems().clear();
+        nomAgentComboBox.getItems().clear();
         // Affichage de la liste des expériences
         try {
             Statement stmt = con.createStatement();
@@ -634,18 +636,29 @@ public class FXMLDocumentController implements Initializable {
      */
     @FXML
     private void ajoutUplet(ActionEvent event) {
-        expSelectedComboBox.getValue();
-        String NomProduit = (String) nomAgentComboBox.getValue();
-        String typeExp = (String) typeCelluleComboBox.getValue();
-        String quantiteAgent = qteAgentTextField.getText();
-        String quantiteCell = qteCelluleTextField.getText();
-        try {
-            Statement stmt1 = con.createStatement();
-            ResultSet rs1 = stmt1.executeQuery("INSERT INTO N_UPLET (ID_EXPERIENCE, TYPE_CELLULE, Q_AGENT, Q_CELLULE, ) values ('" + expSelectedComboBox.getValue() + "',  '" + typeCelluleComboBox.getValue() + "', '" + qteAgentTextField.getText() + "', '" + qteCelluleTextField.getText() + "' )");
-            //arningLabel.setText("Uplet ajouté");
-            //warningLabel.setVisible(true);
-        } catch (SQLException e) {
-
+        if (expSelectedComboBox.getValue() != null && typeCelluleComboBox.getValue() != null && qteAgentTextField.getText().isEmpty() == false && qteCelluleTextField.getText().isEmpty() == false) {
+            //Ajout de l'uplet
+            try {
+                Statement stmt1 = con.createStatement();
+                ResultSet rs1 = stmt1.executeQuery("INSERT INTO N_UPLET (ID_EXPERIENCE, TYPE_CELLULE, Q_AGENT, Q_CELLULE) values (" + (expSelectedComboBox.getValue() + "").split(" ")[0] + ",  '" + typeCelluleComboBox.getValue() + "', '" + qteAgentTextField.getText() + "', '" + qteCelluleTextField.getText() + "' )");
+                warningUpletLabel.setText("");
+                warningUpletLabel.setText("Uplet ajouté");
+                warningUpletLabel.setVisible(true);
+            } catch (SQLException e) {
+                while (e != null) {
+                    String message = e.getMessage();
+                    int errorCode = e.getErrorCode();
+                    e = e.getNextException();
+                    warningUpletLabel.setText("");
+                    warningUpletLabel.setText(message + errorCode);
+                    warningUpletLabel.setVisible(true);
+                }
+            }
+        }
+        else { 
+            warningUpletLabel.setText("");
+            warningUpletLabel.setText("Veuillez remplir tous les champs");
+            warningUpletLabel.setVisible(true);
         }
     }
 
@@ -716,7 +729,3 @@ public class FXMLDocumentController implements Initializable {
         connectServer();
     }
 }
-
-
-
-
