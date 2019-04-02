@@ -48,7 +48,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private TableView viewTable;
     @FXML
-    private TextField mailTextField, passwordTextField, frequenceTextField, a3TextField, libelleTextField, a1TextField, a2TextField, nbSlotTextField, dureeExpTextField;
+    private TextField mailTextField, passwordTextField, frequenceTextField, a3TextField, libelleTextField, a1TextField, a2TextField, nbSlotTextField, dureeExpTextField, qteCelluleTextField, qteAgentTextField;
     @FXML
     private DatePicker dateDemandeDate;
     @FXML
@@ -485,7 +485,7 @@ public class FXMLDocumentController implements Initializable {
         viewPanel.setVisible(false);
         insertPanel.setVisible(false);
         upletPanel.setVisible(true);
-        
+
         // Affichage de la liste des expériences
         try {
             Statement stmt = con.createStatement();
@@ -499,9 +499,9 @@ public class FXMLDocumentController implements Initializable {
         } catch (SQLException e) {
             System.out.println(e);
         }
-        
+
         // Affichage deu produit
-         try {
+        try {
             Statement stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery(
                     "SELECT NOM_PRODUIT "
@@ -634,7 +634,19 @@ public class FXMLDocumentController implements Initializable {
      */
     @FXML
     private void ajoutUplet(ActionEvent event) {
-         //
+        expSelectedComboBox.getValue();
+        String NomProduit = (String) nomAgentComboBox.getValue();
+        String typeExp = (String) typeCelluleComboBox.getValue();
+        String quantiteAgent = qteAgentTextField.getText();
+        String quantiteCell = qteCelluleTextField.getText();
+        try {
+            Statement stmt1 = con.createStatement();
+            ResultSet rs1 = stmt1.executeQuery("INSERT INTO N_UPLET (ID_EXPERIENCE, TYPE_CELLULE, Q_AGENT, Q_CELLULE, ) values ('" + expSelectedComboBox.getValue() + "',  '" + typeCelluleComboBox.getValue() + "', '" + qteAgentTextField.getText() + "', '" + qteCelluleTextField.getText() + "' )");
+            //arningLabel.setText("Uplet ajouté");
+            //warningLabel.setVisible(true);
+        } catch (SQLException e) {
+
+        }
     }
 
     /**
@@ -704,6 +716,7 @@ public class FXMLDocumentController implements Initializable {
         connectServer();
     }
 }
+
 
 
 
