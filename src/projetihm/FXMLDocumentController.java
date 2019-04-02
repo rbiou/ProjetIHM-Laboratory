@@ -169,6 +169,8 @@ public class FXMLDocumentController implements Initializable {
             eyeIcon.setImage(new Image(getClass().getResource("eye_white.png").toExternalForm()));
             plaqueIcon.setImage(new Image(getClass().getResource("square_black.png").toExternalForm()));
         }
+        //Remise à 0 du label warning
+        warningLabel.setText("");
         //Gestion des pages et de l'UX
         topPanel.setVisible(true);
         welcomePanel.setVisible(false);
@@ -488,6 +490,7 @@ public class FXMLDocumentController implements Initializable {
         //Remise à 0 des comboBox
         expSelectedComboBox.getItems().clear();
         nomAgentComboBox.getItems().clear();
+        warningUpletLabel.setText("");
         // Affichage de la liste des expériences
         try {
             Statement stmt = con.createStatement();
@@ -611,15 +614,17 @@ public class FXMLDocumentController implements Initializable {
                 while (e != null) {
                     String message = e.getMessage();
                     int errorCode = e.getErrorCode();
-//                    if (errorCode == 984) {
-//                        warningLabel.setText("Une valeur saisie est incorrecte.");
-//                    } else if (errorCode == 2290) {
-//                        warningLabel.setText("La valeur de a1 doit être supérieure à celle de a2.");
-//                    }
+                    if (errorCode == 984) {
+                        warningLabel.setText("");
+                        warningLabel.setText("Une valeur saisie est incorrecte.");
+                        warningLabel.setVisible(true);
+                    } 
+                    else if (errorCode == 2290) {
+                        warningLabel.setText("");
+                        warningLabel.setText("La valeur de a1 doit être supérieure à celle de a2.");
+                        warningLabel.setVisible(true);
+                    }
                     e = e.getNextException();
-                    warningLabel.setText("");
-                    warningLabel.setText(message + errorCode);
-                    warningLabel.setVisible(true);
                 }
             }
         } else {
@@ -642,22 +647,23 @@ public class FXMLDocumentController implements Initializable {
                 Statement stmt1 = con.createStatement();
                 ResultSet rs1 = stmt1.executeQuery("INSERT INTO N_UPLET (ID_EXPERIENCE, TYPE_CELLULE, Q_AGENT, Q_CELLULE) values (" + (expSelectedComboBox.getValue() + "").split(" ")[0] + ",  '" + typeCelluleComboBox.getValue() + "', '" + qteAgentTextField.getText() + "', '" + qteCelluleTextField.getText() + "' )");
                 warningUpletLabel.setText("");
-                warningUpletLabel.setText("Uplet ajouté");
+                warningUpletLabel.setText("Uplet ajouté.");
                 warningUpletLabel.setVisible(true);
             } catch (SQLException e) {
                 while (e != null) {
                     String message = e.getMessage();
                     int errorCode = e.getErrorCode();
                     e = e.getNextException();
-                    warningUpletLabel.setText("");
-                    warningUpletLabel.setText(message + errorCode);
-                    warningUpletLabel.setVisible(true);
+                    if (errorCode == 1722) {
+                        warningUpletLabel.setText("");
+                        warningUpletLabel.setText("Valeur non valide.");
+                        warningUpletLabel.setVisible(true);
+                    }
                 }
             }
-        }
-        else { 
+        } else {
             warningUpletLabel.setText("");
-            warningUpletLabel.setText("Veuillez remplir tous les champs");
+            warningUpletLabel.setText("Veuillez remplir tous les champs.");
             warningUpletLabel.setVisible(true);
         }
     }
