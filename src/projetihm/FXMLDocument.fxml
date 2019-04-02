@@ -515,14 +515,8 @@
                                     </font>
                                 </Label>
                                 <ComboBox fx:id="choixPlaqueComboBox" layoutX="270.0" layoutY="224.0" onAction="#setSlotsPositionChecker" prefHeight="25.0" prefWidth="137.0" promptText="Sélectionner une plaque" />
-                                <ComboBox fx:id="choixReplicatComboBox" layoutX="303.0" layoutY="140.0" prefHeight="25.0" prefWidth="137.0" promptText="Sélectionner un réplicat" />
-                                <Label fx:id="choixReplicatLabel" layoutX="176.0" layoutY="143.0" text="Choisir un réplicat : ">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Label>
                                 <Button fx:id="AjoutPlaqueButton" layoutX="473.0" layoutY="295.0" mnemonicParsing="false" onAction="#connectUser" style="-fx-background-color: #88d9e6;" text="Ajouter la plaque" visible="false" />
-                                <ComboBox fx:id="choixExperienceComboBox" layoutX="304.0" layoutY="104.0" onAction="#loadUpletExperience" prefHeight="25.0" prefWidth="137.0" promptText="Sélectionner un réplicat" />
+                                <ComboBox fx:id="choixExperienceComboBox" layoutX="304.0" layoutY="104.0" prefHeight="25.0" prefWidth="137.0" promptText="Sélectionner un réplicat" />
                                 <Label fx:id="choixExperienceLabel" layoutX="150.0" layoutY="106.0" text="Choisir une expérience : ">
                                     <font>
                                         <Font size="14.0" />
@@ -541,7 +535,7 @@
                                         <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
                                     </rowConstraints>
                                 </GridPane>
-                                <Button fx:id="analyseButton" layoutX="437.0" layoutY="653.0" mnemonicParsing="false" onAction="#connectUser" style="-fx-background-color: #88d9e6;" text="Valider" />
+                                <Button fx:id="analyseButton" layoutX="437.0" layoutY="653.0" mnemonicParsing="false" onAction="#insertSlots" style="-fx-background-color: #88d9e6;" text="Valider" />
                         <Label fx:id="slotsRestantsLabel" layoutX="243.0" layoutY="346.0" text="X puits restants à déterminer" visible="false" />
                             </children>
                         </AnchorPane>
