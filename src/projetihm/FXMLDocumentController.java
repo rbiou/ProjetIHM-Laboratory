@@ -56,7 +56,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private GridPane rectPlaque;
     @FXML
-    private ComboBox equipeComboBox, typeExpComboBox, typeCelluleComboBox, choixExperienceComboBox, choixReplicatComboBox, choixPlaqueComboBox, expSelectedComboBox;
+    private ComboBox equipeComboBox, typeExpComboBox, typeCelluleComboBox, choixExperienceComboBox, choixReplicatComboBox, choixPlaqueComboBox, expSelectedComboBox, nomAgentComboBox;
     @FXML
     private TableView viewTableView;
     @FXML
@@ -485,7 +485,9 @@ public class FXMLDocumentController implements Initializable {
         viewPanel.setVisible(false);
         insertPanel.setVisible(false);
         upletPanel.setVisible(true);
-                try {
+        
+        // Affichage de la liste des expériences
+        try {
             Statement stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery(
                     "SELECT ID_EXPERIENCE, LIBELLE_EXP, NOM_EQUIPE "
@@ -493,6 +495,20 @@ public class FXMLDocumentController implements Initializable {
                     + "JOIN EQUIPE ON EXPERIENCE.EMAIL_EQUIPE = EQUIPE.EMAIL_EQUIPE");
             while (rs.next()) {
                 expSelectedComboBox.getItems().add(rs.getString(1) + " - " + rs.getString(2) + " - Equipe " + rs.getString(3));
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        
+        // Affichage deu produit
+         try {
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery(
+                    "SELECT NOM_PRODUIT "
+                    + "FROM PRODUIT");
+            while (rs.next()) {
+                String produit = rs.getString(1);
+                nomAgentComboBox.getItems().add(rs.getString(1));
             }
         } catch (SQLException e) {
             System.out.println(e);
@@ -688,4 +704,6 @@ public class FXMLDocumentController implements Initializable {
         connectServer();
     }
 }
+
+
 
