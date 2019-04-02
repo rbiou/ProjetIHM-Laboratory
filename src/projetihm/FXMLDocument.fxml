@@ -151,6 +151,7 @@
                         <ComboBox fx:id="nomAgentComboBox" layoutX="288.0" layoutY="120.0" prefWidth="150.0" promptText="Sélectionner le nom de l'agent" />
                         <ComboBox fx:id="typeCelluleComboBox" layoutX="288.0" layoutY="188.0" prefWidth="150.0" promptText="Sélectionner le type de cellules" />
                         <ComboBox fx:id="expSelectedComboBox" layoutX="407.0" layoutY="28.0" prefWidth="150.0" promptText="Sélectionner une expérience" />
+                  <Label fx:id="warningUpletLabel" layoutX="23.0" layoutY="275.0" text="Uplet ajouté" textFill="RED" visible="false" />
                     </children>
                 </AnchorPane>
 
