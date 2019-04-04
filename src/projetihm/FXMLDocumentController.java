@@ -7,19 +7,23 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.ResourceBundle;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -27,6 +31,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
+import javafx.util.Callback;
 
 /**
  * Controller de notre application de gestion de laboratoire
@@ -66,7 +71,7 @@ public class FXMLDocumentController implements Initializable {
     //Variables non-FXML
     private Integer existingUser, slots_to_check, nb_checked_slots, c, l;
     private Connection con;
-    private ObservableList<ObservableList> viewData;
+    private ObservableList<Experience> listExp = FXCollections.observableArrayList();
     private ArrayList<ArrayList> new_slots;
 
     /**
@@ -90,7 +95,7 @@ public class FXMLDocumentController implements Initializable {
 //                        + "WHERE EMAIL_PERSONNE ='" + mailTextField.getText() + "' AND PASSWORD = ENCRYPTER('" + passwordTextField.getText() + "')");
                 existingUser = 1;
                 nameUser = "Remi";
-                functionUser = "chercheur";
+                functionUser = "laborantin";
 //                while (rs.next()) {
 //                    existingUser = 1;
 //                    nameUser = rs.getString(1);
@@ -169,7 +174,7 @@ public class FXMLDocumentController implements Initializable {
             viewPanel.setVisible(true);
             eyeIcon.setImage(new Image(getClass().getResource("eye_white.png").toExternalForm()));
             plaqueIcon.setImage(new Image(getClass().getResource("square_black.png").toExternalForm()));
-        }        
+        }
         //Remise à 0 du label warning
         warningLabel.setText("");
         //remise à 0 des comboBox
@@ -266,7 +271,7 @@ public class FXMLDocumentController implements Initializable {
         plaqueScrollPane.setVisible(true);
     }
 
-   /**
+    /**
      * Méthode permettant l'affichage graphique de la plaque permettant de
      * positionner les expériences sollicités par les chercheurs
      *
@@ -275,7 +280,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private void setSlotsPositionChecker(ActionEvent event) {
         //Initialisation du nombre de slots cochés
-        nb_checked_slots =0;
+        nb_checked_slots = 0;
         if (choixPlaqueComboBox.getValue() != null && choixExperienceComboBox.getValue() != null) {
             //Liste des slots/réplicas occupés
             ArrayList<ArrayList> taken_slots = new ArrayList<>();
@@ -313,7 +318,7 @@ public class FXMLDocumentController implements Initializable {
                         + "FROM N_UPLET "
                         + "WHERE ID_EXPERIENCE = " + (choixExperienceComboBox.getValue() + "").split(" ")[0]);
                 while (rs.next()) {
-                    slots_to_check = slots_to_check*rs.getInt(1);
+                    slots_to_check = slots_to_check * rs.getInt(1);
                 }
             } catch (SQLException e) {
                 System.out.println(e);
@@ -439,42 +444,7 @@ public class FXMLDocumentController implements Initializable {
      */
     @FXML
     private void setViewPanel(MouseEvent event) {
-        //Récupération des données
-//        viewData = FXCollections.observableArrayList();
-//        try {
-//            Statement stmt = con.createStatement();
-//            ResultSet rs = stmt.executeQuery(
-//                    "SELECT ID_EXPERIENCE, LIBELLE_EXP, TYPE_EXP, DATE_DEMANDE, NOM_EQUIPE, STATUT_EXP "
-//                    + "FROM EXPERIENCE "
-//                    + "JOIN EQUIPE ON EXPERIENCE.EMAIL_EQUIPE = EQUIPE.EMAIL_EQUIPE");
-//            //setCellValueFactory du tableau affiché
-//            for (int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
-//                //We are using non property style for making dynamic table
-//                final int j = i;
-//                TableColumn col = new TableColumn(rs.getMetaData().getColumnName(i + 1));
-//                col.setCellValueFactory(new Callback<CellDataFeatures<ObservableList, String>, ObservableValue<String>>() {
-//                    publiremi c ObservableValue<String> call(CellDataFeatures<ObservableList, String> param) {
-//                        return new SimpleStringProperty(param.getValue().get(j).toString());
-//                    }
-//                });
-//                viewTableView.getColumns().addAll(col);
-//                System.out.println("Column [" + i + "] ");
-//            }
-//            //Insertion des données dans le tableau
-//            while (rs.next()) {
-//                //Iterate Row
-//                ObservableList<String> row = FXCollections.observableArrayList();
-//                for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
-//                    //Iterate Column
-//                    row.add(rs.getString(i));
-//                }
-//                System.out.println("Row [1] added " + row);
-//                viewData.add(row);
-//            }
-//            viewTable.setItems(viewData);
-//        } catch (SQLException e) {
-//            System.out.println(e);
-//        }
+        TableExp();
         //Gestion des pages et de l'UX
         eyeIcon.setImage(new Image(getClass().getResource("eye_white.png").toExternalForm()));
         addIcon.setImage(new Image(getClass().getResource("add_black.png").toExternalForm()));
@@ -674,8 +644,7 @@ public class FXMLDocumentController implements Initializable {
                         warningLabel.setText("");
                         warningLabel.setText("Une valeur saisie est incorrecte.");
                         warningLabel.setVisible(true);
-                    } 
-                    else if (errorCode == 2290) {
+                    } else if (errorCode == 2290) {
                         warningLabel.setText("");
                         warningLabel.setText("La valeur de a1 doit être supérieure à celle de a2.");
                         warningLabel.setVisible(true);
@@ -747,6 +716,86 @@ public class FXMLDocumentController implements Initializable {
     private void sendResults(ActionEvent event
     ) {
         //
+    }
+
+    //remise à 0 de la table view
+    public void TableExp() {
+        viewTableView.getColumns().clear();
+        //récupération de toutes les expériences
+        try {
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT ID_EXPERIENCE, NOM_EQUIPE, LIBELLE_EXP, NB_SLOT, DATE_DEMANDE, DATE_DEB_EXP, STATUT_EXP, DATE_TRANSMISSION, TYPE_EXP, A1, A2, A3, FREQUENCE, DUREE_EXP, TERMINE FROM EXPERIENCE JOIN EQUIPE USING(EMAIL_EQUIPE)");
+            while (rs.next()) {
+                Experience experience = new Experience(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getInt(4), rs.getString(5), rs.getString(6), rs.getString(7), rs.getString(8), rs.getString(9), rs.getInt(10), rs.getInt(11), rs.getInt(12), rs.getInt(13), rs.getInt(14), rs.getInt(15));
+
+                listExp.add(experience);
+            }
+        } catch (SQLException ex) {
+            //
+        }
+        System.out.println(listExp);
+
+        TableColumn<Experience, String> colonneLibelle = new TableColumn<>("Libelle");
+        colonneLibelle.setCellValueFactory(new PropertyValueFactory("libelle"));
+        colonneLibelle.setStyle("-fx-alignment: CENTER;");
+        ///////////////////////////////////////////////////////////////////////////
+        TableColumn<Experience, String> colonneDateDemande = new TableColumn<>("Date de demande");
+        colonneDateDemande.setCellValueFactory(new PropertyValueFactory("date_demande"));
+        colonneDateDemande.setStyle("-fx-alignment: CENTER;");
+        ////////////////////////////////////////////////////////////////////////////
+        TableColumn<Experience, String> colonneEquipe = new TableColumn<>("Equipe commanditaire");
+        colonneEquipe.setCellValueFactory(new PropertyValueFactory("email_equipe"));
+        colonneEquipe.setStyle("-fx-alignment: CENTER;");
+        ////////////////////////////////////////////////////////////////////////////////
+        TableColumn<Experience, String> colonneTypeExp = new TableColumn<>("Type d'expérience");
+        colonneTypeExp.setCellValueFactory(new PropertyValueFactory("type_exp"));
+        colonneTypeExp.setStyle("-fx-alignment: CENTER;");
+        ////////////////////////////////////////////////////////////////////////////
+        TableColumn<Experience, String> colonneStatut = new TableColumn<>("Statut");
+        colonneStatut.setCellValueFactory(new PropertyValueFactory("statut"));
+        colonneStatut.setStyle("-fx-alignment: CENTER;");
+        ///////////////////////////////////////////////////////////////////////////
+        TableColumn<Experience, Void> colonneStart = new TableColumn<>("Lancer l'expérience");
+        TableColumn<Experience, Void> colonneDetails = new TableColumn<>("Détails");
+
+        Callback<TableColumn<Experience, Void>, TableCell<Experience, Void>> cellFactory = (final TableColumn<Experience, Void> param) -> {
+            final TableCell<Experience, Void> cell = new TableCell<Experience, Void>() {
+                private final Button btn = new Button();
+                {
+                    btn.setOnAction((ActionEvent event) -> {
+                        //title_label.setText("Editer un étudiant");
+                        //title_icon.setImage(new Image(getClass().getResource("baseline_edit_white_48dp.png").toExternalForm()));
+                        //Etudiant etudiant = getTableView().getItems().get(getIndex());
+                        //home_pane.setVisible(false);
+                        //add_pane.setVisible(false);
+                        //edit_pane.setVisible(true);
+                        //edit_name_field.setText(etudiant.getNom());
+                        //edit_surname_field.setText(etudiant.getPrenom());
+                        //edit_year_field.setText(etudiant.getAnneeDeNaissance());
+                        //edit_promotion_field.setText(etudiant.getPromotion());
+                        //index = getIndex();
+                    });
+                }
+
+                @Override
+                public void updateItem(Void item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty) {
+                        setGraphic(null);
+                    } else {
+                        setGraphic(btn);
+                        setStyle("-fx-alignment : CENTER;");
+                        btn.setGraphic(new ImageView(new Image(getClass().getResource("eye_black.png").toExternalForm(), 20, 20, true, true)));
+                    }
+                }
+            };
+            return cell;
+        };
+        //editerColonne.setCellFactory(cellFactory);
+        //personTable.getColumns().add(editerColonne);
+
+        viewTableView.setItems(listExp);
+        viewTableView.getColumns().addAll(colonneLibelle, colonneEquipe, colonneDateDemande, colonneTypeExp, colonneStart, colonneStatut, colonneDetails);
     }
 
     /**
