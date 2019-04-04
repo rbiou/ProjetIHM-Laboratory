@@ -73,6 +73,7 @@ public class FXMLDocumentController implements Initializable {
     private Connection con;
     private ObservableList<Experience> listExp = FXCollections.observableArrayList();
     private ArrayList<ArrayList> new_slots;
+    private Experience experience; 
 
     /**
      * Méthode qui permet de connecter l'utilisateur à notre application en
@@ -718,16 +719,15 @@ public class FXMLDocumentController implements Initializable {
         //
     }
 
-    //remise à 0 de la table view
     public void TableExp() {
+        //remise à 0 de la table view
         viewTableView.getColumns().clear();
         //récupération de toutes les expériences
         try {
             Statement stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT ID_EXPERIENCE, NOM_EQUIPE, LIBELLE_EXP, NB_SLOT, DATE_DEMANDE, DATE_DEB_EXP, STATUT_EXP, DATE_TRANSMISSION, TYPE_EXP, A1, A2, A3, FREQUENCE, DUREE_EXP, TERMINE FROM EXPERIENCE JOIN EQUIPE USING(EMAIL_EQUIPE)");
             while (rs.next()) {
-                Experience experience = new Experience(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getInt(4), rs.getString(5), rs.getString(6), rs.getString(7), rs.getString(8), rs.getString(9), rs.getInt(10), rs.getInt(11), rs.getInt(12), rs.getInt(13), rs.getInt(14), rs.getInt(15));
-
+                experience = new Experience(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getInt(4), rs.getString(5), rs.getString(6), rs.getString(7), rs.getString(8), rs.getString(9), rs.getInt(10), rs.getInt(11), rs.getInt(12), rs.getInt(13), rs.getInt(14), rs.getInt(15));
                 listExp.add(experience);
             }
         } catch (SQLException ex) {
@@ -755,12 +755,17 @@ public class FXMLDocumentController implements Initializable {
         colonneStatut.setCellValueFactory(new PropertyValueFactory("statut"));
         colonneStatut.setStyle("-fx-alignment: CENTER;");
         ///////////////////////////////////////////////////////////////////////////
+        viewTableView.setItems(listExp);
+        viewTableView.getColumns().addAll(colonneLibelle, colonneEquipe, colonneDateDemande, colonneTypeExp, colonneStatut);
+
         TableColumn<Experience, Void> colonneStart = new TableColumn<>("Lancer l'expérience");
         TableColumn<Experience, Void> colonneDetails = new TableColumn<>("Détails");
 
-        Callback<TableColumn<Experience, Void>, TableCell<Experience, Void>> cellFactory = (final TableColumn<Experience, Void> param) -> {
+        Callback<TableColumn<Experience, Void>, TableCell<Experience, Void>> cellFactory;
+        cellFactory = (final TableColumn<Experience, Void> param) -> {
             final TableCell<Experience, Void> cell = new TableCell<Experience, Void>() {
                 private final Button btn = new Button();
+
                 {
                     btn.setOnAction((ActionEvent event) -> {
                         //title_label.setText("Editer un étudiant");
@@ -783,19 +788,24 @@ public class FXMLDocumentController implements Initializable {
                     if (empty) {
                         setGraphic(null);
                     } else {
-                        setGraphic(btn);
-                        setStyle("-fx-alignment : CENTER;");
-                        btn.setGraphic(new ImageView(new Image(getClass().getResource("eye_black.png").toExternalForm(), 20, 20, true, true)));
+                        if ("à faire".equals(experience.getStatut())) {
+                            setGraphic(btn);
+                            setStyle("-fx-alignment : CENTER;");
+                            btn.setGraphic(new ImageView(new Image(getClass().getResource("play.png").toExternalForm(), 20, 20, true, true)));
+                        }
+                        else {
+                            setGraphic(btn);
+                            setStyle("-fx-alignment : CENTER;");
+                            btn.setGraphic(new ImageView(new Image(getClass().getResource("stop.png").toExternalForm(), 20, 20, true, true)));
+                        }
                     }
                 }
             };
             return cell;
         };
-        //editerColonne.setCellFactory(cellFactory);
-        //personTable.getColumns().add(editerColonne);
+        colonneStart.setCellFactory(cellFactory);
+        viewTableView.getColumns().add(colonneStart);
 
-        viewTableView.setItems(listExp);
-        viewTableView.getColumns().addAll(colonneLibelle, colonneEquipe, colonneDateDemande, colonneTypeExp, colonneStart, colonneStatut, colonneDetails);
     }
 
     /**
