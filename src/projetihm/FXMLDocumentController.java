@@ -49,7 +49,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private ScrollPane viewdetailsPanel, plaqueScrollPane;
     @FXML
-    private Label fonctionLabel, welcomeLabel, loginErrorLabel, frequenceLabel, a3Label, frequenceviewLabel, a3viewLabel, datalibelleLabel, dataequipeLabel, datastatutLabel, dataa1Label, dataa2Label, datadatetransmissionLabel, datafrequenceLabel, datatypeLabel, datadatedemandeLabel, datadatedebutLabel, datanbslotsLabel, datadureeLabel, dataa3Label, slotsRestantsLabel, warningLabel, warningUpletLabel;
+    private Label datasuiviLabel, fonctionLabel, welcomeLabel, loginErrorLabel, frequenceLabel, a3Label, frequenceviewLabel, a3viewLabel, datalibelleLabel, dataequipeLabel, datastatutLabel, dataa1Label, dataa2Label, datadatetransmissionLabel, datafrequenceLabel, datatypeLabel, datadatedemandeLabel, datadatedebutLabel, datanbslotsLabel, datadureeLabel, dataa3Label, slotsRestantsLabel, warningLabel, warningUpletLabel;
     @FXML
     private TableView viewTable;
     @FXML
@@ -73,7 +73,6 @@ public class FXMLDocumentController implements Initializable {
     private Connection con;
     private ObservableList<Experience> listExp = FXCollections.observableArrayList();
     private ArrayList<ArrayList> new_slots;
-    private Experience experience; 
 
     /**
      * Méthode qui permet de connecter l'utilisateur à notre application en
@@ -455,6 +454,7 @@ public class FXMLDocumentController implements Initializable {
         insertPanel.setVisible(false);
         upletPanel.setVisible(false);
         plaqueScrollPane.setVisible(false);
+        viewdetailsPanel.setVisible(false);
     }
 
     /**
@@ -719,7 +719,8 @@ public class FXMLDocumentController implements Initializable {
         //
     }
 
-    public void TableExp() {
+    public void reloadTableView() {
+        listExp.clear();
         //remise à 0 de la table view
         viewTableView.getColumns().clear();
         //récupération de toutes les expériences
@@ -727,7 +728,7 @@ public class FXMLDocumentController implements Initializable {
             Statement stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT ID_EXPERIENCE, NOM_EQUIPE, LIBELLE_EXP, NB_SLOT, DATE_DEMANDE, DATE_DEB_EXP, STATUT_EXP, DATE_TRANSMISSION, TYPE_EXP, A1, A2, A3, FREQUENCE, DUREE_EXP, TERMINE FROM EXPERIENCE JOIN EQUIPE USING(EMAIL_EQUIPE)");
             while (rs.next()) {
-                experience = new Experience(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getInt(4), rs.getString(5), rs.getString(6), rs.getString(7), rs.getString(8), rs.getString(9), rs.getInt(10), rs.getInt(11), rs.getInt(12), rs.getInt(13), rs.getInt(14), rs.getInt(15));
+                Experience experience = new Experience(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getInt(4), rs.getString(5), rs.getString(6), rs.getString(7), rs.getString(8), rs.getString(9), rs.getInt(10), rs.getInt(11), rs.getInt(12), rs.getInt(13), rs.getInt(14), rs.getInt(15));
                 listExp.add(experience);
             }
         } catch (SQLException ex) {
@@ -757,28 +758,100 @@ public class FXMLDocumentController implements Initializable {
         ///////////////////////////////////////////////////////////////////////////
         viewTableView.setItems(listExp);
         viewTableView.getColumns().addAll(colonneLibelle, colonneEquipe, colonneDateDemande, colonneTypeExp, colonneStatut);
+    }
 
-        TableColumn<Experience, Void> colonneStart = new TableColumn<>("Lancer l'expérience");
-        TableColumn<Experience, Void> colonneDetails = new TableColumn<>("Détails");
+    public void TableExp() {
+        reloadTableView();
+        TableColumn<Experience, Void> colonneStart = new TableColumn<>("Gestion de l'expérience");
 
         Callback<TableColumn<Experience, Void>, TableCell<Experience, Void>> cellFactory;
         cellFactory = (final TableColumn<Experience, Void> param) -> {
             final TableCell<Experience, Void> cell = new TableCell<Experience, Void>() {
-                private final Button btn = new Button();
+                private final Button btnPlay = new Button();
 
                 {
-                    btn.setOnAction((ActionEvent event) -> {
-                        //title_label.setText("Editer un étudiant");
-                        //title_icon.setImage(new Image(getClass().getResource("baseline_edit_white_48dp.png").toExternalForm()));
-                        //Etudiant etudiant = getTableView().getItems().get(getIndex());
-                        //home_pane.setVisible(false);
-                        //add_pane.setVisible(false);
-                        //edit_pane.setVisible(true);
-                        //edit_name_field.setText(etudiant.getNom());
-                        //edit_surname_field.setText(etudiant.getPrenom());
-                        //edit_year_field.setText(etudiant.getAnneeDeNaissance());
-                        //edit_promotion_field.setText(etudiant.getPromotion());
-                        //index = getIndex();
+                    btnPlay.setOnAction((ActionEvent event) -> {
+                        int Idexperience = getTableView().getItems().get(getIndex()).getId_exp();
+                        try {
+                            Statement stmt = con.createStatement();
+                            ResultSet rs = stmt.executeQuery("UPDATE EXPERIENCE SET STATUT_EXP = 'en cours' WHERE ID_EXPERIENCE = " + Idexperience + " ");
+                            TableExp();
+                        } catch (SQLException ex) {
+                            //
+                        }
+                    });
+                }
+                private final Button btnStop = new Button();
+
+                {
+                    btnStop.setOnAction((ActionEvent event) -> {
+                        int Idexperience = getTableView().getItems().get(getIndex()).getId_exp();
+                        try {
+                            Statement stmt = con.createStatement();
+                            ResultSet rs = stmt.executeQuery("UPDATE EXPERIENCE SET TERMINE = 1 WHERE ID_EXPERIENCE = " + Idexperience + " ");
+                        } catch (SQLException ex) {
+                            //
+                        }
+                        TableExp();
+                    });
+                }
+                private final Label termine = new Label("Terminée");
+
+                @Override
+                public void updateItem(Void item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty) {
+                        setGraphic(null);
+                    } else {
+                        Experience experience = getTableView().getItems().get(getIndex());
+                        if ("en cours".equals(experience.getStatut())) {
+                            btnStop.setGraphic(new ImageView(new Image(getClass().getResource("stop.png").toExternalForm(), 20, 20, true, true)));
+                            setGraphic(btnStop);
+                            setStyle("-fx-alignment : CENTER;");
+                        } else if ("à faire".equals(experience.getStatut())) {
+                            setStyle("-fx-alignment : CENTER;");
+                            btnPlay.setGraphic(new ImageView(new Image(getClass().getResource("play.png").toExternalForm(), 20, 20, true, true)));
+                            setGraphic(btnPlay);
+                        } else if ("acceptée".equals(experience.getStatut()) || "refusée".equals(experience.getStatut())) {
+                            setStyle("-fx-alignment : CENTER;");
+                            setGraphic(termine);
+                        }
+                    }
+                }
+            };
+            return cell;
+        };
+        colonneStart.setCellFactory(cellFactory);
+        viewTableView.getColumns().add(colonneStart);
+
+        TableColumn<Experience, Void> colonneDetails = new TableColumn<>("Détails");
+        Callback<TableColumn<Experience, Void>, TableCell<Experience, Void>> cellFactoryDetails;
+        cellFactoryDetails = (final TableColumn<Experience, Void> param) -> {
+            final TableCell<Experience, Void> cellDetails = new TableCell<Experience, Void>() {
+                private final Button btnDetails = new Button();
+                {
+                    btnDetails.setOnAction((ActionEvent event) -> {
+                        int Idexperience = getTableView().getItems().get(getIndex()).getId_exp();
+                        viewdetailsPanel.setVisible(true);
+                        datalibelleLabel.setText(getTableView().getItems().get(getIndex()).getLibelle());
+                        dataequipeLabel.setText(getTableView().getItems().get(getIndex()).getEmail_equipe());
+                        datastatutLabel.setText(getTableView().getItems().get(getIndex()).getStatut());
+                        dataa1Label.setText(String.valueOf(getTableView().getItems().get(getIndex()).getA1()));
+                        dataa2Label.setText(String.valueOf(getTableView().getItems().get(getIndex()).getA2()));
+                        datadatetransmissionLabel.setText(getTableView().getItems().get(getIndex()).getDate_transmission());
+                        datafrequenceLabel.setText(String.valueOf(getTableView().getItems().get(getIndex()).getFrequence()));
+                        datatypeLabel.setText(getTableView().getItems().get(getIndex()).getType_exp());
+                        datadatedemandeLabel.setText(getTableView().getItems().get(getIndex()).getDate_demande());
+                        datadatedebutLabel.setText(getTableView().getItems().get(getIndex()).getDate_deb());
+                        datanbslotsLabel.setText(String.valueOf(getTableView().getItems().get(getIndex()).getNb_slot()));
+                        datadureeLabel.setText(String.valueOf(getTableView().getItems().get(getIndex()).getDuree()));
+                        if (getTableView().getItems().get(getIndex()).getA3() == 0) {
+                            datasuiviLabel.setText("NON");
+                        } else {
+                            datasuiviLabel.setText("OUI");
+                        }
+
+                        dataa3Label.setText(String.valueOf(getTableView().getItems().get(getIndex()).getA3()));
                     });
                 }
 
@@ -788,23 +861,16 @@ public class FXMLDocumentController implements Initializable {
                     if (empty) {
                         setGraphic(null);
                     } else {
-                        if ("à faire".equals(experience.getStatut())) {
-                            setGraphic(btn);
-                            setStyle("-fx-alignment : CENTER;");
-                            btn.setGraphic(new ImageView(new Image(getClass().getResource("play.png").toExternalForm(), 20, 20, true, true)));
-                        }
-                        else {
-                            setGraphic(btn);
-                            setStyle("-fx-alignment : CENTER;");
-                            btn.setGraphic(new ImageView(new Image(getClass().getResource("stop.png").toExternalForm(), 20, 20, true, true)));
-                        }
+                        btnDetails.setGraphic(new ImageView(new Image(getClass().getResource("details.png").toExternalForm(), 20, 20, true, true)));
+                        setGraphic(btnDetails);
+                        setStyle("-fx-alignment : CENTER;");
                     }
                 }
             };
-            return cell;
+            return cellDetails;
         };
-        colonneStart.setCellFactory(cellFactory);
-        viewTableView.getColumns().add(colonneStart);
+        colonneDetails.setCellFactory(cellFactoryDetails);
+        viewTableView.getColumns().add(colonneDetails);
 
     }
 
@@ -850,3 +916,4 @@ public class FXMLDocumentController implements Initializable {
         connectServer();
     }
 }
+
