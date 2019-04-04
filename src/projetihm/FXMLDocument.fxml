@@ -20,9 +20,9 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="AnchorPane" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/8.0.191" xmlns:fx="http://javafx.com/fxml/1" fx:controller="projetihm.FXMLDocumentController">
+<AnchorPane id="AnchorPane" prefHeight="800.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.191" xmlns:fx="http://javafx.com/fxml/1" fx:controller="projetihm.FXMLDocumentController">
     <children>
-        <AnchorPane fx:id="navPanel" prefHeight="500.0" prefWidth="700.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <AnchorPane fx:id="navPanel" onKeyPressed="#keyPressed" onKeyReleased="#keyRealeased" prefHeight="500.0" prefWidth="700.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <children>
                 <AnchorPane prefHeight="500.0" prefWidth="110.0" style="-fx-background-color: #88d9e6;" AnchorPane.bottomAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <children>
@@ -507,7 +507,7 @@
                                 </Label>
                                 <ComboBox fx:id="choixPlaqueComboBox" layoutX="270.0" layoutY="224.0" onAction="#setSlotsPositionChecker" prefHeight="25.0" prefWidth="137.0" promptText="Sélectionner une plaque" />
                                 <Button fx:id="AjoutPlaqueButton" layoutX="473.0" layoutY="295.0" mnemonicParsing="false" onAction="#connectUser" style="-fx-background-color: #88d9e6;" text="Ajouter la plaque" visible="false" />
-                                <ComboBox fx:id="choixExperienceComboBox" layoutX="304.0" layoutY="104.0" prefHeight="25.0" prefWidth="137.0" promptText="Sélectionner un réplicat" />
+                                <ComboBox fx:id="choixExperienceComboBox" layoutX="304.0" layoutY="104.0" onAction="#setSlotsPositionChecker" prefHeight="25.0" prefWidth="137.0" promptText="Sélectionner un réplicat" />
                                 <Label fx:id="choixExperienceLabel" layoutX="150.0" layoutY="106.0" text="Choisir une expérience : ">
                                     <font>
                                         <Font size="14.0" />
