@@ -32,6 +32,9 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
 import javafx.util.Callback;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.KeyCode;
+import static javafx.scene.input.KeyCode.CONTROL;
 
 /**
  * Controller de notre application de gestion de laboratoire
@@ -69,13 +72,15 @@ public class FXMLDocumentController implements Initializable {
     //Variables d'environnement user
     private static String nameUser, functionUser;
     //Variables non-FXML
-    private Integer existingUser, slots_to_check, nb_checked_slots, c, l;
+    private Integer existingUser, slots_to_check, nb_checked_slots, c, l, slots_by_uplet;
     private Connection con;
     private ObservableList<Experience> listExp = FXCollections.observableArrayList();
     private ObservableList<Experience> listExpSearchDate = FXCollections.observableArrayList();
     private ObservableList<Experience> listExpSearchEquipe = FXCollections.observableArrayList();
     private ObservableList<Experience> listExpSearchStatut = FXCollections.observableArrayList();
     private ArrayList<ArrayList> new_slots;
+    private boolean controlPressed = false;
+    private ArrayList<Integer> uplets_to_attribute;
 
     /**
      * Méthode qui permet de connecter l'utilisateur à notre application en
