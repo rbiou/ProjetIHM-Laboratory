@@ -53,9 +53,9 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private TableView viewTable;
     @FXML
-    private TextField mailTextField, passwordTextField, frequenceTextField, a3TextField, libelleTextField, a1TextField, a2TextField, nbSlotTextField, dureeExpTextField, qteCelluleTextField, qteAgentTextField;
+    private TextField searchstatutTextField, searchEquipeTextField, mailTextField, passwordTextField, frequenceTextField, a3TextField, libelleTextField, a1TextField, a2TextField, nbSlotTextField, dureeExpTextField, qteCelluleTextField, qteAgentTextField;
     @FXML
-    private DatePicker dateDemandeDate;
+    private DatePicker dateDemandeDate, searchdateTextField;
     @FXML
     private RadioButton ouiRadio, nonRadio;
     @FXML
@@ -72,6 +72,9 @@ public class FXMLDocumentController implements Initializable {
     private Integer existingUser, slots_to_check, nb_checked_slots, c, l;
     private Connection con;
     private ObservableList<Experience> listExp = FXCollections.observableArrayList();
+    private ObservableList<Experience> listExpSearchDate = FXCollections.observableArrayList();
+    private ObservableList<Experience> listExpSearchEquipe = FXCollections.observableArrayList();
+    private ObservableList<Experience> listExpSearchStatut = FXCollections.observableArrayList();
     private ArrayList<ArrayList> new_slots;
 
     /**
@@ -702,9 +705,51 @@ public class FXMLDocumentController implements Initializable {
      * @param event
      */
     @FXML
-    private void searchExperience(ActionEvent event
-    ) {
-        //
+    private void searchExperience(ActionEvent event) {
+
+        listExpSearchStatut.clear();
+        listExpSearchEquipe.clear();
+        listExpSearchDate.clear();
+
+        for (int i = 0; i < listExp.size(); i++) {
+            if (listExp.get(i).getStatut().equals(searchstatutTextField.getText())) {
+                listExpSearchStatut.add(listExp.get(i));
+            }
+        }
+        ///////////////////////////////////////////////////////////////////////
+        for (int i = 0; i < listExp.size(); i++) {
+            if (listExp.get(i).getEmail_equipe().equals(searchEquipeTextField.getText())) {
+                listExpSearchEquipe.add(listExp.get(i));
+            }
+        }
+        ///////////////////////////////////////////////////////////////////////        
+        LocalDate localdate = searchdateTextField.getValue();
+        
+        if (localdate != null) {
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd 00:00:00");
+            String searchDate = localdate.format(dateTimeFormatter);
+            System.out.println(searchDate);
+            for (int i = 0; i < listExp.size(); i++) {
+                System.out.println(listExp.get(i).getDate_demande());
+                if (listExp.get(i).getDate_demande().equals(searchDate)) {
+                    listExpSearchDate.add(listExp.get(i));
+                }
+            }
+        }
+        System.out.println(listExpSearchStatut);
+        System.out.println(listExpSearchEquipe);
+        System.out.println(listExpSearchDate);
+
+        if (searchEquipeTextField.getText().isEmpty() == true && localdate == null && searchstatutTextField.getText().isEmpty() == false) {
+            viewTableView.setItems(listExpSearchStatut);
+        } else if (searchstatutTextField.getText().isEmpty() == true && localdate == null && searchEquipeTextField.getText().isEmpty() == false) {
+            viewTableView.setItems(listExpSearchEquipe);
+        } else if (searchEquipeTextField.getText().isEmpty() == true && searchstatutTextField.getText().isEmpty() == true && localdate != null) {
+            viewTableView.setItems(listExpSearchDate);
+        }
+        
+        
+        viewTableView.refresh();
     }
 
     /**
@@ -734,7 +779,6 @@ public class FXMLDocumentController implements Initializable {
         } catch (SQLException ex) {
             //
         }
-        System.out.println(listExp);
 
         TableColumn<Experience, String> colonneLibelle = new TableColumn<>("Libelle");
         colonneLibelle.setCellValueFactory(new PropertyValueFactory("libelle"));
@@ -829,6 +873,7 @@ public class FXMLDocumentController implements Initializable {
         cellFactoryDetails = (final TableColumn<Experience, Void> param) -> {
             final TableCell<Experience, Void> cellDetails = new TableCell<Experience, Void>() {
                 private final Button btnDetails = new Button();
+
                 {
                     btnDetails.setOnAction((ActionEvent event) -> {
                         int Idexperience = getTableView().getItems().get(getIndex()).getId_exp();
