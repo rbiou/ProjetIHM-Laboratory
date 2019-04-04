@@ -227,7 +227,7 @@ public class FXMLDocumentController implements Initializable {
         expIcon.setImage(new Image(getClass().getResource("flask_black.png").toExternalForm()));
     }
 
-    /**
+        /**
      * Méthode permettant l'affichage du panel central permettant la gestion des
      * plaques et le positionnement des puits ainsi que la gestion de l'UX des
      * menus (surlignage du module où navigue l'utilisateur)
@@ -242,7 +242,8 @@ public class FXMLDocumentController implements Initializable {
             ResultSet rs = stmt.executeQuery(
                     "SELECT ID_EXPERIENCE, LIBELLE_EXP, NOM_EQUIPE "
                     + "FROM EXPERIENCE "
-                    + "JOIN EQUIPE ON EXPERIENCE.EMAIL_EQUIPE = EQUIPE.EMAIL_EQUIPE");
+                    + "JOIN EQUIPE ON EXPERIENCE.EMAIL_EQUIPE = EQUIPE.EMAIL_EQUIPE "
+                    + "WHERE STATUT_EXP = 'en cours'");
             while (rs.next()) {
                 choixExperienceComboBox.getItems().add(rs.getString(1) + " - " + rs.getString(2) + " - Equipe " + rs.getString(3));
             }
@@ -282,6 +283,8 @@ public class FXMLDocumentController implements Initializable {
      */
     @FXML
     private void setSlotsPositionChecker(ActionEvent event) {
+        //Vide la plaque précédente
+        rectPlaque.getChildren().clear();
         //Initialisation du nombre de slots cochés
         nb_checked_slots = 0;
         if (choixPlaqueComboBox.getValue() != null && choixExperienceComboBox.getValue() != null) {
@@ -289,6 +292,8 @@ public class FXMLDocumentController implements Initializable {
             ArrayList<ArrayList> taken_slots = new ArrayList<>();
             //Liste des slots/réplicas cochés par l'utilisateur
             new_slots = new ArrayList<ArrayList>();
+            //Liste des uplets à placer pour l'expérience sélectionnée
+            uplets_to_attribute = new ArrayList<Integer>();
             //Recherche des propriétés de la plaque : slots disponibles, slots occupés
             try {
                 Statement stmt = con.createStatement();
@@ -315,14 +320,22 @@ public class FXMLDocumentController implements Initializable {
                 System.out.println(e);
             }
             try {
-                Statement stmt = con.createStatement();
+                Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
                 ResultSet rs = stmt.executeQuery(
-                        "SELECT COUNT(*) "
+                        "SELECT ID_UPLET "
                         + "FROM N_UPLET "
-                        + "WHERE ID_EXPERIENCE = " + (choixExperienceComboBox.getValue() + "").split(" ")[0]);
+                        + "WHERE ID_EXPERIENCE = " + (choixExperienceComboBox.getValue() + "").split(" ")[0] + " AND (SELECT COUNT(*) FROM SLOT WHERE ID_UPLET = N_UPLET.ID_UPLET) = 0");
                 while (rs.next()) {
-                    slots_to_check = slots_to_check * rs.getInt(1);
+                    uplets_to_attribute.add(rs.getInt(1));
+                    slots_by_uplet = rs.getInt(1);
                 }
+                int size = 0;
+                if (rs != null) {
+                    rs.beforeFirst();
+                    rs.last();
+                    size = rs.getRow();
+                }
+                slots_to_check = slots_to_check * size;
             } catch (SQLException e) {
                 System.out.println(e);
             }
@@ -336,7 +349,6 @@ public class FXMLDocumentController implements Initializable {
             l = 0;
             Integer i, j;
             //Si la plaque de culture à 96 puits, alors l'affichage doit être sous forme de 12 colonnes et 8 lignes 
-
             if ("96".equals(
                     (choixPlaqueComboBox.getValue() + "").split(" ")[4])) {
                 c = 12;
@@ -361,30 +373,31 @@ public class FXMLDocumentController implements Initializable {
                         RadioButton availableButton = new RadioButton();
                         availableButton.setStyle("-fx-mark-highlight-color: #88d9e6 ; -fx-mark-color: #88d9e6;");
                         availableButton.setOnMouseEntered((MouseEvent event1) -> {
-                            //Nombre de slots/réplicas cochés
-                            if (availableButton.isSelected() == false && availableButton.isDisabled() == false) {
-                                availableButton.setSelected(true);
-                                nb_checked_slots++;
-                                new_slots.add(new ArrayList<>(Arrays.asList(GridPane.getColumnIndex(availableButton), GridPane.getRowIndex(availableButton))));
-                            } else if (availableButton.isDisabled() == false) {
-                                availableButton.setSelected(false);
-                                nb_checked_slots--;
-                                new_slots.remove(new ArrayList<>(Arrays.asList(GridPane.getColumnIndex(availableButton), GridPane.getRowIndex(availableButton))));
-                            }
-                            System.out.println(new_slots);
-                            if (slots_to_check - nb_checked_slots > 0) {
-                                slotsRestantsLabel.setVisible(true);
-                                slotsRestantsLabel.setText((slots_to_check - nb_checked_slots) + " puits restants à déterminer");
-                                ObservableList<Node> childrens = rectPlaque.getChildren();
-                                childrens.stream().map((node) -> (RadioButton) node).filter((cb) -> (cb.isSelected() == false && cb.isDisabled())).forEachOrdered((cb) -> {
-                                    cb.setDisable(false);
-                                });
-                            } else if (slots_to_check - nb_checked_slots == 0) {
-                                slotsRestantsLabel.setVisible(false);
-                                ObservableList<Node> childrens = rectPlaque.getChildren();
-                                childrens.stream().map((node) -> (RadioButton) node).filter((cb) -> (cb.isSelected() == false)).forEachOrdered((cb) -> {
-                                    cb.setDisable(true);
-                                });
+                            if (controlPressed) {
+                                //Nombre de slots/réplicas cochés
+                                if (availableButton.isSelected() == false && availableButton.isDisabled() == false) {
+                                    availableButton.setSelected(true);
+                                    nb_checked_slots++;
+                                    new_slots.add(new ArrayList<>(Arrays.asList(GridPane.getColumnIndex(availableButton), GridPane.getRowIndex(availableButton))));
+                                } else if (availableButton.isDisabled() == false) {
+                                    availableButton.setSelected(false);
+                                    nb_checked_slots--;
+                                    new_slots.remove(new ArrayList<>(Arrays.asList(GridPane.getColumnIndex(availableButton), GridPane.getRowIndex(availableButton))));
+                                }
+                                if (slots_to_check - nb_checked_slots > 0) {
+                                    slotsRestantsLabel.setVisible(true);
+                                    slotsRestantsLabel.setText((slots_to_check - nb_checked_slots) + " puits restants à déterminer");
+                                    ObservableList<Node> childrens = rectPlaque.getChildren();
+                                    childrens.stream().map((node) -> (RadioButton) node).filter((cb) -> (cb.isSelected() == false && cb.isDisabled())).forEachOrdered((cb) -> {
+                                        cb.setDisable(false);
+                                    });
+                                } else if (slots_to_check - nb_checked_slots == 0) {
+                                    slotsRestantsLabel.setVisible(false);
+                                    ObservableList<Node> childrens = rectPlaque.getChildren();
+                                    childrens.stream().map((node) -> (RadioButton) node).filter((cb) -> (cb.isSelected() == false)).forEachOrdered((cb) -> {
+                                        cb.setDisable(true);
+                                    });
+                                }
                             }
                         });
                         rectPlaque.add(availableButton, j, i);
@@ -393,22 +406,49 @@ public class FXMLDocumentController implements Initializable {
                 }
                 i++;
             }
-            //Redimensionnement de l'affichage des colonnes de manière égale selon le nombre de colonnes de puits
-            for (i = 1;
-                    i < c;
-                    i++) {
-                ColumnConstraints colConst = new ColumnConstraints();
-                colConst.setPercentWidth(100.0 / c);
-                rectPlaque.getColumnConstraints().add(colConst);
+            //MAJ des dimensions de la plaque à afficher
+            majDimensionsPlaque();
+            if (slots_to_check - nb_checked_slots > 0) {
+                slotsRestantsLabel.setVisible(true);
+                slotsRestantsLabel.setText((slots_to_check - nb_checked_slots) + " puits restants à déterminer");
+                ObservableList<Node> childrens = rectPlaque.getChildren();
+                childrens.stream().map((node) -> (RadioButton) node).filter((cb) -> (cb.isSelected() == false && cb.isDisabled())).forEachOrdered((cb) -> {
+                    cb.setDisable(false);
+                });
+            } else if (slots_to_check - nb_checked_slots == 0) {
+                slotsRestantsLabel.setVisible(false);
+                ObservableList<Node> childrens = rectPlaque.getChildren();
+                childrens.stream().map((node) -> (RadioButton) node).filter((cb) -> (cb.isSelected() == false)).forEachOrdered((cb) -> {
+                    cb.setDisable(true);
+                });
             }
-            //Redimensionnement de l'affichage des lignes de manière égale selon le nombre de lignes de puits
-            for (i = 1;
-                    i < l;
-                    i++) {
-                RowConstraints rowConst = new RowConstraints();
-                rowConst.setPercentHeight(100.0 / l);
-                rectPlaque.getRowConstraints().add(rowConst);
-            }
+        }
+    }
+
+    /**
+     * Méthode permettant la MAJ des dimensions de la plaque où l'on sélectionne
+     * les emplacements des puits, pour un affichage optimal selon configuration
+     * 96/384 puits
+     */
+    private void majDimensionsPlaque() {
+        rectPlaque.getRowConstraints().clear();
+        rectPlaque.getColumnConstraints().clear();
+        Integer i = 0;
+        //Redimensionnement de l'affichage des colonnes de manière égale selon le nombre de colonnes de puits
+        for (i = 1;
+                i < c;
+                i++) {
+            ColumnConstraints colConst = new ColumnConstraints();
+            colConst.setPercentWidth(100.0 / c);
+            rectPlaque.getColumnConstraints().add(colConst);
+        }
+        //Redimensionnement de l'affichage des lignes de manière égale selon le nombre de lignes de puits
+        for (i = 1;
+                i < l;
+                i++) {
+            RowConstraints rowConst = new RowConstraints();
+            rowConst.setPercentHeight(100.0 / l);
+            rectPlaque.getRowConstraints().add(rowConst);
         }
     }
 
@@ -421,14 +461,21 @@ public class FXMLDocumentController implements Initializable {
      */
     @FXML
     private void insertSlots(ActionEvent event) {
-        for (ArrayList new_slot : new_slots) {
-            try {
-                Statement stmt = con.createStatement();
-                ResultSet rs = stmt.executeQuery(
-                        "INSERT INTO SLOT (ID_UPLET, NUM_PLAQUE, X, Y)"
-                        + "VALUES (" + (choixReplicatComboBox.getValue() + "").split("°")[1] + "," + (choixPlaqueComboBox.getValue() + "").split(" ")[2] + "," + new_slot.get(1) + "," + new_slot.get(0) + ")");
-            } catch (SQLException e) {
-                System.out.println(e);
+        //Insertion des slots un par un
+        for (Integer uplet : uplets_to_attribute) {
+            for (int i = 0; i <= slots_by_uplet - 1; i++) {
+                if (new_slots.size() > 0) {
+                    try {
+                        Statement stmt = con.createStatement();
+                        ResultSet rs = stmt.executeQuery(
+                                "INSERT INTO SLOT (ID_UPLET, NUM_PLAQUE, X, Y)"
+                                + " VALUES (" + uplet + "," + (choixPlaqueComboBox.getValue() + "").split(" ")[2] + "," + new_slots.get(0).get(1) + "," + new_slots.get(0).get(0) + ")");
+                    } catch (SQLException e) {
+                        System.out.println(e);
+                    }
+                    new_slots.remove(new_slots.get(0));
+                    System.out.println(new_slots.size());
+                }
             }
         }
         //Remise à Z du nombre de slots cochés
@@ -438,6 +485,34 @@ public class FXMLDocumentController implements Initializable {
         rectPlaque.getChildren().clear();
     }
 
+    /**
+     * Méthode détectant la pression de la touche Ctrl d'un utilisateur (lors de
+     * la sélection des emplacements de slots)
+     *
+     * @param e
+     */
+    @FXML
+    public void keyPressed(KeyEvent e) {
+        KeyCode key = e.getCode();
+        if (key == CONTROL) {
+            controlPressed = true;
+        }
+    }
+
+    /**
+     * Méthode détectant le relachement de la touche Ctrl d'un utilisateur (lors
+     * de la sélection des emplacements de slots)
+     *
+     * @param e
+     */
+    @FXML
+    private void keyRealeased(KeyEvent e) {
+        KeyCode key = e.getCode();
+        if (key == CONTROL) {
+            controlPressed = false;
+        }
+    }
+    
     /**
      * Méthode permettant l'affichage du panel central permettant la
      * visualisation de toutes les expériences stockées ainsi que la gestion de
