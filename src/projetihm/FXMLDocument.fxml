@@ -157,9 +157,9 @@
 
                 <AnchorPane fx:id="viewPanel" layoutX="110.0" layoutY="104.0" prefHeight="398.0" prefWidth="590.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="110.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="104.0">
                     <children>
-                        <TextField layoutX="33.0" layoutY="35.0" promptText="Rechercher par statut..." />
-                        <TextField layoutX="209.0" layoutY="35.0" promptText="Rechercher par équipe..." />
-                        <DatePicker layoutX="380.0" layoutY="35.0" promptText="Rechercher par date..." />
+                        <TextField fx:id="searchstatutTextField" layoutX="33.0" layoutY="35.0" promptText="Rechercher par statut..." />
+                        <TextField fx:id="searchEquipeTextField" layoutX="209.0" layoutY="35.0" promptText="Rechercher par équipe..." />
+                        <DatePicker fx:id="searchdateTextField" layoutX="380.0" layoutY="35.0" promptText="Rechercher par date..." />
                         <Button fx:id="searchButton" layoutX="246.0" layoutY="75.0" mnemonicParsing="false" onAction="#searchExperience" style="-fx-background-color: #88d9e6;" text="Rechercher" />
                         <TableView fx:id="viewTableView" layoutX="33.0" layoutY="127.0" prefHeight="257.0" prefWidth="522.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="130.0">
                             <columnResizePolicy>
