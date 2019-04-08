@@ -21,7 +21,7 @@
 
 <AnchorPane id="AnchorPane" prefHeight="800.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.191" xmlns:fx="http://javafx.com/fxml/1" fx:controller="projetihm.FXMLDocumentController">
     <children>
-        <AnchorPane fx:id="navPanel" onKeyPressed="#keyPressed" onKeyReleased="#keyRealeased" prefHeight="500.0" prefWidth="700.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <AnchorPane fx:id="navPanel" onKeyPressed="#keyPressed" onKeyReleased="#keyRealeased" visible="false" prefHeight="500.0" prefWidth="700.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <children>
                 <AnchorPane prefHeight="500.0" prefWidth="110.0" style="-fx-background-color: #88d9e6;" AnchorPane.bottomAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <children>
@@ -448,7 +448,7 @@
                         </AnchorPane>
                     </content>
                 </ScrollPane>
-                <ScrollPane fx:id="plaqueScrollPane" layoutX="110.0" layoutY="104.0" prefHeight="401.0" prefWidth="621.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="110.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="104.0">
+                <ScrollPane fx:id="plaqueScrollPane" visible="false" layoutX="110.0" layoutY="104.0" prefHeight="401.0" prefWidth="621.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="110.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="104.0">
                     <content>
                         <AnchorPane fx:id="plaquePanel" prefHeight="659.0" prefWidth="621.0">
                             <children>
