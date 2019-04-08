@@ -166,6 +166,7 @@
                                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                             </columnResizePolicy>
                         </TableView>
+                  <Label fx:id="warningSearch" layoutX="358.0" layoutY="79.0" text="Aucun résultat ne correspond à votre recherche." textFill="RED" visible="false" />
                     </children>
                 </AnchorPane>
                 <AnchorPane fx:id="insertPanel" layoutX="110.0" layoutY="104.0" prefHeight="401.0" prefWidth="621.0" visible="false">
@@ -549,3 +550,4 @@
         </AnchorPane>
     </children>
 </AnchorPane>
+
