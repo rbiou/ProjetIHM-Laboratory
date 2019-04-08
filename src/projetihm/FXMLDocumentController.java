@@ -51,19 +51,19 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private ImageView homeIcon, expIcon, upletIcon, eyeIcon, addIcon, plaqueIcon;
     @FXML
-    private AnchorPane topPanel, welcomePanel, navPanel, loginPanel, menuPanel, insertPanel, viewPanel, upletPanel;
+    private AnchorPane topPanel, welcomePanel, navPanel, loginPanel, menuPanel, insertPanel, viewPanel, upletPanel, newPlaquePanel;
     @FXML
     private ScrollPane viewdetailsPanel, plaqueScrollPane;
     @FXML
-    private Label resInfoLabel, warningSearch, datasuiviLabel, fonctionLabel, welcomeLabel, loginErrorLabel, frequenceLabel, a3Label, frequenceviewLabel, a3viewLabel, datalibelleLabel, dataequipeLabel, datastatutLabel, dataa1Label, dataa2Label, datadatetransmissionLabel, datafrequenceLabel, datatypeLabel, datadatedemandeLabel, datadatedebutLabel, datanbslotsLabel, datadureeLabel, dataa3Label, slotsRestantsLabel, warningLabel, warningUpletLabel;
+    private Label resInfoLabel, warningSearch, datasuiviLabel, fonctionLabel, welcomeLabel, loginErrorLabel, frequenceLabel, a3Label, frequenceviewLabel, a3viewLabel, datalibelleLabel, dataequipeLabel, datastatutLabel, dataa1Label, dataa2Label, datadatetransmissionLabel, datafrequenceLabel, datatypeLabel, datadatedemandeLabel, datadatedebutLabel, datanbslotsLabel, datadureeLabel, dataa3Label, slotsRestantsLabel, warningLabel, warningUpletLabel, plaqueErrorLabel;
     @FXML
     private TableView viewTable;
     @FXML
-    private TextField searchstatutTextField, searchEquipeTextField, mailTextField, passwordTextField, frequenceTextField, a3TextField, libelleTextField, a1TextField, a2TextField, nbSlotTextField, dureeExpTextField, qteCelluleTextField, qteAgentTextField;
+    private TextField searchstatutTextField, searchEquipeTextField, mailTextField, passwordTextField, frequenceTextField, a3TextField, libelleTextField, a1TextField, a2TextField, nbSlotTextField, dureeExpTextField, qteCelluleTextField, qteAgentTextField, numPlaqueTextField;
     @FXML
     private DatePicker dateDemandeDate, searchdateTextField;
     @FXML
-    private RadioButton ouiRadio, nonRadio;
+    private RadioButton ouiRadio, nonRadio, radioButton96, radioButton384;
     @FXML
     private GridPane rectPlaque;
     @FXML
@@ -92,7 +92,7 @@ public class FXMLDocumentController implements Initializable {
     private boolean controlPressed = false;
     private ArrayList<Integer> uplets_to_attribute;
     private int idExperience; //Id de l'expérience selectionnée pour avoir plus de détails
-    private String dateRecup;
+    private String dateRecup, plaqueUsed;
 
     /**
      * Méthode qui permet de connecter l'utilisateur à notre application en
