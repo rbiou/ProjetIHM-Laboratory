@@ -1,5 +1,6 @@
 package projetihm;
 
+import java.awt.Color;
 import java.sql.*;
 import java.net.URL;
 import java.time.LocalDate;
@@ -35,6 +36,8 @@ import javafx.util.Callback;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.KeyCode;
 import static javafx.scene.input.KeyCode.CONTROL;
+import javafx.scene.layout.Border;
+import javax.swing.BorderFactory;
 
 /**
  * Controller de notre application de gestion de laboratoire
@@ -52,7 +55,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private ScrollPane viewdetailsPanel, plaqueScrollPane;
     @FXML
-    private Label datasuiviLabel, fonctionLabel, welcomeLabel, loginErrorLabel, frequenceLabel, a3Label, frequenceviewLabel, a3viewLabel, datalibelleLabel, dataequipeLabel, datastatutLabel, dataa1Label, dataa2Label, datadatetransmissionLabel, datafrequenceLabel, datatypeLabel, datadatedemandeLabel, datadatedebutLabel, datanbslotsLabel, datadureeLabel, dataa3Label, slotsRestantsLabel, warningLabel, warningUpletLabel;
+    private Label warningSearch, datasuiviLabel, fonctionLabel, welcomeLabel, loginErrorLabel, frequenceLabel, a3Label, frequenceviewLabel, a3viewLabel, datalibelleLabel, dataequipeLabel, datastatutLabel, dataa1Label, dataa2Label, datadatetransmissionLabel, datafrequenceLabel, datatypeLabel, datadatedemandeLabel, datadatedebutLabel, datanbslotsLabel, datadureeLabel, dataa3Label, slotsRestantsLabel, warningLabel, warningUpletLabel;
     @FXML
     private TableView viewTable;
     @FXML
@@ -74,10 +77,15 @@ public class FXMLDocumentController implements Initializable {
     //Variables non-FXML
     private Integer existingUser, slots_to_check, nb_checked_slots, c, l, slots_by_uplet;
     private Connection con;
+    //Decalarations des listes utilisées pour la recherche d'expérience
     private ObservableList<Experience> listExp = FXCollections.observableArrayList();
     private ObservableList<Experience> listExpSearchDate = FXCollections.observableArrayList();
     private ObservableList<Experience> listExpSearchEquipe = FXCollections.observableArrayList();
     private ObservableList<Experience> listExpSearchStatut = FXCollections.observableArrayList();
+    private ObservableList<Experience> listExpSearchStatutEquipe = FXCollections.observableArrayList();
+    private ObservableList<Experience> listExpSearchStatutDate = FXCollections.observableArrayList();
+    private ObservableList<Experience> listExpSearchEquipeDate = FXCollections.observableArrayList();
+     private ObservableList<Experience> listExpSearchAll  = FXCollections.observableArrayList();
     private ArrayList<ArrayList> new_slots;
     private boolean controlPressed = false;
     private ArrayList<Integer> uplets_to_attribute;
@@ -208,6 +216,9 @@ public class FXMLDocumentController implements Initializable {
         upletIcon.setImage(new Image(getClass().getResource("circle_black.png").toExternalForm()));
         homeIcon.setImage(new Image(getClass().getResource("home_black.png").toExternalForm()));
         expIcon.setImage(new Image(getClass().getResource("flask_white.png").toExternalForm()));
+        
+        //chargement du tableau
+        TableExp(); 
     }
 
     /**
@@ -232,7 +243,7 @@ public class FXMLDocumentController implements Initializable {
         expIcon.setImage(new Image(getClass().getResource("flask_black.png").toExternalForm()));
     }
 
-        /**
+    /**
      * Méthode permettant l'affichage du panel central permettant la gestion des
      * plaques et le positionnement des puits ainsi que la gestion de l'UX des
      * menus (surlignage du module où navigue l'utilisateur)
@@ -517,7 +528,7 @@ public class FXMLDocumentController implements Initializable {
             controlPressed = false;
         }
     }
-    
+
     /**
      * Méthode permettant l'affichage du panel central permettant la
      * visualisation de toutes les expériences stockées ainsi que la gestion de
@@ -538,6 +549,14 @@ public class FXMLDocumentController implements Initializable {
         upletPanel.setVisible(false);
         plaqueScrollPane.setVisible(false);
         viewdetailsPanel.setVisible(false);
+        //Remise à 0 des textField de la recherche
+        searchEquipeTextField.clear();
+        searchstatutTextField.clear();
+        searchdateTextField.setValue(null);
+        searchEquipeTextField.setStyle("-fx-border-width:0px");
+        searchstatutTextField.setStyle("-fx-border-width:0px");
+        searchdateTextField.setStyle("-fx-border-width:0px");
+        warningSearch.setText("");
     }
 
     /**
@@ -786,49 +805,101 @@ public class FXMLDocumentController implements Initializable {
      */
     @FXML
     private void searchExperience(ActionEvent event) {
-
+        //Remise à 0 des listes qui stokent les expériences selon la recherche faite par l'utilisateur
         listExpSearchStatut.clear();
         listExpSearchEquipe.clear();
         listExpSearchDate.clear();
-
+        listExpSearchStatutEquipe.clear();
+        listExpSearchStatutDate.clear();
+        listExpSearchEquipeDate.clear();
+        listExpSearchAll.clear();
+        warningSearch.setText("");
+        //Remise à 0 des border des textFields de la recherche
+        searchEquipeTextField.setStyle("-fx-border-width:0px");
+        searchstatutTextField.setStyle("-fx-border-width:0px");
+        searchdateTextField.setStyle("-fx-border-width:0px");
+        
+        //cas où uniquement le statut est renseigné
         for (int i = 0; i < listExp.size(); i++) {
             if (listExp.get(i).getStatut().equals(searchstatutTextField.getText())) {
                 listExpSearchStatut.add(listExp.get(i));
             }
         }
-        ///////////////////////////////////////////////////////////////////////
+        //cas où uniquement l'équipe est renseignée
         for (int i = 0; i < listExp.size(); i++) {
             if (listExp.get(i).getEmail_equipe().equals(searchEquipeTextField.getText())) {
                 listExpSearchEquipe.add(listExp.get(i));
             }
         }
-        ///////////////////////////////////////////////////////////////////////        
+        //cas où uniquement la date est renseignée    
         LocalDate localdate = searchdateTextField.getValue();
-        
         if (localdate != null) {
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd 00:00:00");
             String searchDate = localdate.format(dateTimeFormatter);
-            System.out.println(searchDate);
+            //cas où uniquement la date est renseignée
             for (int i = 0; i < listExp.size(); i++) {
-                System.out.println(listExp.get(i).getDate_demande());
                 if (listExp.get(i).getDate_demande().equals(searchDate)) {
                     listExpSearchDate.add(listExp.get(i));
                 }
             }
+            //La date et l'équipe sont renseignés
+            for (int i = 0; i < listExp.size(); i++) {
+                if (listExp.get(i).getEmail_equipe().equals(searchEquipeTextField.getText()) && listExp.get(i).getDate_demande().equals(searchDate)) {
+                    listExpSearchEquipeDate.add(listExp.get(i));
+                }
+            }
+            //La date et le statut sont renseignés
+            for (int i = 0; i < listExp.size(); i++) {
+                if (listExp.get(i).getStatut().equals(searchstatutTextField.getText()) && listExp.get(i).getDate_demande().equals(searchDate)) {
+                    listExpSearchStatutDate.add(listExp.get(i));
+                }
+            }
+            //La date, le statut et l'équipe sont renseignés
+            for (int i = 0; i < listExp.size(); i++) {
+                if (listExp.get(i).getStatut().equals(searchstatutTextField.getText()) && listExp.get(i).getDate_demande().equals(searchDate) && listExp.get(i).getEmail_equipe().equals(searchEquipeTextField.getText())) {
+                    listExpSearchAll.add(listExp.get(i));
+                }
+            }
         }
-        System.out.println(listExpSearchStatut);
-        System.out.println(listExpSearchEquipe);
-        System.out.println(listExpSearchDate);
 
+        for (int i = 0; i < listExp.size(); i++) {
+            if (listExp.get(i).getEmail_equipe().equals(searchEquipeTextField.getText()) && listExp.get(i).getStatut().equals(searchstatutTextField.getText())) {
+                listExpSearchStatutEquipe.add(listExp.get(i));
+            }
+        }
+        
+        //Affichage du tableau conditionné à la recherche faite par le laborantin
         if (searchEquipeTextField.getText().isEmpty() == true && localdate == null && searchstatutTextField.getText().isEmpty() == false) {
             viewTableView.setItems(listExpSearchStatut);
         } else if (searchstatutTextField.getText().isEmpty() == true && localdate == null && searchEquipeTextField.getText().isEmpty() == false) {
             viewTableView.setItems(listExpSearchEquipe);
         } else if (searchEquipeTextField.getText().isEmpty() == true && searchstatutTextField.getText().isEmpty() == true && localdate != null) {
             viewTableView.setItems(listExpSearchDate);
+        } else if (searchEquipeTextField.getText().isEmpty() == true && localdate != null && searchstatutTextField.getText().isEmpty() == false) {
+            viewTableView.setItems(listExpSearchStatutDate);
+        } else if (searchEquipeTextField.getText().isEmpty() == false && localdate == null && searchstatutTextField.getText().isEmpty() == false) {
+            viewTableView.setItems(listExpSearchStatutEquipe);
+        } else if (searchEquipeTextField.getText().isEmpty() == false && localdate != null && searchstatutTextField.getText().isEmpty() == true) {
+            viewTableView.setItems(listExpSearchEquipeDate);
+        } else if (searchEquipeTextField.getText().isEmpty() == false && localdate != null && searchstatutTextField.getText().isEmpty() == false) {
+            viewTableView.setItems(listExpSearchAll);
+        } 
+        else {
+            //Si els 3 champs sont vides -> erreur
+            searchEquipeTextField.setStyle("-fx-border-color: RED");
+            searchstatutTextField.setStyle("-fx-border-color: RED");
+            searchdateTextField.setStyle("-fx-border-color: RED");
+            warningSearch.setText("");
+            warningSearch.setText("Veuillez remplir au moins un champs.");
+            warningSearch.setVisible(true);
         }
-        
-        
+        //Affichage d'un message dans le cas où aucun résultat n'a été trouvé après la recherche faite par le laborantin
+        if (listExpSearchEquipe.isEmpty() == true && listExpSearchStatut.isEmpty() == true && listExpSearchDate.isEmpty() == true && listExpSearchStatutEquipe.isEmpty() == true && listExpSearchStatutDate.isEmpty() == true && listExpSearchEquipeDate.isEmpty() == true && listExpSearchAll.isEmpty() == true) {
+            warningSearch.setText("");
+            warningSearch.setText("Aucun résultat ne correspond à votre recherche.");
+            warningSearch.setVisible(true);
+        }
+
         viewTableView.refresh();
     }
 
