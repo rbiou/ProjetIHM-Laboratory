@@ -55,7 +55,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private ScrollPane viewdetailsPanel, plaqueScrollPane;
     @FXML
-    private Label warningSearch, datasuiviLabel, fonctionLabel, welcomeLabel, loginErrorLabel, frequenceLabel, a3Label, frequenceviewLabel, a3viewLabel, datalibelleLabel, dataequipeLabel, datastatutLabel, dataa1Label, dataa2Label, datadatetransmissionLabel, datafrequenceLabel, datatypeLabel, datadatedemandeLabel, datadatedebutLabel, datanbslotsLabel, datadureeLabel, dataa3Label, slotsRestantsLabel, warningLabel, warningUpletLabel;
+    private Label resInfoLabel, warningSearch, datasuiviLabel, fonctionLabel, welcomeLabel, loginErrorLabel, frequenceLabel, a3Label, frequenceviewLabel, a3viewLabel, datalibelleLabel, dataequipeLabel, datastatutLabel, dataa1Label, dataa2Label, datadatetransmissionLabel, datafrequenceLabel, datatypeLabel, datadatedemandeLabel, datadatedebutLabel, datanbslotsLabel, datadureeLabel, dataa3Label, slotsRestantsLabel, warningLabel, warningUpletLabel;
     @FXML
     private TableView viewTable;
     @FXML
@@ -69,7 +69,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private ComboBox equipeComboBox, typeExpComboBox, typeCelluleComboBox, choixExperienceComboBox, choixReplicatComboBox, choixPlaqueComboBox, expSelectedComboBox, nomAgentComboBox;
     @FXML
-    private TableView viewTableView;
+    private TableView viewTableView, expUpletTableView, resUpletTableView;
     @FXML
     private TableColumn idColumn1, libelleColumn1, typeColumn1, datedemandeColumn1, equipeColumn1, launcherColumn1, statutColumn1, detailsColumn1;
     //Variables d'environnement user
@@ -79,16 +79,20 @@ public class FXMLDocumentController implements Initializable {
     private Connection con;
     //Decalarations des listes utilisées pour la recherche d'expérience
     private ObservableList<Experience> listExp = FXCollections.observableArrayList();
+    private ObservableList<Uplet> listUplet = FXCollections.observableArrayList();
+    private ObservableList<ResUplet> listResUplet = FXCollections.observableArrayList();
     private ObservableList<Experience> listExpSearchDate = FXCollections.observableArrayList();
     private ObservableList<Experience> listExpSearchEquipe = FXCollections.observableArrayList();
     private ObservableList<Experience> listExpSearchStatut = FXCollections.observableArrayList();
     private ObservableList<Experience> listExpSearchStatutEquipe = FXCollections.observableArrayList();
     private ObservableList<Experience> listExpSearchStatutDate = FXCollections.observableArrayList();
     private ObservableList<Experience> listExpSearchEquipeDate = FXCollections.observableArrayList();
-     private ObservableList<Experience> listExpSearchAll  = FXCollections.observableArrayList();
+    private ObservableList<Experience> listExpSearchAll = FXCollections.observableArrayList();
     private ArrayList<ArrayList> new_slots;
     private boolean controlPressed = false;
     private ArrayList<Integer> uplets_to_attribute;
+    private int idExperience; //Id de l'expérience selectionnée pour avoir plus de détails
+    private String dateRecup;
 
     /**
      * Méthode qui permet de connecter l'utilisateur à notre application en
@@ -216,9 +220,9 @@ public class FXMLDocumentController implements Initializable {
         upletIcon.setImage(new Image(getClass().getResource("circle_black.png").toExternalForm()));
         homeIcon.setImage(new Image(getClass().getResource("home_black.png").toExternalForm()));
         expIcon.setImage(new Image(getClass().getResource("flask_white.png").toExternalForm()));
-        
+
         //chargement du tableau
-        TableExp(); 
+        TableExp();
     }
 
     /**
@@ -239,6 +243,7 @@ public class FXMLDocumentController implements Initializable {
         upletPanel.setVisible(false);
         insertPanel.setVisible(false);
         plaqueScrollPane.setVisible(false);
+        viewdetailsPanel.setVisible(false);
         homeIcon.setImage(new Image(getClass().getResource("home_white.png").toExternalForm()));
         expIcon.setImage(new Image(getClass().getResource("flask_black.png").toExternalForm()));
     }
@@ -781,12 +786,12 @@ public class FXMLDocumentController implements Initializable {
                 while (e != null) {
                     String message = e.getMessage();
                     int errorCode = e.getErrorCode();
-                    e = e.getNextException();
                     if (errorCode == 1722) {
                         warningUpletLabel.setText("");
                         warningUpletLabel.setText("Valeur non valide.");
                         warningUpletLabel.setVisible(true);
                     }
+                    e = e.getNextException();
                 }
             }
         } else {
@@ -818,7 +823,7 @@ public class FXMLDocumentController implements Initializable {
         searchEquipeTextField.setStyle("-fx-border-width:0px");
         searchstatutTextField.setStyle("-fx-border-width:0px");
         searchdateTextField.setStyle("-fx-border-width:0px");
-        
+
         //cas où uniquement le statut est renseigné
         for (int i = 0; i < listExp.size(); i++) {
             if (listExp.get(i).getStatut().equals(searchstatutTextField.getText())) {
@@ -867,7 +872,7 @@ public class FXMLDocumentController implements Initializable {
                 listExpSearchStatutEquipe.add(listExp.get(i));
             }
         }
-        
+
         //Affichage du tableau conditionné à la recherche faite par le laborantin
         if (searchEquipeTextField.getText().isEmpty() == true && localdate == null && searchstatutTextField.getText().isEmpty() == false) {
             viewTableView.setItems(listExpSearchStatut);
@@ -883,8 +888,7 @@ public class FXMLDocumentController implements Initializable {
             viewTableView.setItems(listExpSearchEquipeDate);
         } else if (searchEquipeTextField.getText().isEmpty() == false && localdate != null && searchstatutTextField.getText().isEmpty() == false) {
             viewTableView.setItems(listExpSearchAll);
-        } 
-        else {
+        } else {
             //Si els 3 champs sont vides -> erreur
             searchEquipeTextField.setStyle("-fx-border-color: RED");
             searchstatutTextField.setStyle("-fx-border-color: RED");
@@ -912,7 +916,44 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private void sendResults(ActionEvent event
     ) {
-        //
+        try {
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT DATE_TRANSMISSION FROM EXPERIENCE WHERE ID_EXPERIENCE = " + idExperience + " ");
+            while (rs.next()) {
+                dateRecup = rs.getString(1);
+            }
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+
+        if (dateRecup == null) {
+            try {
+                Statement stmt = con.createStatement();
+                ResultSet rs = stmt.executeQuery("UPDATE EXPERIENCE SET DATE_TRANSMISSION = SYSDATE WHERE ID_EXPERIENCE = " + idExperience + " ");
+                    resInfoLabel.setText("");
+                    resInfoLabel.setText("Les résultats ont été transmis au chercheur.");
+                    resInfoLabel.setVisible(true);
+            } catch (SQLException e) {
+                System.out.println(e);
+                while (e != null) {
+                    System.out.println(e);
+                    String message = e.getMessage();
+                    int errorCode = e.getErrorCode();
+                    System.out.println(errorCode);
+                    if (errorCode == 2290) {
+                        resInfoLabel.setText("");
+                        resInfoLabel.setText("Impossible d'envoyer les résultats. L'expérience n'est pas terminée.");
+                        resInfoLabel.setVisible(true);
+                    }
+                    e = e.getNextException();
+               }
+            }
+        } else {
+            resInfoLabel.setText("");
+            resInfoLabel.setText("Ces résultats ont déjà été transmis au chercheur.");
+            resInfoLabel.setVisible(true);
+        }
+
     }
 
     public void reloadTableView() {
@@ -1027,7 +1068,8 @@ public class FXMLDocumentController implements Initializable {
 
                 {
                     btnDetails.setOnAction((ActionEvent event) -> {
-                        int Idexperience = getTableView().getItems().get(getIndex()).getId_exp();
+                        resInfoLabel.setText("");
+                        idExperience = getTableView().getItems().get(getIndex()).getId_exp();
                         viewdetailsPanel.setVisible(true);
                         datalibelleLabel.setText(getTableView().getItems().get(getIndex()).getLibelle());
                         dataequipeLabel.setText(getTableView().getItems().get(getIndex()).getEmail_equipe());
@@ -1041,13 +1083,13 @@ public class FXMLDocumentController implements Initializable {
                         datadatedebutLabel.setText(getTableView().getItems().get(getIndex()).getDate_deb());
                         datanbslotsLabel.setText(String.valueOf(getTableView().getItems().get(getIndex()).getNb_slot()));
                         datadureeLabel.setText(String.valueOf(getTableView().getItems().get(getIndex()).getDuree()));
+                        dataa3Label.setText(String.valueOf(getTableView().getItems().get(getIndex()).getA3()));
                         if (getTableView().getItems().get(getIndex()).getA3() == 0) {
                             datasuiviLabel.setText("NON");
                         } else {
                             datasuiviLabel.setText("OUI");
                         }
-
-                        dataa3Label.setText(String.valueOf(getTableView().getItems().get(getIndex()).getA3()));
+                        resultatsExp(idExperience);
                     });
                 }
 
@@ -1068,6 +1110,118 @@ public class FXMLDocumentController implements Initializable {
         colonneDetails.setCellFactory(cellFactoryDetails);
         viewTableView.getColumns().add(colonneDetails);
 
+    }
+
+    /**
+     * Récupération des uplets de l'expérience et de leur résultats
+     *
+     * @param idExp
+     */
+    public void resultatsExp(int idExp) {
+        //Remise à 0 des tableView
+        expUpletTableView.getColumns().clear();
+        resUpletTableView.getColumns().clear();
+        //Remise à 0 des listes de donnéees
+        listUplet.clear();
+        listResUplet.clear();
+        //Récupération des uplets de l'expérience
+        try {
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT ID_UPLET, TYPE_CELLULE, Q_AGENT, Q_CELLULE, RENOUV, URGENT, DATE_ECHEANCE, ETAT FROM N_UPLET JOIN EXPERIENCE USING (ID_EXPERIENCE) WHERE ID_EXPERIENCE = " + idExp + " ");
+            while (rs.next()) {
+                Uplet uplet = new Uplet(rs.getInt(1), rs.getString(2), rs.getInt(3), rs.getInt(4), rs.getInt(5), rs.getInt(6), rs.getString(7), rs.getString(8));
+                listUplet.add(uplet);
+            }
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+        //Déclaration des différentes pour afficher les caractéristiques des uplets d'une expérience
+        TableColumn<Uplet, String> colonneidUplet = new TableColumn<>("Identifiant uplet");
+        colonneidUplet.setCellValueFactory(new PropertyValueFactory("id_uplet"));
+        colonneidUplet.setStyle("-fx-alignment: CENTER;");
+        ///////////////////////////////////////////////////////////////////////////
+        TableColumn<Uplet, String> colonneTypeCell = new TableColumn<>("Type de cellules");
+        colonneTypeCell.setCellValueFactory(new PropertyValueFactory("type_cell"));
+        colonneTypeCell.setStyle("-fx-alignment: CENTER;");
+        ////////////////////////////////////////////////////////////////////////////
+        TableColumn<Uplet, String> colonneAgent = new TableColumn<>("Quantité d'agent");
+        colonneAgent.setCellValueFactory(new PropertyValueFactory("q_agent"));
+        colonneAgent.setStyle("-fx-alignment: CENTER;");
+        ////////////////////////////////////////////////////////////////////////////////
+        TableColumn<Uplet, String> colonneCellule = new TableColumn<>("Quantité de cellules");
+        colonneCellule.setCellValueFactory(new PropertyValueFactory("q_cellule"));
+        colonneCellule.setStyle("-fx-alignment: CENTER;");
+        ////////////////////////////////////////////////////////////////////////////
+        TableColumn<Uplet, String> colonneRenouv = new TableColumn<>("Renouvelé");
+        colonneRenouv.setCellValueFactory(new PropertyValueFactory("renouv"));
+        colonneRenouv.setStyle("-fx-alignment: CENTER;");
+        ////////////////////////////////////////////////////////////////////////////
+        TableColumn<Uplet, String> colonneDateEche = new TableColumn<>("Date échéance");
+        colonneDateEche.setCellValueFactory(new PropertyValueFactory("date_echeance"));
+        colonneDateEche.setStyle("-fx-alignment: CENTER;");
+        ////////////////////////////////////////////////////////////////////////////
+        TableColumn<Uplet, String> colonneEtat = new TableColumn<>("Etat de l'uplet");
+        colonneEtat.setCellValueFactory(new PropertyValueFactory("etat"));
+        colonneEtat.setStyle("-fx-alignment: CENTER;");
+        ///////////////////////////////////////////////////////////////////////////
+        expUpletTableView.setItems(listUplet);
+        expUpletTableView.getColumns().addAll(colonneidUplet, colonneTypeCell, colonneAgent, colonneCellule, colonneRenouv, colonneDateEche, colonneEtat);
+
+        //Récupération des uplets de l'expérience
+        try {
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT ID_UPLET, ECART_TYPE_TR, ECART_TYPE_R, ECART_TYPE_V, ECART_TYPE_B, MOYENNE_TR, MOYENNE_R, MOYENNE_V, MOYENNE_B, STATUT_UPLET FROM RESULTATS_UPLET JOIN N_UPLET USING (ID_UPLET) JOIN EXPERIENCE USING (ID_EXPERIENCE) WHERE ID_EXPERIENCE = " + idExp + " ");
+            while (rs.next()) {
+                ResUplet resUplet = new ResUplet(rs.getInt(1), rs.getInt(2), rs.getInt(3), rs.getInt(4), rs.getInt(5), rs.getInt(6), rs.getInt(7), rs.getInt(8), rs.getInt(9), rs.getString(10));
+                listResUplet.add(resUplet);
+            }
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+
+        //Déclaration des différentes pour afficher les résultats des uplets d'une expérience
+        TableColumn<ResUplet, String> colonneidUpletRes = new TableColumn<>("Identifiant uplet");
+        colonneidUpletRes.setCellValueFactory(new PropertyValueFactory("idUplet"));
+        colonneidUpletRes.setStyle("-fx-alignment: CENTER;");
+        ///////////////////////////////////////////////////////////////////////////
+        TableColumn<ResUplet, String> colonneMoyenneTR = new TableColumn<>("Transparence : Moyenne");
+        colonneMoyenneTR.setCellValueFactory(new PropertyValueFactory("moyenneTR"));
+        colonneMoyenneTR.setStyle("-fx-alignment: CENTER;");
+        ////////////////////////////////////////////////////////////////////////////
+        TableColumn<ResUplet, String> colonneEcartTypeTR = new TableColumn<>("Transparence : Ecart-type");
+        colonneEcartTypeTR.setCellValueFactory(new PropertyValueFactory("ecartTypeTR"));
+        colonneEcartTypeTR.setStyle("-fx-alignment: CENTER;");
+        ////////////////////////////////////////////////////////////////////////////////
+        TableColumn<ResUplet, String> colonneMoyenneR = new TableColumn<>("Rouge : Moyenne");
+        colonneMoyenneR.setCellValueFactory(new PropertyValueFactory("moyenneR"));
+        colonneMoyenneR.setStyle("-fx-alignment: CENTER;");
+        ////////////////////////////////////////////////////////////////////////////
+        TableColumn<ResUplet, String> colonneEcartTypeR = new TableColumn<>("Rouge : Ecart-type");
+        colonneEcartTypeR.setCellValueFactory(new PropertyValueFactory("ecartTypeR"));
+        colonneEcartTypeR.setStyle("-fx-alignment: CENTER;");
+        ////////////////////////////////////////////////////////////////////////////
+        TableColumn<ResUplet, String> colonneMoyenneV = new TableColumn<>("Vert : Moyenne");
+        colonneMoyenneV.setCellValueFactory(new PropertyValueFactory("moyenneR"));
+        colonneMoyenneV.setStyle("-fx-alignment: CENTER;");
+        ////////////////////////////////////////////////////////////////////////////
+        TableColumn<ResUplet, String> colonneEcartTypeV = new TableColumn<>("Vert : Ecart-type");
+        colonneEcartTypeV.setCellValueFactory(new PropertyValueFactory("ecartTypeR"));
+        colonneEcartTypeV.setStyle("-fx-alignment: CENTER;");
+        ///////////////////////////////////////////////////////////////////////////
+        TableColumn<ResUplet, String> colonneMoyenneB = new TableColumn<>("Bleu : Moyenne");
+        colonneMoyenneB.setCellValueFactory(new PropertyValueFactory("moyenneR"));
+        colonneMoyenneB.setStyle("-fx-alignment: CENTER;");
+        ////////////////////////////////////////////////////////////////////////////
+        TableColumn<ResUplet, String> colonneEcartTypeB = new TableColumn<>("Bleu : Ecart-type");
+        colonneEcartTypeB.setCellValueFactory(new PropertyValueFactory("ecartTypeR"));
+        colonneEcartTypeB.setStyle("-fx-alignment: CENTER;");
+        ///////////////////////////////////////////////////////////////////////////
+        TableColumn<ResUplet, String> colonneStatutResUplet = new TableColumn<>("Statut du résultat");
+        colonneStatutResUplet.setCellValueFactory(new PropertyValueFactory("statutUplet"));
+        colonneStatutResUplet.setStyle("-fx-alignment: CENTER;");
+        //////////////////////////////////////////////////////////////////////////
+        resUpletTableView.setItems(listResUplet);
+        resUpletTableView.getColumns().addAll(colonneidUpletRes, colonneMoyenneTR, colonneEcartTypeTR, colonneMoyenneR, colonneEcartTypeR, colonneMoyenneV, colonneEcartTypeV, colonneMoyenneB, colonneEcartTypeB, colonneStatutResUplet);
     }
 
     /**
@@ -1112,4 +1266,3 @@ public class FXMLDocumentController implements Initializable {
         connectServer();
     }
 }
-
