@@ -92,7 +92,7 @@ public class FXMLDocumentController implements Initializable {
     private boolean controlPressed = false;
     private ArrayList<Integer> uplets_to_attribute;
     private int idExperience; //Id de l'expérience selectionnée pour avoir plus de détails
-    private String dateRecup, plaqueUsed;
+    private String dateRecup, statut_exp, plaqueUsed;
 
     /**
      * Méthode qui permet de connecter l'utilisateur à notre application en
