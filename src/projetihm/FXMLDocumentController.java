@@ -1056,7 +1056,7 @@ public class FXMLDocumentController implements Initializable {
         viewTableView.refresh();
     }
 
-    /**
+   /**
      * Méthode permettant l'envoi des résultats de l'expérience sélectionnée à
      * l'équipe de recherche l'ayant commandité
      *
@@ -1067,35 +1067,42 @@ public class FXMLDocumentController implements Initializable {
     ) {
         try {
             Statement stmt = con.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT DATE_TRANSMISSION FROM EXPERIENCE WHERE ID_EXPERIENCE = " + idExperience + " ");
+            ResultSet rs = stmt.executeQuery("SELECT DATE_TRANSMISSION, STATUT_EXP FROM EXPERIENCE WHERE ID_EXPERIENCE = " + idExperience + " ");
             while (rs.next()) {
                 dateRecup = rs.getString(1);
+                statut_exp = rs.getString(2);
             }
         } catch (SQLException ex) {
             System.out.println(ex);
         }
 
         if (dateRecup == null) {
-            try {
-                Statement stmt = con.createStatement();
-                ResultSet rs = stmt.executeQuery("UPDATE EXPERIENCE SET DATE_TRANSMISSION = SYSDATE WHERE ID_EXPERIENCE = " + idExperience + " ");
+            if ("acceptée".equals(statut_exp) || "refusée".equals(statut_exp)) {
+                try {
+                    Statement stmt = con.createStatement();
+                    ResultSet rs = stmt.executeQuery("UPDATE EXPERIENCE SET DATE_TRANSMISSION = SYSDATE WHERE ID_EXPERIENCE = " + idExperience + " ");
                     resInfoLabel.setText("");
                     resInfoLabel.setText("Les résultats ont été transmis au chercheur.");
                     resInfoLabel.setVisible(true);
-            } catch (SQLException e) {
-                System.out.println(e);
-                while (e != null) {
+                } catch (SQLException e) {
                     System.out.println(e);
-                    String message = e.getMessage();
-                    int errorCode = e.getErrorCode();
-                    System.out.println(errorCode);
-                    if (errorCode == 2290) {
-                        resInfoLabel.setText("");
-                        resInfoLabel.setText("Impossible d'envoyer les résultats. L'expérience n'est pas terminée.");
-                        resInfoLabel.setVisible(true);
+                    while (e != null) {
+                        System.out.println(e);
+                        String message = e.getMessage();
+                        int errorCode = e.getErrorCode();
+                        System.out.println(errorCode);
+                        if (errorCode == 2290) {
+                            resInfoLabel.setText("");
+                            resInfoLabel.setText("Impossible d'envoyer les résultats. L'expérience n'est pas terminée.");
+                            resInfoLabel.setVisible(true);
+                        }
+                        e = e.getNextException();
                     }
-                    e = e.getNextException();
-               }
+                }
+            }else {
+                resInfoLabel.setText("");
+            resInfoLabel.setText("Impossible d'envoyer les résultats. L'expérience n'est pas terminée.");
+            resInfoLabel.setVisible(true);
             }
         } else {
             resInfoLabel.setText("");
