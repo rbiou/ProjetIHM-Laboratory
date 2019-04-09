@@ -1,6 +1,5 @@
 package projetihm;
 
-import java.awt.Color;
 import java.sql.*;
 import java.net.URL;
 import java.time.LocalDate;
@@ -8,6 +7,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.ResourceBundle;
+import javafx.animation.FadeTransition;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -36,8 +36,8 @@ import javafx.util.Callback;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.KeyCode;
 import static javafx.scene.input.KeyCode.CONTROL;
-import javafx.scene.layout.Border;
-import javax.swing.BorderFactory;
+import javafx.scene.paint.Color;
+import javafx.util.Duration;
 
 /**
  * Controller de notre application de gestion de laboratoire
@@ -115,7 +115,7 @@ public class FXMLDocumentController implements Initializable {
 //                        + "WHERE EMAIL_PERSONNE ='" + mailTextField.getText() + "' AND PASSWORD = ENCRYPTER('" + passwordTextField.getText() + "')");
                 existingUser = 1;
                 nameUser = "Remi";
-                functionUser = "laborantin";
+                functionUser = "chercheur";
 //                while (rs.next()) {
 //                    existingUser = 1;
 //                    nameUser = rs.getString(1);
@@ -846,72 +846,121 @@ public class FXMLDocumentController implements Initializable {
      */
     @FXML
     private void ajoutExperience(ActionEvent event) {
+        //Suppression des cadres rouge
+        typeExpComboBox.setStyle("-fx-border-width:0px");
+        equipeComboBox.setStyle("-fx-border-width:0px");
+        dureeExpTextField.setStyle("-fx-border-width:0px");
+        nbSlotTextField.setStyle("-fx-border-width:0px");
+        a2TextField.setStyle("-fx-border-width:0px");
+        a1TextField.setStyle("-fx-border-width:0px");
+        a3TextField.setStyle("-fx-border-width:0px");
+        frequenceTextField.setStyle("-fx-border-width:0px");
+        dateDemandeDate.setStyle("-fx-border-width:0px");
+        libelleTextField.setStyle("-fx-border-width:0px");
+        
         String libelle = libelleTextField.getText();
-        LocalDate localdate = dateDemandeDate.getValue();
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        String dateString = localdate.format(dateTimeFormatter);
-        String frequence = frequenceTextField.getText();
-        String a3 = a3TextField.getText();
-        String a1 = a1TextField.getText();
-        String a2 = a2TextField.getText();
-        String nb_slot = nbSlotTextField.getText();
-        String duree = dureeExpTextField.getText();
-        String nomEquipe = (String) equipeComboBox.getValue();
-        String typeExp = (String) typeExpComboBox.getValue();
-        String email = "";
-        String statut = "à faire";
-        warningLabel.setVisible(false);
+        if (dateDemandeDate.getValue() != null) {
+            LocalDate localdate = dateDemandeDate.getValue();
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            String dateString = localdate.format(dateTimeFormatter);
+            String frequence = frequenceTextField.getText();
+            String a3 = a3TextField.getText();
+            String a1 = a1TextField.getText();
+            String a2 = a2TextField.getText();
+            String nb_slot = nbSlotTextField.getText();
+            String duree = dureeExpTextField.getText();
+           
+            String email = "";
+            String statut = "à faire";
+            warningLabel.setVisible(false);
 
-        if (libelle.isEmpty() == false && dateString.isEmpty() == false && a1.isEmpty() == false && a2.isEmpty() == false && nb_slot.isEmpty() == false && duree.isEmpty() == false && nomEquipe.isEmpty() == false && typeExp.isEmpty() == false) {
-
-            //Récupération de l'email de l'équipe selectionnée
-            try {
-                Statement stmt = con.createStatement();
-                ResultSet rs1 = stmt.executeQuery("SELECT EMAIL_EQUIPE FROM EQUIPE WHERE NOM_EQUIPE ='" + nomEquipe + "'");
-                rs1.next();
-                email = rs1.getString(1);
-                System.out.println(email);
-            } catch (SQLException e) {
-                System.out.println(e);
-            }
-
-            //requête d'insertion d'une expérience
-            try {
-                if (!"".equals(a3) && !"".equals(frequence)) {
-                    Statement stmt1 = con.createStatement();
-                    ResultSet rs1 = stmt1.executeQuery("INSERT INTO EXPERIENCE (LIBELLE_EXP, EMAIL_EQUIPE, DATE_DEMANDE, TYPE_EXP, A1, A2, NB_SLOT, DUREE_EXP, A3, STATUT_EXP, FREQUENCE) values ('" + libelle + "', '" + email + "', '" + dateString + "', '" + typeExp + "', " + a1 + ", " + a2 + ", " + nb_slot + ", " + duree + ", " + a3 + ", '" + statut + "', '" + frequence + "')");
-                    warningLabel.setText("");
-                    warningLabel.setText("Expérience ajoutée.");
-                    warningLabel.setVisible(true);
-                } else {
-                    Statement stmt2 = con.createStatement();
-                    ResultSet rs2 = stmt2.executeQuery("INSERT INTO EXPERIENCE (LIBELLE_EXP, EMAIL_EQUIPE, DATE_DEMANDE, TYPE_EXP, A1, A2, NB_SLOT, DUREE_EXP, STATUT_EXP) "
-                            + "values ('" + libelle + "', '" + email + "', '" + dateString + "', '" + typeExp + "', " + a1 + ", " + a2 + ", " + nb_slot + ", " + duree + ", '" + statut + "')");
-                    warningLabel.setText("");
-                    warningLabel.setText("Expérience ajoutée.");
-                    warningLabel.setVisible(true);
+            if (libelle.isEmpty() == false && dateString.isEmpty() == false && a1.isEmpty() == false && a2.isEmpty() == false && nb_slot.isEmpty() == false && duree.isEmpty() == false && equipeComboBox.getValue() != null && typeExpComboBox.getValue()!= null) {
+                String nomEquipe = (String) equipeComboBox.getValue();
+                String typeExp = (String) typeExpComboBox.getValue();
+                //Récupération de l'email de l'équipe selectionnée
+                try {
+                    Statement stmt = con.createStatement();
+                    ResultSet rs1 = stmt.executeQuery("SELECT EMAIL_EQUIPE FROM EQUIPE WHERE NOM_EQUIPE ='" + nomEquipe + "'");
+                    rs1.next();
+                    email = rs1.getString(1);
+                    System.out.println(email);
+                } catch (SQLException e) {
+                    System.out.println(e);
                 }
 
-            } catch (SQLException e) {
-                System.out.println("Exception SQL : ");
-                while (e != null) {
-                    String message = e.getMessage();
-                    int errorCode = e.getErrorCode();
-                    if (errorCode == 984) {
+                //requête d'insertion d'une expérience
+                try {
+                    if (!"".equals(a3) && !"".equals(frequence)) {
+                        Statement stmt1 = con.createStatement();
+                        ResultSet rs1 = stmt1.executeQuery("INSERT INTO EXPERIENCE (LIBELLE_EXP, EMAIL_EQUIPE, DATE_DEMANDE, TYPE_EXP, A1, A2, NB_SLOT, DUREE_EXP, A3, STATUT_EXP, FREQUENCE) values ('" + libelle + "', '" + email + "', '" + dateString + "', '" + typeExp + "', " + a1 + ", " + a2 + ", " + nb_slot + ", " + duree + ", " + a3 + ", '" + statut + "', '" + frequence + "')");
                         warningLabel.setText("");
-                        warningLabel.setText("Une valeur saisie est incorrecte.");
+                        warningLabel.setText("Expérience ajoutée.");
                         warningLabel.setVisible(true);
-                    } else if (errorCode == 2290) {
+                    } else {
+                        Statement stmt2 = con.createStatement();
+                        ResultSet rs2 = stmt2.executeQuery("INSERT INTO EXPERIENCE (LIBELLE_EXP, EMAIL_EQUIPE, DATE_DEMANDE, TYPE_EXP, A1, A2, NB_SLOT, DUREE_EXP, STATUT_EXP) "
+                                + "values ('" + libelle + "', '" + email + "', '" + dateString + "', '" + typeExp + "', " + a1 + ", " + a2 + ", " + nb_slot + ", " + duree + ", '" + statut + "')");
                         warningLabel.setText("");
-                        warningLabel.setText("La valeur de a1 doit être supérieure à celle de a2.");
+                        warningLabel.setText("Expérience ajoutée.");
                         warningLabel.setVisible(true);
                     }
-                    e = e.getNextException();
+
+                } catch (SQLException e) {
+                    System.out.println("Exception SQL : ");
+                    while (e != null) {
+                        String message = e.getMessage();
+                        int errorCode = e.getErrorCode();
+                        if (errorCode == 984) {
+                            warningLabel.setText("");
+                            warningLabel.setText("Une valeur saisie est incorrecte.");
+                            warningLabel.setVisible(true);
+                        } else if (errorCode == 2290) {
+                            a1TextField.setStyle("-fx-border-color: RED");
+                            a2TextField.setStyle("-fx-border-color: RED");
+                            warningLabel.setText("");
+                            warningLabel.setText("La valeur de a2 doit être supérieure à celle de a1.");
+                            warningLabel.setVisible(true);
+                        }
+                        e = e.getNextException();
+                    }
                 }
+            } else {
+                warningLabel.setText("");
+                warningLabel.setText("Veuillez remplir tous les champs.");
+                warningLabel.setVisible(true);
+            }
+
+            if (libelle.isEmpty() == true) {
+                libelleTextField.setStyle("-fx-border-color: RED");
+            }
+            if (a1.isEmpty() == true) {
+                a1TextField.setStyle("-fx-border-color: RED");
+            }
+            if (a2.isEmpty() == true) {
+                a2TextField.setStyle("-fx-border-color: RED");
+            }
+            if (nb_slot.isEmpty() == true) {
+                nbSlotTextField.setStyle("-fx-border-color: RED");
+            }
+            if (duree.isEmpty() == true) {
+                dureeExpTextField.setStyle("-fx-border-color: RED");
+            }
+            if (equipeComboBox.getValue() == null) {
+                equipeComboBox.setStyle("-fx-border-color: RED");
+            }
+            if (typeExpComboBox.getValue() == null) {
+                typeExpComboBox.setStyle("-fx-border-color: RED");
+            }
+            if (a3.isEmpty() == true) {
+                a3TextField.setStyle("-fx-border-color: RED");
+            }
+            if (frequence.isEmpty() == true) {
+                frequenceTextField.setStyle("-fx-border-color: RED");
             }
         } else {
+            dateDemandeDate.setStyle("-fx-border-color: RED");
             warningLabel.setText("");
-            warningLabel.setText("Tous les champs ne sont pas complets.");
+            warningLabel.setText("Veuillez remplir tous les champs.");
             warningLabel.setVisible(true);
         }
     }
@@ -1056,7 +1105,7 @@ public class FXMLDocumentController implements Initializable {
         viewTableView.refresh();
     }
 
-   /**
+    /**
      * Méthode permettant l'envoi des résultats de l'expérience sélectionnée à
      * l'équipe de recherche l'ayant commandité
      *
@@ -1099,10 +1148,10 @@ public class FXMLDocumentController implements Initializable {
                         e = e.getNextException();
                     }
                 }
-            }else {
+            } else {
                 resInfoLabel.setText("");
-            resInfoLabel.setText("Impossible d'envoyer les résultats. L'expérience n'est pas terminée.");
-            resInfoLabel.setVisible(true);
+                resInfoLabel.setText("Impossible d'envoyer les résultats. L'expérience n'est pas terminée.");
+                resInfoLabel.setVisible(true);
             }
         } else {
             resInfoLabel.setText("");
