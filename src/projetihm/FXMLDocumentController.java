@@ -249,7 +249,7 @@ public class FXMLDocumentController implements Initializable {
         expIcon.setImage(new Image(getClass().getResource("flask_black.png").toExternalForm()));
     }
 
-    /**
+        /**
      * Méthode permettant l'affichage du panel central permettant la gestion des
      * plaques et le positionnement des puits ainsi que la gestion de l'UX des
      * menus (surlignage du module où navigue l'utilisateur)
@@ -283,7 +283,7 @@ public class FXMLDocumentController implements Initializable {
             ResultSet rs = stmt.executeQuery(
                     "SELECT NUM_PLAQUE, TYPE_PLAQUE "
                     + "FROM PLAQUE "
-                    + "WHERE REFUS = 0");
+                    + "WHERE REFUS = 0 AND (SELECT COUNT(*) FROM SLOT WHERE SLOT.NUM_PLAQUE=PLAQUE.NUM_PLAQUE) < TYPE_PLAQUE");
             while (rs.next()) {
                 choixPlaqueComboBox.getItems().add("Plaque n° " + rs.getString(1) + " - " + rs.getString(2) + " slots");
             }
@@ -614,45 +614,82 @@ public class FXMLDocumentController implements Initializable {
     }
 
     /**
+     * Méthode appelant la méthode permettant l'insertion de slots quand la
+     * touche "Entrée" est préssée
+     *
+     * @param : event
+     */
+    @FXML
+    private void onEnterPressedInsertSlots(KeyEvent e) {
+        if (e.getCode() == ENTER) {
+            insertSlots();
+        }
+    }
+
+    /**
+     * Méthode appelant la méthode permettant l'insertion de slots quand le
+     * bouton "Valider" est cliqué
+     *
+     * @param : event
+     */
+    @FXML
+    private void onClickInsertSlots(ActionEvent e) {
+        insertSlots();
+    }
+
+    /**
      * Méthode permettant l'insertion slot par slot des slots que l'utilisateur
      * vient de cocher sur le panel rectPlaque Les slots cochés sont récupérés à
      * partir de la liste new_slots.
-     *
-     * @param event
      */
     @FXML
-    private void insertSlots(ActionEvent event) {
-        if (new_slots.size() % slots_by_uplet == 0) {
-            //Insertion des slots un par un
-            uplets_to_attribute.forEach((uplet) -> {
-                for (int i = 0; i <= slots_by_uplet - 1; i++) {
-                    if (new_slots.size() > 0) {
-                        try {
-                            Statement stmt = con.createStatement();
-                            ResultSet rs = stmt.executeQuery(
-                                    "INSERT INTO SLOT (ID_UPLET, NUM_PLAQUE, X, Y)"
-                                    + " VALUES (" + uplet + "," + plaqueUsed + "," + new_slots.get(0).get(1) + "," + new_slots.get(0).get(0) + ")");
-                        } catch (SQLException e) {
-                            System.out.println(e);
+    private void insertSlots() {
+        Boolean ok = false;
+        if (choixPlaqueComboBox.getValue() == null) {
+            choixPlaqueComboBox.setStyle("-fx-border-color: RED");
+        }
+        if (choixExperienceComboBox.getValue() == null) {
+            choixExperienceComboBox.setStyle("-fx-border-color: RED");
+        }
+        if (nb_checked_slots == null) {
+            rectPlaque.setStyle("-fx-border-color: RED");
+        }
+        if (nb_checked_slots == 0) {
+            rectPlaque.setStyle("-fx-border-color: RED");
+        }
+        if (nb_checked_slots != 0 && nb_checked_slots != null && choixExperienceComboBox.getValue() != null && choixPlaqueComboBox.getValue() != null) {
+            if (new_slots.size() % slots_by_uplet == 0) {
+                //Insertion des slots un par un
+                uplets_to_attribute.forEach((uplet) -> {
+                    for (int i = 0; i <= slots_by_uplet - 1; i++) {
+                        if (new_slots.size() > 0) {
+                            try {
+                                Statement stmt = con.createStatement();
+                                ResultSet rs = stmt.executeQuery(
+                                        "INSERT INTO SLOT (ID_UPLET, NUM_PLAQUE, X, Y)"
+                                        + " VALUES (" + uplet + "," + plaqueUsed + "," + new_slots.get(0).get(1) + "," + new_slots.get(0).get(0) + ")");
+                            } catch (SQLException e) {
+                                System.out.println(e);
+                            }
+                            new_slots.remove(new_slots.get(0));
                         }
-                        new_slots.remove(new_slots.get(0));
                     }
-                }
-            });
-            //Remise à Z du label d'erreur
-            slotsRestantsLabel.setText("");
-            //Remise à Z du nombre de slots cochés
-            nb_checked_slots = 0;
-            //Remise à Z de la liste des slots à ajouter
-            new_slots.clear();
-            //Remise à Z de la plaque
-            rectPlaque.getChildren().clear();
-        } else {
-            FadeTransition fadeTransition = new FadeTransition(Duration.seconds(0.1), slotsRestantsLabel);
-            fadeTransition.setFromValue(0.0);
-            fadeTransition.setToValue(1.0);
-            fadeTransition.setCycleCount(6);
-            fadeTransition.play();
+                });
+                //Remise à Z du label d'erreur
+                slotsRestantsLabel.setText("");
+                //Remise à Z du nombre de slots cochés
+                nb_checked_slots = 0;
+                //Remise à Z de la liste des slots à ajouter
+                new_slots.clear();
+                //Remise à Z de la plaque
+                rectPlaque.getChildren().clear();
+            } else {
+                FadeTransition fadeTransition = new FadeTransition(Duration.seconds(0.1), slotsRestantsLabel);
+                fadeTransition.setFromValue(0.0);
+                fadeTransition.setToValue(1.0);
+                fadeTransition.setCycleCount(6);
+                fadeTransition.play();
+            }
         }
     }
 
