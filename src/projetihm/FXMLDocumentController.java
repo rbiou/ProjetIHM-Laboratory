@@ -36,6 +36,7 @@ import javafx.util.Callback;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.KeyCode;
 import static javafx.scene.input.KeyCode.CONTROL;
+import static javafx.scene.input.KeyCode.ENTER;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
@@ -822,6 +823,47 @@ public class FXMLDocumentController implements Initializable {
     }
 
     /**
+     * Méthode activant l'affichage du formulaire permettant la saisie des
+     * paramètres d'une expérience suivi dans le temps, lors de l'ajout d'une
+     * expérience --> AVEC LE CLAVIER
+     *
+     * @param Keyevent
+     */
+    @FXML
+    private void expSuiviTempsYesBis(KeyEvent e) {
+        //Gestion des pages et de l'UX
+        if (e.getCode() == ENTER) {
+            frequenceLabel.setVisible(true);
+            a3Label.setVisible(true);
+            frequenceTextField.setVisible(true);
+            a3TextField.setVisible(true);
+            nonRadio.setSelected(false);
+            ouiRadio.setSelected(true);
+        }
+    }
+
+    /**
+     * Méthode désactivant l'affichage du formulaire permettant la saisie des
+     * paramètres d'une expérience suivi dans le temps, lors de l'ajout d'une
+     * expérience --> AVEC LE CLAVIER
+     *
+     * @param Keyevent
+     */
+    @FXML
+    private void expSuiviTempsNoBis(KeyEvent e) {
+        //Gestion des pages et de l'UX
+        if (e.getCode() == ENTER) {
+            frequenceLabel.setVisible(false);
+            a3Label.setVisible(false);
+            frequenceTextField.setVisible(false);
+            a3TextField.setVisible(false);
+            ouiRadio.setSelected(false);
+            nonRadio.setSelected(true);
+        }
+
+    }
+
+    /**
      * Méthode désactivant l'affichage du formulaire permettant la saisie des
      * paramètres d'une expérience suivi dans le temps, lors de l'ajout d'une
      * expérience
@@ -839,6 +881,14 @@ public class FXMLDocumentController implements Initializable {
         ouiRadio.setSelected(false);
     }
 
+    @FXML
+    private void ajoutExperienceBis(KeyEvent e
+    ) {
+        if (e.getCode() == ENTER) {
+            addExp();
+        }
+    }
+
     /**
      * Méthode permettant l'ajout d'une expérience à la base de données
      *
@@ -846,123 +896,7 @@ public class FXMLDocumentController implements Initializable {
      */
     @FXML
     private void ajoutExperience(ActionEvent event) {
-        //Suppression des cadres rouge
-        typeExpComboBox.setStyle("-fx-border-width:0px");
-        equipeComboBox.setStyle("-fx-border-width:0px");
-        dureeExpTextField.setStyle("-fx-border-width:0px");
-        nbSlotTextField.setStyle("-fx-border-width:0px");
-        a2TextField.setStyle("-fx-border-width:0px");
-        a1TextField.setStyle("-fx-border-width:0px");
-        a3TextField.setStyle("-fx-border-width:0px");
-        frequenceTextField.setStyle("-fx-border-width:0px");
-        dateDemandeDate.setStyle("-fx-border-width:0px");
-        libelleTextField.setStyle("-fx-border-width:0px");
-        
-        String libelle = libelleTextField.getText();
-        if (dateDemandeDate.getValue() != null) {
-            LocalDate localdate = dateDemandeDate.getValue();
-            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-            String dateString = localdate.format(dateTimeFormatter);
-            String frequence = frequenceTextField.getText();
-            String a3 = a3TextField.getText();
-            String a1 = a1TextField.getText();
-            String a2 = a2TextField.getText();
-            String nb_slot = nbSlotTextField.getText();
-            String duree = dureeExpTextField.getText();
-           
-            String email = "";
-            String statut = "à faire";
-            warningLabel.setVisible(false);
-
-            if (libelle.isEmpty() == false && dateString.isEmpty() == false && a1.isEmpty() == false && a2.isEmpty() == false && nb_slot.isEmpty() == false && duree.isEmpty() == false && equipeComboBox.getValue() != null && typeExpComboBox.getValue()!= null) {
-                String nomEquipe = (String) equipeComboBox.getValue();
-                String typeExp = (String) typeExpComboBox.getValue();
-                //Récupération de l'email de l'équipe selectionnée
-                try {
-                    Statement stmt = con.createStatement();
-                    ResultSet rs1 = stmt.executeQuery("SELECT EMAIL_EQUIPE FROM EQUIPE WHERE NOM_EQUIPE ='" + nomEquipe + "'");
-                    rs1.next();
-                    email = rs1.getString(1);
-                    System.out.println(email);
-                } catch (SQLException e) {
-                    System.out.println(e);
-                }
-
-                //requête d'insertion d'une expérience
-                try {
-                    if (!"".equals(a3) && !"".equals(frequence)) {
-                        Statement stmt1 = con.createStatement();
-                        ResultSet rs1 = stmt1.executeQuery("INSERT INTO EXPERIENCE (LIBELLE_EXP, EMAIL_EQUIPE, DATE_DEMANDE, TYPE_EXP, A1, A2, NB_SLOT, DUREE_EXP, A3, STATUT_EXP, FREQUENCE) values ('" + libelle + "', '" + email + "', '" + dateString + "', '" + typeExp + "', " + a1 + ", " + a2 + ", " + nb_slot + ", " + duree + ", " + a3 + ", '" + statut + "', '" + frequence + "')");
-                        warningLabel.setText("");
-                        warningLabel.setText("Expérience ajoutée.");
-                        warningLabel.setVisible(true);
-                    } else {
-                        Statement stmt2 = con.createStatement();
-                        ResultSet rs2 = stmt2.executeQuery("INSERT INTO EXPERIENCE (LIBELLE_EXP, EMAIL_EQUIPE, DATE_DEMANDE, TYPE_EXP, A1, A2, NB_SLOT, DUREE_EXP, STATUT_EXP) "
-                                + "values ('" + libelle + "', '" + email + "', '" + dateString + "', '" + typeExp + "', " + a1 + ", " + a2 + ", " + nb_slot + ", " + duree + ", '" + statut + "')");
-                        warningLabel.setText("");
-                        warningLabel.setText("Expérience ajoutée.");
-                        warningLabel.setVisible(true);
-                    }
-
-                } catch (SQLException e) {
-                    System.out.println("Exception SQL : ");
-                    while (e != null) {
-                        String message = e.getMessage();
-                        int errorCode = e.getErrorCode();
-                        if (errorCode == 984) {
-                            warningLabel.setText("");
-                            warningLabel.setText("Une valeur saisie est incorrecte.");
-                            warningLabel.setVisible(true);
-                        } else if (errorCode == 2290) {
-                            a1TextField.setStyle("-fx-border-color: RED");
-                            a2TextField.setStyle("-fx-border-color: RED");
-                            warningLabel.setText("");
-                            warningLabel.setText("La valeur de a2 doit être supérieure à celle de a1.");
-                            warningLabel.setVisible(true);
-                        }
-                        e = e.getNextException();
-                    }
-                }
-            } else {
-                warningLabel.setText("");
-                warningLabel.setText("Veuillez remplir tous les champs.");
-                warningLabel.setVisible(true);
-            }
-
-            if (libelle.isEmpty() == true) {
-                libelleTextField.setStyle("-fx-border-color: RED");
-            }
-            if (a1.isEmpty() == true) {
-                a1TextField.setStyle("-fx-border-color: RED");
-            }
-            if (a2.isEmpty() == true) {
-                a2TextField.setStyle("-fx-border-color: RED");
-            }
-            if (nb_slot.isEmpty() == true) {
-                nbSlotTextField.setStyle("-fx-border-color: RED");
-            }
-            if (duree.isEmpty() == true) {
-                dureeExpTextField.setStyle("-fx-border-color: RED");
-            }
-            if (equipeComboBox.getValue() == null) {
-                equipeComboBox.setStyle("-fx-border-color: RED");
-            }
-            if (typeExpComboBox.getValue() == null) {
-                typeExpComboBox.setStyle("-fx-border-color: RED");
-            }
-            if (a3.isEmpty() == true) {
-                a3TextField.setStyle("-fx-border-color: RED");
-            }
-            if (frequence.isEmpty() == true) {
-                frequenceTextField.setStyle("-fx-border-color: RED");
-            }
-        } else {
-            dateDemandeDate.setStyle("-fx-border-color: RED");
-            warningLabel.setText("");
-            warningLabel.setText("Veuillez remplir tous les champs.");
-            warningLabel.setVisible(true);
-        }
+        addExp();
     }
 
     /**
@@ -1430,6 +1364,141 @@ public class FXMLDocumentController implements Initializable {
     }
 
     /**
+     * Méthode d'ajout d'un expérience. Cette m"thode est appelée dans les
+     * listeners d'ajout d'expérience
+     */
+    public void addExp() {
+
+        //Suppression des cadres rouge
+        typeExpComboBox.setStyle("-fx-border-width:0px");
+        equipeComboBox.setStyle("-fx-border-width:0px");
+        dureeExpTextField.setStyle("-fx-border-width:0px");
+        nbSlotTextField.setStyle("-fx-border-width:0px");
+        a2TextField.setStyle("-fx-border-width:0px");
+        a1TextField.setStyle("-fx-border-width:0px");
+        a3TextField.setStyle("-fx-border-width:0px");
+        frequenceTextField.setStyle("-fx-border-width:0px");
+        dateDemandeDate.setStyle("-fx-border-width:0px");
+        libelleTextField.setStyle("-fx-border-width:0px");
+
+        String libelle = libelleTextField.getText();
+        if (dateDemandeDate.getValue() != null) {
+            LocalDate localdate = dateDemandeDate.getValue();
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            String dateString = localdate.format(dateTimeFormatter);
+            String frequence = frequenceTextField.getText();
+            String a3 = a3TextField.getText();
+            String a1 = a1TextField.getText();
+            String a2 = a2TextField.getText();
+            String nb_slot = nbSlotTextField.getText();
+            String duree = dureeExpTextField.getText();
+
+            String email = "";
+            String statut = "à faire";
+            warningLabel.setVisible(false);
+
+            if (libelle.isEmpty() == false && dateString.isEmpty() == false && a1.isEmpty() == false && a2.isEmpty() == false && nb_slot.isEmpty() == false && duree.isEmpty() == false && equipeComboBox.getValue() != null && typeExpComboBox.getValue() != null && (ouiRadio.isSelected() == true || ouiRadio.isSelected() == true)) {
+                String nomEquipe = (String) equipeComboBox.getValue();
+                String typeExp = (String) typeExpComboBox.getValue();
+                //Récupération de l'email de l'équipe selectionnée
+                try {
+                    Statement stmt = con.createStatement();
+                    ResultSet rs1 = stmt.executeQuery("SELECT EMAIL_EQUIPE FROM EQUIPE WHERE NOM_EQUIPE ='" + nomEquipe + "'");
+                    rs1.next();
+                    email = rs1.getString(1);
+                } catch (SQLException e) {
+                    System.out.println(e);
+                }
+
+                //requête d'insertion d'une expérience
+                try {
+                    if (!"".equals(a3) && !"".equals(frequence) && ouiRadio.isSelected() == true) {
+                        Statement stmt1 = con.createStatement();
+                        ResultSet rs1 = stmt1.executeQuery("INSERT INTO EXPERIENCE (LIBELLE_EXP, EMAIL_EQUIPE, DATE_DEMANDE, TYPE_EXP, A1, A2, NB_SLOT, DUREE_EXP, A3, STATUT_EXP, FREQUENCE) values ('" + libelle + "', '" + email + "', '" + dateString + "', '" + typeExp + "', " + a1 + ", " + a2 + ", " + nb_slot + ", " + duree + ", " + a3 + ", '" + statut + "', '" + frequence + "')");
+                        warningLabel.setText("");
+                        warningLabel.setText("Expérience ajoutée.");
+                        warningLabel.setVisible(true);
+                    } else if ("".equals(a3) && "".equals(frequence) && ouiRadio.isSelected() == true) {
+                        warningLabel.setText("");
+                        warningLabel.setText("Veuillez remplir tous les champs.");
+                        warningLabel.setVisible(true);
+                    } else {
+                        Statement stmt2 = con.createStatement();
+                        ResultSet rs2 = stmt2.executeQuery("INSERT INTO EXPERIENCE (LIBELLE_EXP, EMAIL_EQUIPE, DATE_DEMANDE, TYPE_EXP, A1, A2, NB_SLOT, DUREE_EXP, STATUT_EXP) "
+                                + "values ('" + libelle + "', '" + email + "', '" + dateString + "', '" + typeExp + "', " + a1 + ", " + a2 + ", " + nb_slot + ", " + duree + ", '" + statut + "')");
+                        warningLabel.setText("");
+                        warningLabel.setText("Expérience ajoutée.");
+                        warningLabel.setVisible(true);
+                    }
+
+                } catch (SQLException e) {
+                    System.out.println("Exception SQL : ");
+                    while (e != null) {
+                        String message = e.getMessage();
+                        int errorCode = e.getErrorCode();
+                        if (errorCode == 984) {
+                            warningLabel.setText("");
+                            warningLabel.setText("Une valeur saisie est incorrecte.");
+                            warningLabel.setVisible(true);
+                        } else if (errorCode == 2290) {
+                            a1TextField.setStyle("-fx-border-color: RED");
+                            a2TextField.setStyle("-fx-border-color: RED");
+                            warningLabel.setText("");
+                            warningLabel.setText("La valeur de a2 doit être supérieure à celle de a1.");
+                            warningLabel.setVisible(true);
+                        }
+                        e = e.getNextException();
+                    }
+                }
+            } else {
+                warningLabel.setText("");
+                warningLabel.setText("Veuillez remplir tous les champs.");
+                warningLabel.setVisible(true);
+            }
+
+            if (libelle.isEmpty() == true) {
+                libelleTextField.setStyle("-fx-border-color: RED");
+            }
+            if (a1.isEmpty() == true) {
+                a1TextField.setStyle("-fx-border-color: RED");
+            }
+            if (a2.isEmpty() == true) {
+                a2TextField.setStyle("-fx-border-color: RED");
+            }
+            if (nb_slot.isEmpty() == true) {
+                nbSlotTextField.setStyle("-fx-border-color: RED");
+            }
+            if (duree.isEmpty() == true) {
+                dureeExpTextField.setStyle("-fx-border-color: RED");
+            }
+            if (equipeComboBox.getValue() == null) {
+                equipeComboBox.setStyle("-fx-border-color: RED");
+            }
+            if (typeExpComboBox.getValue() == null) {
+                typeExpComboBox.setStyle("-fx-border-color: RED");
+            }
+            if (a3.isEmpty() == true) {
+                a3TextField.setStyle("-fx-border-color: RED");
+            }
+            if (frequence.isEmpty() == true) {
+                frequenceTextField.setStyle("-fx-border-color: RED");
+            }
+
+            if (ouiRadio.isSelected() == false && ouiRadio.isSelected() == false) {
+                ouiRadio.setStyle("-fx-border-color: RED");
+                nonRadio.setStyle("-fx-border-color: RED");
+            }
+
+        } else {
+            dateDemandeDate.setStyle("-fx-border-color: RED");
+            warningLabel.setText("");
+            warningLabel.setText("Veuillez remplir tous les champs.");
+            warningLabel.setVisible(true);
+        }
+
+    }
+
+    /**
      * Méthode de connexion à la base de données Oracle
      */
     private void connectServer() {
@@ -1471,3 +1540,4 @@ public class FXMLDocumentController implements Initializable {
         connectServer();
     }
 }
+
