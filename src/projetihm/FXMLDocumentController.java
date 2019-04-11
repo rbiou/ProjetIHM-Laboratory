@@ -1,4 +1,3 @@
-
 package projetihm;
 
 import java.sql.*;
@@ -117,7 +116,7 @@ public class FXMLDocumentController implements Initializable {
 //                        + "WHERE EMAIL_PERSONNE ='" + mailTextField.getText() + "' AND PASSWORD = ENCRYPTER('" + passwordTextField.getText() + "')");
                 existingUser = 1;
                 nameUser = "Remi";
-                functionUser = "chercheur";
+                functionUser = "laborantin";
 //                while (rs.next()) {
 //                    existingUser = 1;
 //                    nameUser = rs.getString(1);
@@ -197,23 +196,11 @@ public class FXMLDocumentController implements Initializable {
             eyeIcon.setImage(new Image(getClass().getResource("eye_white.png").toExternalForm()));
             plaqueIcon.setImage(new Image(getClass().getResource("square_black.png").toExternalForm()));
         }
-        //Remise à 0 du label warning
-        warningLabel.setText("");
-        //remise à 0 des comboBox
-        equipeComboBox.getItems().clear();
-        typeExpComboBox.getItems().clear();
-        //Récupération des équipes enregistrés et ajout à la ComboBox du choix de l'équipe dans le formulaire
-        try {
-            Statement stmt = con.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT NOM_EQUIPE FROM EQUIPE");
-            while (rs.next()) {
-                equipeComboBox.getItems().add(rs.getString(1));
-            }
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-        //Ajout des propositions de choix à la ComboBox de choix du type d'expérience
-        typeExpComboBox.getItems().addAll("colorimétrique", "opacimétrique");
+        //Réinitialisation des textFields, ComboBox et suppression des bordures rouge
+        clearChercheur();
+        //Chargement des comboBox
+        chargementComboBox();
+
         //Gestion des pages et de l'UX
         topPanel.setVisible(true);
         welcomePanel.setVisible(false);
@@ -731,7 +718,15 @@ public class FXMLDocumentController implements Initializable {
      */
     @FXML
     private void setViewPanel(MouseEvent event) {
-        TableExp();
+        reloadTableauExp(); 
+    }
+    
+    /**
+     * Méthode permettant l'affichage du tableau des expériences
+     * visible par les laborantins
+     */
+    private void reloadTableauExp() {
+            TableExp();
         //Gestion des pages et de l'UX
         eyeIcon.setImage(new Image(getClass().getResource("eye_white.png").toExternalForm()));
         addIcon.setImage(new Image(getClass().getResource("add_black.png").toExternalForm()));
@@ -751,7 +746,8 @@ public class FXMLDocumentController implements Initializable {
         searchdateTextField.setStyle("-fx-border-width:0px");
         warningSearch.setText("");
     }
-
+    
+    
     /**
      * Méthode permettant l'affichage du panel central permettant l'ajout d'une
      * expérience ainsi que la gestion de l'UX des menus (surlignage du module
@@ -761,21 +757,10 @@ public class FXMLDocumentController implements Initializable {
      */
     @FXML
     private void setInsertPanel(MouseEvent event) {
-        //Suppression des propositions de choix dans les ComboBox du choix du type d'exp. et d'équipe pour pouvoir les MAJ
-        equipeComboBox.getItems().clear();
-        typeExpComboBox.getItems().clear();
-        //Récupération des équipes enregistrés et ajout à la ComboBox du choix de l'équipe dans le formulaire
-        try {
-            Statement stmt = con.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT NOM_EQUIPE FROM EQUIPE");
-            while (rs.next()) {
-                equipeComboBox.getItems().add(rs.getString(1));
-            }
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-        //Ajout des propositions de choix à la ComboBox de choix du type d'expérience
-        typeExpComboBox.getItems().addAll("colorimétrique", "opacimétrique");
+        //Réinitialisation des textFields, ComboBox et suppression des bordures rouge
+        clearChercheur();
+        //Chargement des comboBox
+        chargementComboBox();
         //Gestion des pages et de l'UX
         eyeIcon.setImage(new Image(getClass().getResource("eye_black.png").toExternalForm()));
         addIcon.setImage(new Image(getClass().getResource("add_white.png").toExternalForm()));
@@ -797,9 +782,10 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private void setUpletPanel(MouseEvent event
     ) {
-        //Ajout des propositions de choix à la ComboBox de choix du type de cellules
-        typeCelluleComboBox.getItems().clear();
-        typeCelluleComboBox.getItems().addAll("cancéreuse", "non-cancéreuse");
+        //Réinitialisation des textFields, ComboBox et suppression des bordures rouge
+        clearChercheur();
+        //Chargement des comboBox
+        chargementComboBox();
         //Gestion des pages et de l'UX
         eyeIcon.setImage(new Image(getClass().getResource("eye_black.png").toExternalForm()));
         addIcon.setImage(new Image(getClass().getResource("add_black.png").toExternalForm()));
@@ -809,32 +795,6 @@ public class FXMLDocumentController implements Initializable {
         viewPanel.setVisible(false);
         insertPanel.setVisible(false);
         upletPanel.setVisible(true);
-        //Suppression des bordures rouges
-        expSelectedComboBox.setStyle("-fx-border-width:0px");
-        typeCelluleComboBox.setStyle("-fx-border-width:0px");
-        qteAgentTextField.setStyle("-fx-border-width:0px");
-        qteCelluleTextField.setStyle("-fx-border-width:0px");
-        nomAgentComboBox.setStyle("-fx-border-width:0px");
-        //Remise à 0 des comboBox
-        expSelectedComboBox.getItems().clear();
-        nomAgentComboBox.getItems().clear();
-        warningUpletLabel.setText("");
-        // Affichage de la liste des expériences
-        try {
-            Statement stmt = con.createStatement();
-            ResultSet rs = stmt.executeQuery(
-                    "SELECT ID_EXPERIENCE, LIBELLE_EXP, NOM_EQUIPE "
-                    + "FROM EXPERIENCE "
-                    + "JOIN EQUIPE ON EXPERIENCE.EMAIL_EQUIPE = EQUIPE.EMAIL_EQUIPE");
-            while (rs.next()) {
-                expSelectedComboBox.getItems().add(rs.getString(1) + " - " + rs.getString(2) + " - Equipe " + rs.getString(3));
-            }
-        } catch (SQLException e) {
-            System.out.println(e);
-        }
-
-        // Affichage du produit
-        reloadProduit();
     }
 
     /**
@@ -937,124 +897,43 @@ public class FXMLDocumentController implements Initializable {
     }
 
     /**
-     * Méthode permettant de recharger la comboBox des produits
-     *
-     */
-    public void reloadProduit() {
-        // Affichage du produit
-        try {
-            Statement stmt = con.createStatement();
-            ResultSet rs = stmt.executeQuery(
-                    "SELECT NOM_PRODUIT "
-                    + "FROM PRODUIT");
-            while (rs.next()) {
-                String produit = rs.getString(1);
-                nomAgentComboBox.getItems().add(rs.getString(1));
-            }
-        } catch (SQLException e) {
-            System.out.println(e);
-        }
-    }
-
-    /**
-     * Méthode permettant l'ajout d'un uplet
+     * Listener sur le bouton d'ajout d'un uplet permettant d'ajouter un uplet
      *
      * @param event
      */
     @FXML
     private void ajoutUplet(ActionEvent event) {
-        String qteAgent = qteAgentTextField.getText().replace(",", ".");
-        String qteCell = qteCelluleTextField.getText().replace(",", ".");
-        double intqteAgent = -1;
-        double intqteCell = -1;
+        addUplet();
+    }
 
-        if (qteAgent.matches("^[0-9]+(.[0-9]+)?$")) {
-            intqteAgent = Double.parseDouble(qteAgent);
-        }
-        if (qteCell.matches("^[0-9]+(.[0-9]+)?$")) {
-            intqteCell = Double.parseDouble(qteCell);
-        }
-        System.out.println(intqteAgent); 
-        System.out.println(intqteCell);
-
-        //Suppresion des bordures rouges
-        expSelectedComboBox.setStyle("-fx-border-width:0px");
-        typeCelluleComboBox.setStyle("-fx-border-width:0px");
-        qteAgentTextField.setStyle("-fx-border-width:0px");
-        qteCelluleTextField.setStyle("-fx-border-width:0px");
-        nomAgentComboBox.setStyle("-fx-border-width:0px");
-        warningUpletLabel.setText("");
-        reloadProduit();
-
-        if (nomAgentComboBox.getValue() != null && expSelectedComboBox.getValue() != null && typeCelluleComboBox.getValue() != null && qteAgentTextField.getText().isEmpty() == false && qteCelluleTextField.getText().isEmpty() == false) {
-            //Ajout de l'uplet
-            if (intqteAgent != -1 && intqteCell != -1) {
-                try {
-                    Statement stmt1 = con.createStatement();
-                    ResultSet rs1 = stmt1.executeQuery("INSERT INTO N_UPLET (ID_EXPERIENCE, TYPE_CELLULE, Q_AGENT, Q_CELLULE) values (" + (expSelectedComboBox.getValue() + "").split(" ")[0] + ",  '" + typeCelluleComboBox.getValue() + "', " + intqteAgent + ", " + intqteCell + " )");
-                    warningUpletLabel.setText("");
-                    warningUpletLabel.setText("Uplet ajouté.");
-                    warningUpletLabel.setVisible(true);
-                } catch (SQLException e) {
-                    while (e != null) {
-                        String message = e.getMessage();
-                        int errorCode = e.getErrorCode();
-                        System.out.println(message);
-                        if (!qteAgentTextField.getText().matches("^[0-9]+(.[0-9]+)?$")) {
-                            qteAgentTextField.setStyle("-fx-border-color: RED");
-                            warningUpletLabel.setText("");
-                            warningUpletLabel.setText("Valeur non valide.");
-                            warningUpletLabel.setVisible(true);
-                        }
-                        if (!qteCelluleTextField.getText().matches("^[0-9]+(.[0-9]+)?$")) {
-                            qteCelluleTextField.setStyle("-fx-border-color: RED");
-                            warningUpletLabel.setText("");
-                            warningUpletLabel.setText("Valeur non valide.");
-                            warningUpletLabel.setVisible(true);
-                        }
-
-                        e = e.getNextException();
-                    }
-                }
-            } else {
-                if (!qteAgentTextField.getText().matches("^[0-9]+(.[0-9]+)?$")) {
-                    qteAgentTextField.setStyle("-fx-border-color: RED");
-                    warningUpletLabel.setText("");
-                    warningUpletLabel.setText("Valeur non valide.");
-                    warningUpletLabel.setVisible(true);
-                }
-                if (!qteCelluleTextField.getText().matches("^[0-9]+(.[0-9]+)?$")) {
-                    qteCelluleTextField.setStyle("-fx-border-color: RED");
-                    warningUpletLabel.setText("");
-                    warningUpletLabel.setText("Valeur non valide.");
-                    warningUpletLabel.setVisible(true);
-                }
-            }
-        } else {
-            warningUpletLabel.setText("");
-            warningUpletLabel.setText("Veuillez remplir tous les champs.");
-            warningUpletLabel.setVisible(true);
-        }
-        //Affichage en rouge des contours lorsque les champs sont vides
-        if (expSelectedComboBox.getValue() == null) {
-            expSelectedComboBox.setStyle("-fx-border-color: RED");
-        }
-        if (typeCelluleComboBox.getValue() == null) {
-            typeCelluleComboBox.setStyle("-fx-border-color: RED");
-        }
-        if (qteAgentTextField.getText().isEmpty() == true) {
-            qteAgentTextField.setStyle("-fx-border-color: RED");
-        }
-        if (qteCelluleTextField.getText().isEmpty() == true) {
-            qteCelluleTextField.setStyle("-fx-border-color: RED");
-        }
-        if (nomAgentComboBox.getValue() == null) {
-            nomAgentComboBox.setStyle("-fx-border-color: RED");
+    /**
+     * Listener sur le bouton d'ajout d'un uplet permettant d'ajouter un uplet
+     * --> AVEC LE CLAVIER
+     *
+     * @param Keyevent
+     */
+    @FXML
+    private void ajoutUpletBis(KeyEvent e) {
+        if (e.getCode() == ENTER) {
+            addUplet();
         }
     }
 
     /**
-     * Méthode permettant la recherche d'expérience parmis celle en base de
+     * Listener permettant la recherche d'expérience parmis celle en base de
+     * données selon 3 critères non-obligatoires : - l'équipe commanditaire - le
+     * statut de l'expérience - la date de début de l'expérience --> AVEC LE
+     * CLAVIER
+     *
+     * @param KeyEvent
+     */
+    @FXML
+    private void searchExperienceBis(KeyEvent e) {
+        rechercherExp();
+    }
+
+    /**
+     * Listener permettant la recherche d'expérience parmis celle en base de
      * données selon 3 critères non-obligatoires : - l'équipe commanditaire - le
      * statut de l'expérience - la date de début de l'expérience
      *
@@ -1062,101 +941,7 @@ public class FXMLDocumentController implements Initializable {
      */
     @FXML
     private void searchExperience(ActionEvent event) {
-        //Remise à 0 des listes qui stokent les expériences selon la recherche faite par l'utilisateur
-        listExpSearchStatut.clear();
-        listExpSearchEquipe.clear();
-        listExpSearchDate.clear();
-        listExpSearchStatutEquipe.clear();
-        listExpSearchStatutDate.clear();
-        listExpSearchEquipeDate.clear();
-        listExpSearchAll.clear();
-        warningSearch.setText("");
-        //Remise à 0 des border des textFields de la recherche
-        searchEquipeTextField.setStyle("-fx-border-width:0px");
-        searchstatutTextField.setStyle("-fx-border-width:0px");
-        searchdateTextField.setStyle("-fx-border-width:0px");
-
-        //cas où uniquement le statut est renseigné
-        for (int i = 0; i < listExp.size(); i++) {
-            if (listExp.get(i).getStatut().equals(searchstatutTextField.getText())) {
-                listExpSearchStatut.add(listExp.get(i));
-            }
-        }
-        //cas où uniquement l'équipe est renseignée
-        for (int i = 0; i < listExp.size(); i++) {
-            if (listExp.get(i).getEmail_equipe().equals(searchEquipeTextField.getText())) {
-                listExpSearchEquipe.add(listExp.get(i));
-            }
-        }
-        //cas où uniquement la date est renseignée    
-        LocalDate localdate = searchdateTextField.getValue();
-        if (localdate != null) {
-            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd 00:00:00");
-            String searchDate = localdate.format(dateTimeFormatter);
-            //cas où uniquement la date est renseignée
-            for (int i = 0; i < listExp.size(); i++) {
-                if (listExp.get(i).getDate_demande().equals(searchDate)) {
-                    listExpSearchDate.add(listExp.get(i));
-                }
-            }
-            //La date et l'équipe sont renseignés
-            for (int i = 0; i < listExp.size(); i++) {
-                if (listExp.get(i).getEmail_equipe().equals(searchEquipeTextField.getText()) && listExp.get(i).getDate_demande().equals(searchDate)) {
-                    listExpSearchEquipeDate.add(listExp.get(i));
-                }
-            }
-            //La date et le statut sont renseignés
-            for (int i = 0; i < listExp.size(); i++) {
-                if (listExp.get(i).getStatut().equals(searchstatutTextField.getText()) && listExp.get(i).getDate_demande().equals(searchDate)) {
-                    listExpSearchStatutDate.add(listExp.get(i));
-                }
-            }
-            //La date, le statut et l'équipe sont renseignés
-            for (int i = 0; i < listExp.size(); i++) {
-                if (listExp.get(i).getStatut().equals(searchstatutTextField.getText()) && listExp.get(i).getDate_demande().equals(searchDate) && listExp.get(i).getEmail_equipe().equals(searchEquipeTextField.getText())) {
-                    listExpSearchAll.add(listExp.get(i));
-                }
-            }
-        }
-
-        for (int i = 0; i < listExp.size(); i++) {
-            if (listExp.get(i).getEmail_equipe().equals(searchEquipeTextField.getText()) && listExp.get(i).getStatut().equals(searchstatutTextField.getText())) {
-                listExpSearchStatutEquipe.add(listExp.get(i));
-            }
-        }
-
-        //Affichage du tableau conditionné à la recherche faite par le laborantin
-        if (searchEquipeTextField.getText().isEmpty() == true && localdate == null && searchstatutTextField.getText().isEmpty() == false) {
-            viewTableView.setItems(listExpSearchStatut);
-        } else if (searchstatutTextField.getText().isEmpty() == true && localdate == null && searchEquipeTextField.getText().isEmpty() == false) {
-            viewTableView.setItems(listExpSearchEquipe);
-        } else if (searchEquipeTextField.getText().isEmpty() == true && searchstatutTextField.getText().isEmpty() == true && localdate != null) {
-            viewTableView.setItems(listExpSearchDate);
-        } else if (searchEquipeTextField.getText().isEmpty() == true && localdate != null && searchstatutTextField.getText().isEmpty() == false) {
-            viewTableView.setItems(listExpSearchStatutDate);
-        } else if (searchEquipeTextField.getText().isEmpty() == false && localdate == null && searchstatutTextField.getText().isEmpty() == false) {
-            viewTableView.setItems(listExpSearchStatutEquipe);
-        } else if (searchEquipeTextField.getText().isEmpty() == false && localdate != null && searchstatutTextField.getText().isEmpty() == true) {
-            viewTableView.setItems(listExpSearchEquipeDate);
-        } else if (searchEquipeTextField.getText().isEmpty() == false && localdate != null && searchstatutTextField.getText().isEmpty() == false) {
-            viewTableView.setItems(listExpSearchAll);
-        } else {
-            //Si els 3 champs sont vides -> erreur
-            searchEquipeTextField.setStyle("-fx-border-color: RED");
-            searchstatutTextField.setStyle("-fx-border-color: RED");
-            searchdateTextField.setStyle("-fx-border-color: RED");
-            warningSearch.setText("");
-            warningSearch.setText("Veuillez remplir au moins un champs.");
-            warningSearch.setVisible(true);
-        }
-        //Affichage d'un message dans le cas où aucun résultat n'a été trouvé après la recherche faite par le laborantin
-        if (listExpSearchEquipe.isEmpty() == true && listExpSearchStatut.isEmpty() == true && listExpSearchDate.isEmpty() == true && listExpSearchStatutEquipe.isEmpty() == true && listExpSearchStatutDate.isEmpty() == true && listExpSearchEquipeDate.isEmpty() == true && listExpSearchAll.isEmpty() == true) {
-            warningSearch.setText("");
-            warningSearch.setText("Aucun résultat ne correspond à votre recherche.");
-            warningSearch.setVisible(true);
-        }
-
-        viewTableView.refresh();
+        rechercherExp();
     }
 
     /**
@@ -1483,29 +1268,144 @@ public class FXMLDocumentController implements Initializable {
         resUpletTableView.getColumns().addAll(colonneidUpletRes, colonneMoyenneTR, colonneEcartTypeTR, colonneMoyenneR, colonneEcartTypeR, colonneMoyenneV, colonneEcartTypeV, colonneMoyenneB, colonneEcartTypeB, colonneStatutResUplet);
     }
 
+    private void rechercherExp() {
+        //Remise à 0 des listes qui stokent les expériences selon la recherche faite par l'utilisateur
+        listExpSearchStatut.clear();
+        listExpSearchEquipe.clear();
+        listExpSearchDate.clear();
+        listExpSearchStatutEquipe.clear();
+        listExpSearchStatutDate.clear();
+        listExpSearchEquipeDate.clear();
+        listExpSearchAll.clear();
+        warningSearch.setText("");
+        //Remise à 0 des border des textFields de la recherche
+        searchEquipeTextField.setStyle("-fx-border-width:0px");
+        searchstatutTextField.setStyle("-fx-border-width:0px");
+        searchdateTextField.setStyle("-fx-border-width:0px");
+
+        //cas où uniquement le statut est renseigné
+        for (int i = 0; i < listExp.size(); i++) {
+            if (listExp.get(i).getStatut().equals(searchstatutTextField.getText())) {
+                listExpSearchStatut.add(listExp.get(i));
+            }
+        }
+        //cas où uniquement l'équipe est renseignée
+        for (int i = 0; i < listExp.size(); i++) {
+            if (listExp.get(i).getEmail_equipe().equals(searchEquipeTextField.getText())) {
+                listExpSearchEquipe.add(listExp.get(i));
+            }
+        }
+        //cas où uniquement la date est renseignée    
+        LocalDate localdate = searchdateTextField.getValue();
+        if (localdate != null) {
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd 00:00:00");
+            String searchDate = localdate.format(dateTimeFormatter);
+            //cas où uniquement la date est renseignée
+            for (int i = 0; i < listExp.size(); i++) {
+                if (listExp.get(i).getDate_demande().equals(searchDate)) {
+                    listExpSearchDate.add(listExp.get(i));
+                }
+            }
+            //La date et l'équipe sont renseignés
+            for (int i = 0; i < listExp.size(); i++) {
+                if (listExp.get(i).getEmail_equipe().equals(searchEquipeTextField.getText()) && listExp.get(i).getDate_demande().equals(searchDate)) {
+                    listExpSearchEquipeDate.add(listExp.get(i));
+                }
+            }
+            //La date et le statut sont renseignés
+            for (int i = 0; i < listExp.size(); i++) {
+                if (listExp.get(i).getStatut().equals(searchstatutTextField.getText()) && listExp.get(i).getDate_demande().equals(searchDate)) {
+                    listExpSearchStatutDate.add(listExp.get(i));
+                }
+            }
+            //La date, le statut et l'équipe sont renseignés
+            for (int i = 0; i < listExp.size(); i++) {
+                if (listExp.get(i).getStatut().equals(searchstatutTextField.getText()) && listExp.get(i).getDate_demande().equals(searchDate) && listExp.get(i).getEmail_equipe().equals(searchEquipeTextField.getText())) {
+                    listExpSearchAll.add(listExp.get(i));
+                }
+            }
+        }
+
+        for (int i = 0; i < listExp.size(); i++) {
+            if (listExp.get(i).getEmail_equipe().equals(searchEquipeTextField.getText()) && listExp.get(i).getStatut().equals(searchstatutTextField.getText())) {
+                listExpSearchStatutEquipe.add(listExp.get(i));
+            }
+        }
+
+        //Affichage du tableau conditionné à la recherche faite par le laborantin
+        if (searchEquipeTextField.getText().isEmpty() == true && localdate == null && searchstatutTextField.getText().isEmpty() == false) {
+            viewTableView.setItems(listExpSearchStatut);
+            if (listExpSearchStatut.isEmpty() == true) {
+                warningSearch.setText("");
+                warningSearch.setText("Aucun résultat ne correspond à votre recherche.");
+                warningSearch.setVisible(true);
+            }
+        } else if (searchstatutTextField.getText().isEmpty() == true && localdate == null && searchEquipeTextField.getText().isEmpty() == false) {
+            viewTableView.setItems(listExpSearchEquipe);
+            if (listExpSearchEquipe.isEmpty() == true) {
+                warningSearch.setText("");
+                warningSearch.setText("Aucun résultat ne correspond à votre recherche.");
+                warningSearch.setVisible(true);
+            }
+        } else if (searchEquipeTextField.getText().isEmpty() == true && searchstatutTextField.getText().isEmpty() == true && localdate != null) {
+            viewTableView.setItems(listExpSearchDate);
+            if (listExpSearchDate.isEmpty() == true) {
+                warningSearch.setText("");
+                warningSearch.setText("Aucun résultat ne correspond à votre recherche.");
+                warningSearch.setVisible(true);
+            }
+        } else if (searchEquipeTextField.getText().isEmpty() == true && localdate != null && searchstatutTextField.getText().isEmpty() == false) {
+            viewTableView.setItems(listExpSearchStatutDate);
+            if (listExpSearchStatutDate.isEmpty() == true) {
+                warningSearch.setText("");
+                warningSearch.setText("Aucun résultat ne correspond à votre recherche.");
+                warningSearch.setVisible(true);
+            }
+        } else if (searchEquipeTextField.getText().isEmpty() == false && localdate == null && searchstatutTextField.getText().isEmpty() == false) {
+            viewTableView.setItems(listExpSearchStatutEquipe);
+            if (listExpSearchStatutEquipe.isEmpty() == true) {
+                warningSearch.setText("");
+                warningSearch.setText("Aucun résultat ne correspond à votre recherche.");
+                warningSearch.setVisible(true);
+            }
+        } else if (searchEquipeTextField.getText().isEmpty() == false && localdate != null && searchstatutTextField.getText().isEmpty() == true) {
+            viewTableView.setItems(listExpSearchEquipeDate);
+            if (listExpSearchEquipeDate.isEmpty() == true) {
+                warningSearch.setText("");
+                warningSearch.setText("Aucun résultat ne correspond à votre recherche.");
+                warningSearch.setVisible(true);
+            }
+        } else if (searchEquipeTextField.getText().isEmpty() == false && localdate != null && searchstatutTextField.getText().isEmpty() == false) {
+            viewTableView.setItems(listExpSearchAll);
+            if (listExpSearchAll.isEmpty() == true) {
+                warningSearch.setText("");
+                warningSearch.setText("Aucun résultat ne correspond à votre recherche.");
+                warningSearch.setVisible(true);
+            }
+        } else {
+            //Si els 3 champs sont vides -> erreur
+            searchEquipeTextField.setStyle("-fx-border-color: RED");
+            searchstatutTextField.setStyle("-fx-border-color: RED");
+            searchdateTextField.setStyle("-fx-border-color: RED");
+            warningSearch.setText("");
+            warningSearch.setText("Veuillez remplir au moins un champs.");
+            warningSearch.setVisible(true);
+        }
+
+        viewTableView.refresh();
+    }
+
     /**
      * Méthode d'ajout d'un expérience. Cette m"thode est appelée dans les
      * listeners d'ajout d'expérience
      */
-    public void addExp() {
+    private void addExp() {
 
-        //Suppression des cadres rouge
-        typeExpComboBox.setStyle("-fx-border-width:0px");
-        equipeComboBox.setStyle("-fx-border-width:0px");
-        dureeExpTextField.setStyle("-fx-border-width:0px");
-        nbSlotTextField.setStyle("-fx-border-width:0px");
-        a2TextField.setStyle("-fx-border-width:0px");
-        a1TextField.setStyle("-fx-border-width:0px");
-        a3TextField.setStyle("-fx-border-width:0px");
-        frequenceTextField.setStyle("-fx-border-width:0px");
-        dateDemandeDate.setStyle("-fx-border-width:0px");
-        libelleTextField.setStyle("-fx-border-width:0px");
-
-        String libelle = libelleTextField.getText();
         if (dateDemandeDate.getValue() != null) {
             LocalDate localdate = dateDemandeDate.getValue();
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             String dateString = localdate.format(dateTimeFormatter);
+            String libelle = libelleTextField.getText();
             String frequence = frequenceTextField.getText();
             String a3 = a3TextField.getText().replace(",", ".");
             String a1 = a1TextField.getText().replace(",", ".");
@@ -1520,7 +1420,6 @@ public class FXMLDocumentController implements Initializable {
             int intnbslot = -1;
             String email = "";
             String statut = "à faire";
-            warningLabel.setVisible(false);
 
             if (duree.matches("^[0-9]+(.[0-9]+)?$")) {
                 intduree = Double.parseDouble(duree);
@@ -1563,7 +1462,10 @@ public class FXMLDocumentController implements Initializable {
                     if (inta3 != -1 && intfrequence != -1 && ouiRadio.isSelected() == true && intduree != -1 && inta1 != -1 && inta2 != -1 && intnbslot != -1) {
                         Statement stmt1 = con.createStatement();
                         ResultSet rs1 = stmt1.executeQuery("INSERT INTO EXPERIENCE (LIBELLE_EXP, EMAIL_EQUIPE, DATE_DEMANDE, TYPE_EXP, A1, A2, NB_SLOT, DUREE_EXP, A3, STATUT_EXP, FREQUENCE) values ('" + libelle + "', '" + email + "', '" + dateString + "', '" + typeExp + "', " + inta1 + ", " + inta2 + ", " + intnbslot + ", " + intduree + ", " + inta3 + ", '" + statut + "', '" + intfrequence + "')");
-                        warningLabel.setText("");
+                        //Réinitialisation des textFields, ComboBox et suppression des bordures rouge
+                        clearChercheur();
+                        //Chargement des comboBox
+                        chargementComboBox();
                         warningLabel.setText("Expérience ajoutée.");
                         warningLabel.setVisible(true);
                     } else if (("".equals(a3) || "".equals(frequence)) && ouiRadio.isSelected() == true) {
@@ -1574,7 +1476,10 @@ public class FXMLDocumentController implements Initializable {
                         Statement stmt2 = con.createStatement();
                         ResultSet rs2 = stmt2.executeQuery("INSERT INTO EXPERIENCE (LIBELLE_EXP, EMAIL_EQUIPE, DATE_DEMANDE, TYPE_EXP, A1, A2, NB_SLOT, DUREE_EXP, STATUT_EXP) "
                                 + "values ('" + libelle + "', '" + email + "', '" + dateString + "', '" + typeExp + "', " + inta1 + ", " + inta2 + ", " + intnbslot + ", " + intduree + ", '" + statut + "')");
-                        warningLabel.setText("");
+                        //Réinitialisation des textFields, ComboBox et suppression des bordures rouge
+                        clearChercheur();
+                        //Chargement des comboBox
+                        chargementComboBox();
                         warningLabel.setText("Expérience ajoutée.");
                         warningLabel.setVisible(true);
                     } else {
@@ -1708,41 +1613,38 @@ public class FXMLDocumentController implements Initializable {
                 warningLabel.setText("");
                 warningLabel.setText("Veuillez remplir tous les champs.");
                 warningLabel.setVisible(true);
+                if (libelle.isEmpty() == true) {
+                    libelleTextField.setStyle("-fx-border-color: RED");
+                }
+                if (a1.isEmpty() == true) {
+                    a1TextField.setStyle("-fx-border-color: RED");
+                }
+                if (a2.isEmpty() == true) {
+                    a2TextField.setStyle("-fx-border-color: RED");
+                }
+                if (nb_slot.isEmpty() == true) {
+                    nbSlotTextField.setStyle("-fx-border-color: RED");
+                }
+                if (duree.isEmpty() == true) {
+                    dureeExpTextField.setStyle("-fx-border-color: RED");
+                }
+                if (equipeComboBox.getValue() == null) {
+                    equipeComboBox.setStyle("-fx-border-color: RED");
+                }
+                if (typeExpComboBox.getValue() == null) {
+                    typeExpComboBox.setStyle("-fx-border-color: RED");
+                }
+                if (a3.isEmpty() == true) {
+                    a3TextField.setStyle("-fx-border-color: RED");
+                }
+                if (frequence.isEmpty() == true) {
+                    frequenceTextField.setStyle("-fx-border-color: RED");
+                }
+                if (ouiRadio.isSelected() == false && nonRadio.isSelected() == false) {
+                    ouiRadio.setStyle("-fx-border-color: RED");
+                    nonRadio.setStyle("-fx-border-color: RED");
+                }
             }
-
-            if (libelle.isEmpty() == true) {
-                libelleTextField.setStyle("-fx-border-color: RED");
-            }
-            if (a1.isEmpty() == true) {
-                a1TextField.setStyle("-fx-border-color: RED");
-            }
-            if (a2.isEmpty() == true) {
-                a2TextField.setStyle("-fx-border-color: RED");
-            }
-            if (nb_slot.isEmpty() == true) {
-                nbSlotTextField.setStyle("-fx-border-color: RED");
-            }
-            if (duree.isEmpty() == true) {
-                dureeExpTextField.setStyle("-fx-border-color: RED");
-            }
-            if (equipeComboBox.getValue() == null) {
-                equipeComboBox.setStyle("-fx-border-color: RED");
-            }
-            if (typeExpComboBox.getValue() == null) {
-                typeExpComboBox.setStyle("-fx-border-color: RED");
-            }
-            if (a3.isEmpty() == true) {
-                a3TextField.setStyle("-fx-border-color: RED");
-            }
-            if (frequence.isEmpty() == true) {
-                frequenceTextField.setStyle("-fx-border-color: RED");
-            }
-
-            if (ouiRadio.isSelected() == false && nonRadio.isSelected() == false) {
-                ouiRadio.setStyle("-fx-border-color: RED");
-                nonRadio.setStyle("-fx-border-color: RED");
-            }
-
         } else {
             dateDemandeDate.setStyle("-fx-border-color: RED");
             warningLabel.setText("");
@@ -1750,6 +1652,92 @@ public class FXMLDocumentController implements Initializable {
             warningLabel.setVisible(true);
         }
 
+    }
+
+    /**
+     * Méthode d'insertion d'un uplet appelée dans les listeners
+     */
+    private void addUplet() {
+        String qteAgent = qteAgentTextField.getText().replace(",", ".");
+        String qteCell = qteCelluleTextField.getText().replace(",", ".");
+        double intqteAgent = -1;
+        double intqteCell = -1;
+
+        if (qteAgent.matches("^[0-9]+(.[0-9]+)?$")) {
+            intqteAgent = Double.parseDouble(qteAgent);
+        }
+        if (qteCell.matches("^[0-9]+(.[0-9]+)?$")) {
+            intqteCell = Double.parseDouble(qteCell);
+        }
+
+        if (nomAgentComboBox.getValue() != null && expSelectedComboBox.getValue() != null && typeCelluleComboBox.getValue() != null && qteAgentTextField.getText().isEmpty() == false && qteCelluleTextField.getText().isEmpty() == false) {
+            //Ajout de l'uplet
+            if (intqteAgent != -1 && intqteCell != -1) {
+                try {
+                    Statement stmt1 = con.createStatement();
+                    ResultSet rs1 = stmt1.executeQuery("INSERT INTO N_UPLET (ID_EXPERIENCE, TYPE_CELLULE, Q_AGENT, Q_CELLULE) values (" + (expSelectedComboBox.getValue() + "").split(" ")[0] + ",  '" + typeCelluleComboBox.getValue() + "', " + intqteAgent + ", " + intqteCell + " )");
+                    //Réinitialisation des textFields, ComboBox et suppression des bordures rouge
+                    clearChercheur();
+                    //Chargement des comboBox
+                    chargementComboBox();
+                    warningUpletLabel.setText("Uplet ajouté.");
+                    warningUpletLabel.setVisible(true);
+                } catch (SQLException e) {
+                    while (e != null) {
+                        String message = e.getMessage();
+                        int errorCode = e.getErrorCode();
+                        System.out.println(message);
+                        if (!qteAgentTextField.getText().matches("^[0-9]+(.[0-9]+)?$")) {
+                            qteAgentTextField.setStyle("-fx-border-color: RED");
+                            warningUpletLabel.setText("");
+                            warningUpletLabel.setText("Valeur non valide.");
+                            warningUpletLabel.setVisible(true);
+                        }
+                        if (!qteCelluleTextField.getText().matches("^[0-9]+(.[0-9]+)?$")) {
+                            qteCelluleTextField.setStyle("-fx-border-color: RED");
+                            warningUpletLabel.setText("");
+                            warningUpletLabel.setText("Valeur non valide.");
+                            warningUpletLabel.setVisible(true);
+                        }
+
+                        e = e.getNextException();
+                    }
+                }
+            } else {
+                if (!qteAgentTextField.getText().matches("^[0-9]+(.[0-9]+)?$")) {
+                    qteAgentTextField.setStyle("-fx-border-color: RED");
+                    warningUpletLabel.setText("");
+                    warningUpletLabel.setText("Valeur non valide.");
+                    warningUpletLabel.setVisible(true);
+                }
+                if (!qteCelluleTextField.getText().matches("^[0-9]+(.[0-9]+)?$")) {
+                    qteCelluleTextField.setStyle("-fx-border-color: RED");
+                    warningUpletLabel.setText("");
+                    warningUpletLabel.setText("Valeur non valide.");
+                    warningUpletLabel.setVisible(true);
+                }
+            }
+        } else {
+            warningUpletLabel.setText("");
+            warningUpletLabel.setText("Veuillez remplir tous les champs.");
+            warningUpletLabel.setVisible(true);
+            //Affichage en rouge des contours lorsque les champs sont vides
+            if (expSelectedComboBox.getValue() == null) {
+                expSelectedComboBox.setStyle("-fx-border-color: RED");
+            }
+            if (typeCelluleComboBox.getValue() == null) {
+                typeCelluleComboBox.setStyle("-fx-border-color: RED");
+            }
+            if (qteAgentTextField.getText().isEmpty() == true) {
+                qteAgentTextField.setStyle("-fx-border-color: RED");
+            }
+            if (qteCelluleTextField.getText().isEmpty() == true) {
+                qteCelluleTextField.setStyle("-fx-border-color: RED");
+            }
+            if (nomAgentComboBox.getValue() == null) {
+                nomAgentComboBox.setStyle("-fx-border-color: RED");
+            }
+        }
     }
 
     /**
@@ -1770,6 +1758,117 @@ public class FXMLDocumentController implements Initializable {
         }
     }
 
+    private void chargementComboBox() {
+        //Récupération des équipes enregistrés et ajout à la ComboBox du choix de l'équipe dans le formulaire
+        try {
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT NOM_EQUIPE FROM EQUIPE");
+            while (rs.next()) {
+                equipeComboBox.getItems().add(rs.getString(1));
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        //Ajout des propositions de choix à la ComboBox de choix du type d'expérience
+        typeExpComboBox.getItems().addAll("colorimétrique", "opacimétrique");
+        //Ajout des propositions de choix à la ComboBox de choix du type de cellules
+        typeCelluleComboBox.getItems().addAll("cancéreuse", "non-cancéreuse");
+
+        // Affichage de la liste des expériences terminées
+        try {
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery(
+                    "SELECT ID_EXPERIENCE, LIBELLE_EXP, NOM_EQUIPE FROM EXPERIENCE JOIN EQUIPE ON EXPERIENCE.EMAIL_EQUIPE = EQUIPE.EMAIL_EQUIPE WHERE TERMINE = 0 AND STATUT_EXP = 'à faire'");
+            while (rs.next()) {
+                expSelectedComboBox.getItems().add(rs.getString(1) + " - " + rs.getString(2) + " - Equipe " + rs.getString(3));
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+
+        // Affichage du produit
+        try {
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery(
+                    "SELECT NOM_PRODUIT "
+                    + "FROM PRODUIT");
+            while (rs.next()) {
+                String produit = rs.getString(1);
+                nomAgentComboBox.getItems().add(rs.getString(1));
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+    }
+
+    /**
+     * Remise à 0 des comboBox, textField et messages d'erreur pour la partie
+     * chercheur
+     */
+    private void clearChercheur() {
+
+        //Suppression des cadres rouge sur la partie de recherche
+        searchEquipeTextField.setStyle("-fx-border-width:0px");
+        searchstatutTextField.setStyle("-fx-border-width:0px");
+        searchdateTextField.setStyle("-fx-border-width:0px");
+        warningSearch.setText("");
+
+        //Suppression des cadres rouge sur la partie d'insertion d'une expérience
+        typeExpComboBox.setStyle("-fx-border-width:0px");
+        equipeComboBox.setStyle("-fx-border-width:0px");
+        dureeExpTextField.setStyle("-fx-border-width:0px");
+        nbSlotTextField.setStyle("-fx-border-width:0px");
+        a2TextField.setStyle("-fx-border-width:0px");
+        a1TextField.setStyle("-fx-border-width:0px");
+        a3TextField.setStyle("-fx-border-width:0px");
+        frequenceTextField.setStyle("-fx-border-width:0px");
+        dateDemandeDate.setStyle("-fx-border-width:0px");
+        libelleTextField.setStyle("-fx-border-width:0px");
+        ouiRadio.setStyle("-fx-border-width:0px");
+        nonRadio.setStyle("-fx-border-width:0px");
+        ouiRadio.setSelected(false);
+        nonRadio.setSelected(false);
+        //Réinitialisé le message d'erreur sur la partie d'insertion d'une expérience
+        warningLabel.setText("");
+        //Réinitialisation des textFields et des comboBox sur la partie d'insertion d'une expérience
+        dateDemandeDate.setValue(null);
+        libelleTextField.clear();
+        frequenceTextField.clear();
+        a3TextField.clear();
+        a1TextField.clear();
+        a2TextField.clear();
+        nbSlotTextField.clear();
+        dureeExpTextField.clear();
+        equipeComboBox.getItems().clear();
+        typeExpComboBox.getItems().clear();
+
+        //Suppression des cadres rouge sur la partie d'insertion d'un uplet
+        expSelectedComboBox.setStyle("-fx-border-width:0px");
+        typeCelluleComboBox.setStyle("-fx-border-width:0px");
+        qteAgentTextField.setStyle("-fx-border-width:0px");
+        qteCelluleTextField.setStyle("-fx-border-width:0px");
+        nomAgentComboBox.setStyle("-fx-border-width:0px");
+        //Réinitialisé le message d'erreur sur la partie d'insertion d'un uplet
+        warningUpletLabel.setText("");
+        //Réinitialisation des textFields et des comboBox sur la partie d'insertion d'un uplet
+        nomAgentComboBox.getItems().clear();
+        expSelectedComboBox.getItems().clear();
+        typeCelluleComboBox.getItems().clear();
+        qteAgentTextField.clear();
+        qteCelluleTextField.clear();
+    }
+
+    /**
+     * Listener permettant le retour à la liste des expériences
+     *
+     * @param : event
+     */
+    @FXML
+    private void backListExp(MouseEvent event) {
+        reloadTableauExp(); 
+        viewdetailsPanel.setVisible(false); 
+    }
+    
     /**
      * Méthode de déconnexion de la base de données Oracle
      */
@@ -1794,3 +1893,5 @@ public class FXMLDocumentController implements Initializable {
         connectServer();
     }
 }
+
+
