@@ -12,14 +12,14 @@ package projetihm;
 public class Uplet {
     private final int id_uplet;
     private final String type_cell; 
-    private final int q_agent; 
-    private final int q_cellule; 
-    private final int renouv; 
+    private final String q_agent; 
+    private final String q_cellule; 
+    private final String renouv; 
     private final int urgent; 
     private final String date_echeance; 
     private final String etat; 
 
-    public Uplet(int newUplet, String newTypeCell, int newAgent, int newCellule, int newRenouv, int newUrgent, String newDateEcheance, String newEtat) {
+    public Uplet(int newUplet, String newTypeCell, String newAgent, String newCellule, String newRenouv, int newUrgent, String newDateEcheance, String newEtat) {
     id_uplet = newUplet; 
     type_cell = newTypeCell; 
     q_agent = newAgent; 
@@ -38,15 +38,15 @@ public class Uplet {
         return type_cell;
     }
 
-    public int getQ_agent() {
+    public String getQ_agent() {
         return q_agent;
     }
 
-    public int getQ_cellule() {
+    public String getQ_cellule() {
         return q_cellule;
     }
 
-    public int getRenouv() {
+    public String getRenouv() {
         return renouv;
     }
 
