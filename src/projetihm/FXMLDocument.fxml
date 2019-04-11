@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
@@ -14,12 +15,14 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Line?>
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="AnchorPane" prefHeight="800.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.191" xmlns:fx="http://javafx.com/fxml/1" fx:controller="projetihm.FXMLDocumentController">
+<AnchorPane id="AnchorPane" prefHeight="750.0" prefWidth="1150.0" xmlns="http://javafx.com/javafx/8.0.191" xmlns:fx="http://javafx.com/fxml/1" fx:controller="projetihm.FXMLDocumentController">
     <children>
         <AnchorPane fx:id="navPanel" onKeyPressed="#keyPressed" onKeyReleased="#keyRealeased" prefHeight="500.0" prefWidth="700.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <children>
@@ -113,7 +116,7 @@
                         <TextField fx:id="qteAgentTextField" layoutX="439.0" layoutY="239.0" promptText="Saisir le numéro de la plaque" />
                         <ComboBox fx:id="typeCelluleComboBox" layoutX="439.0" layoutY="290.0" prefWidth="150.0" promptText="Sélectionner le type de cellules" />
                         <TextField fx:id="qteCelluleTextField" layoutX="440.0" layoutY="345.0" promptText="Saisir le numéro de la plaque" />
-                        <Button fx:id="ajoutUpletButton" layoutX="694.0" layoutY="440.0" mnemonicParsing="false" onAction="#ajoutUplet" style="-fx-background-color: #88d9e6;" text="Ajouter" />
+                        <Button fx:id="ajoutUpletButton" layoutX="694.0" layoutY="440.0" mnemonicParsing="false" onAction="#ajoutUplet" onKeyPressed="#ajoutUpletBis" style="-fx-background-color: #88d9e6;" text="Ajouter" />
                         <Label fx:id="titreLabel" layoutX="9.0" layoutY="15.0" text="Ajout d'un réplicat">
                             <font>
                                 <Font name="System Bold" size="24.0" />
@@ -156,10 +159,26 @@
 
                 <AnchorPane fx:id="viewPanel" layoutX="110.0" layoutY="104.0" prefHeight="398.0" prefWidth="590.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="110.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="104.0">
                     <children>
-                        <TextField fx:id="searchstatutTextField" layoutX="33.0" layoutY="35.0" promptText="Rechercher par statut..." />
-                        <TextField fx:id="searchEquipeTextField" layoutX="209.0" layoutY="35.0" promptText="Rechercher par équipe..." />
-                        <DatePicker fx:id="searchdateTextField" layoutX="380.0" layoutY="35.0" promptText="Rechercher par date..." />
-                        <Button fx:id="searchButton" layoutX="246.0" layoutY="75.0" mnemonicParsing="false" onAction="#searchExperience" style="-fx-background-color: #88d9e6;" text="Rechercher" />
+                  <HBox layoutX="199.0" layoutY="38.0" prefHeight="60.0" prefWidth="700.0" AnchorPane.bottomAnchor="550.0" AnchorPane.leftAnchor="170.0" AnchorPane.rightAnchor="170.0" AnchorPane.topAnchor="30.0">
+                     <children>
+                              <TextField fx:id="searchstatutTextField" promptText="Rechercher par statut...">
+                           <HBox.margin>
+                              <Insets right="30.0" />
+                           </HBox.margin>
+                        </TextField>
+                              <TextField fx:id="searchEquipeTextField" promptText="Rechercher par équipe...">
+                           <HBox.margin>
+                              <Insets right="30.0" />
+                           </HBox.margin>
+                        </TextField>
+                              <DatePicker fx:id="searchdateTextField" promptText="Rechercher par date...">
+                           <HBox.margin>
+                              <Insets right="30.0" />
+                           </HBox.margin>
+                        </DatePicker>
+                              <Button fx:id="searchButton" mnemonicParsing="false" onAction="#searchExperience" onKeyPressed="#searchExperienceBis" style="-fx-background-color: #88d9e6;" text="Rechercher" />
+                     </children>
+                  </HBox>
                         <TableView fx:id="viewTableView" layoutX="33.0" layoutY="127.0" prefHeight="257.0" prefWidth="522.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="130.0">
                             <columnResizePolicy>
                                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
@@ -276,150 +295,262 @@
                   <Label fx:id="warningLabel" layoutX="94.0" layoutY="499.0" prefHeight="17.0" prefWidth="575.0" text="XXXXXXXXXXX" textFill="RED" visible="false" />
                     </children>
                 </AnchorPane>
-                <ScrollPane fx:id="viewdetailsPanel" layoutX="110.0" layoutY="104.0" prefHeight="696.0" prefWidth="892.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="110.0" AnchorPane.rightAnchor="-2.0" AnchorPane.topAnchor="104.0">
+                <ScrollPane fx:id="viewdetailsPanel" fitToHeight="true" fitToWidth="true" layoutX="110.0" layoutY="104.0" prefHeight="696.0" prefWidth="892.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="110.0" AnchorPane.rightAnchor="-2.0" AnchorPane.topAnchor="104.0">
                     <content>
-                        <AnchorPane prefHeight="898.0" prefWidth="997.0">
+                        <AnchorPane prefHeight="898.0" prefWidth="1078.0">
                             <children>
-                                <Label layoutX="125.0" layoutY="40.0" text="Libellé :">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Label>
-                                <Label layoutX="593.0" layoutY="31.0" text="Type :">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Label>
-                                <Label layoutX="26.0" layoutY="70.0" text="Equipe commanditaire :">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Label>
-                                <Label layoutX="512.0" layoutY="61.0" text="Date de demande :">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Label>
-                                <Label layoutX="127.0" layoutY="100.0" text="Statut :">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Label>
-                                <Label layoutX="534.0" layoutY="91.0" text="Date de début :">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Label>
-                                <Label layoutX="149.0" layoutY="130.0" text="a1 :">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Label>
-                                <Label layoutX="149.0" layoutY="160.0" text="a2 :">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Label>
-                                <Label fx:id="a3viewLabel" layoutX="608.0" layoutY="211.0" text="a3 :">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Label>
-                                <Label layoutX="483.0" layoutY="121.0" text="Nombre de slots/uplet :">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Label>
-                                <Label layoutX="489.0" layoutY="151.0" text="Durée de l'expérience :">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Label>
-                                <Label layoutX="504.0" layoutY="181.0" text="Suivi dans le temps :">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Label>
-                                <Label fx:id="frequenceviewLabel" layoutX="100.0" layoutY="220.0" text="Fréquence :">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Label>
-                                <Label layoutX="35.0" layoutY="190.0" text="Date de transmission :">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Label>
-                                <Label fx:id="datalibelleLabel" layoutX="189.0" layoutY="40.0" text="XXX">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Label>
-                                <Label fx:id="dataequipeLabel" layoutX="189.0" layoutY="70.0" text="XXX">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Label>
-                                <Label fx:id="datastatutLabel" layoutX="189.0" layoutY="100.0" text="XXX">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Label>
-                                <Label fx:id="dataa1Label" layoutX="189.0" layoutY="130.0" text="XXX">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Label>
-                                <Label fx:id="dataa2Label" layoutX="189.0" layoutY="160.0" text="XXX">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Label>
-                                <Label fx:id="datadatetransmissionLabel" layoutX="189.0" layoutY="190.0" text="XXX">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Label>
-                                <Label fx:id="datafrequenceLabel" layoutX="189.0" layoutY="220.0" text="XXX">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Label>
-                                <Label fx:id="datatypeLabel" layoutX="647.0" layoutY="31.0" text="XXX">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Label>
-                                <Label fx:id="datadatedemandeLabel" layoutX="647.0" layoutY="61.0" text="XXX">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Label>
-                                <Label fx:id="datadatedebutLabel" layoutX="647.0" layoutY="91.0" text="XXX">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Label>
-                                <Label fx:id="datanbslotsLabel" layoutX="647.0" layoutY="121.0" text="XXX">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Label>
-                                <Label fx:id="datadureeLabel" layoutX="647.0" layoutY="151.0" text="XXX">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Label>
-                                <Label fx:id="datasuiviLabel" layoutX="647.0" layoutY="181.0" text="XXX">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Label>
-                                <Label fx:id="dataa3Label" layoutX="647.0" layoutY="211.0" text="XXX">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Label>
+                        <HBox layoutX="18.0" layoutY="14.0" prefHeight="242.0" prefWidth="992.0" spacing="200.0" AnchorPane.bottomAnchor="600.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="30.0">
+                           <children>
+                              <HBox>
+                                 <children>
+                                    <VBox alignment="TOP_RIGHT">
+                                       <children>
+                                                  <Label text="Libellé de l'expérience :">
+                                                      <font>
+                                                          <Font size="14.0" />
+                                                      </font>
+                                             <VBox.margin>
+                                                <Insets top="10.0" />
+                                             </VBox.margin>
+                                                  </Label>
+                                                  <Label text="Equipe commanditaire :">
+                                                      <font>
+                                                          <Font size="14.0" />
+                                                      </font>
+                                             <VBox.margin>
+                                                <Insets top="10.0" />
+                                             </VBox.margin>
+                                                  </Label>
+                                                  <Label text="Statut de l'expérience :">
+                                                      <font>
+                                                          <Font size="14.0" />
+                                                      </font>
+                                             <VBox.margin>
+                                                <Insets top="10.0" />
+                                             </VBox.margin>
+                                                  </Label>
+                                                  <Label text="Valeur de a1 :">
+                                                      <font>
+                                                          <Font size="14.0" />
+                                                      </font>
+                                             <VBox.margin>
+                                                <Insets top="10.0" />
+                                             </VBox.margin>
+                                                  </Label>
+                                                  <Label text="Valeur de a2 :">
+                                                      <font>
+                                                          <Font size="14.0" />
+                                                      </font>
+                                             <VBox.margin>
+                                                <Insets top="10.0" />
+                                             </VBox.margin>
+                                                  </Label>
+                                                  <Label text="Date de transmission des résultats :">
+                                                      <font>
+                                                          <Font size="14.0" />
+                                                      </font>
+                                             <VBox.margin>
+                                                <Insets top="10.0" />
+                                             </VBox.margin>
+                                                  </Label>
+                                                  <Label fx:id="frequenceviewLabel" text="Fréquence :">
+                                                      <font>
+                                                          <Font size="14.0" />
+                                                      </font>
+                                             <VBox.margin>
+                                                <Insets top="10.0" />
+                                             </VBox.margin>
+                                                  </Label>
+                                       </children>
+                                    </VBox>
+                                    <VBox>
+                                       <children>
+                                                  <Label fx:id="datalibelleLabel" text="XXX">
+                                                      <font>
+                                                          <Font name="System Bold" size="14.0" />
+                                                      </font>
+                                             <VBox.margin>
+                                                <Insets left="20.0" top="10.0" />
+                                             </VBox.margin>
+                                                  </Label>
+                                                  <Label fx:id="dataequipeLabel" text="XXX">
+                                                      <font>
+                                                          <Font size="14.0" />
+                                                      </font>
+                                             <VBox.margin>
+                                                <Insets left="20.0" right="200.0" top="10.0" />
+                                             </VBox.margin>
+                                                  </Label>
+                                                  <Label fx:id="datastatutLabel" text="XXX">
+                                                      <font>
+                                                          <Font size="14.0" />
+                                                      </font>
+                                             <VBox.margin>
+                                                <Insets left="20.0" right="200.0" top="10.0" />
+                                             </VBox.margin>
+                                                  </Label>
+                                                  <Label fx:id="dataa1Label" text="XXX">
+                                                      <font>
+                                                          <Font size="14.0" />
+                                                      </font>
+                                             <VBox.margin>
+                                                <Insets left="20.0" top="10.0" />
+                                             </VBox.margin>
+                                                  </Label>
+                                                  <Label fx:id="dataa2Label" text="XXX">
+                                                      <font>
+                                                          <Font size="14.0" />
+                                                      </font>
+                                             <VBox.margin>
+                                                <Insets left="20.0" top="10.0" />
+                                             </VBox.margin>
+                                                  </Label>
+                                                  <Label fx:id="datadatetransmissionLabel" text="XXX">
+                                                      <font>
+                                                          <Font size="14.0" />
+                                                      </font>
+                                             <VBox.margin>
+                                                <Insets left="20.0" top="10.0" />
+                                             </VBox.margin>
+                                                  </Label>
+                                                  <Label fx:id="datafrequenceLabel" text="XXX">
+                                                      <font>
+                                                          <Font size="14.0" />
+                                                      </font>
+                                             <VBox.margin>
+                                                <Insets left="20.0" top="10.0" />
+                                             </VBox.margin>
+                                                  </Label>
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </HBox>
+                              <HBox>
+                                 <children>
+                                    <VBox>
+                                       <children>
+                                                  <Label text="Type d'expérience :">
+                                                      <font>
+                                                          <Font size="14.0" />
+                                                      </font>
+                                             <VBox.margin>
+                                                <Insets top="10.0" />
+                                             </VBox.margin>
+                                                  </Label>
+                                                  <Label text="Date de demande :">
+                                                      <font>
+                                                          <Font size="14.0" />
+                                                      </font>
+                                             <VBox.margin>
+                                                <Insets top="10.0" />
+                                             </VBox.margin>
+                                                  </Label>
+                                                  <Label text="Date de début :">
+                                                      <font>
+                                                          <Font size="14.0" />
+                                                      </font>
+                                             <VBox.margin>
+                                                <Insets top="10.0" />
+                                             </VBox.margin>
+                                                  </Label>
+                                                  <Label text="Nombre de slots/uplet :">
+                                                      <font>
+                                                          <Font size="14.0" />
+                                                      </font>
+                                             <VBox.margin>
+                                                <Insets top="10.0" />
+                                             </VBox.margin>
+                                                  </Label>
+                                                  <Label text="Durée de l'expérience (en heure(s)) :">
+                                                      <font>
+                                                          <Font size="14.0" />
+                                                      </font>
+                                             <VBox.margin>
+                                                <Insets top="10.0" />
+                                             </VBox.margin>
+                                                  </Label>
+                                                  <Label text="Expérience suivie dans le temps :">
+                                                      <font>
+                                                          <Font size="14.0" />
+                                                      </font>
+                                             <VBox.margin>
+                                                <Insets top="10.0" />
+                                             </VBox.margin>
+                                                  </Label>
+                                                  <Label fx:id="a3viewLabel" text="Valeur de a3 :">
+                                                      <font>
+                                                          <Font size="14.0" />
+                                                      </font>
+                                             <VBox.margin>
+                                                <Insets top="10.0" />
+                                             </VBox.margin>
+                                                  </Label>
+                                       </children>
+                                    </VBox>
+                                    <VBox>
+                                       <children>
+                                                  <Label fx:id="datatypeLabel" text="XXX">
+                                                      <font>
+                                                          <Font size="14.0" />
+                                                      </font>
+                                             <VBox.margin>
+                                                <Insets left="20.0" top="10.0" />
+                                             </VBox.margin>
+                                                  </Label>
+                                                  <Label fx:id="datadatedemandeLabel" text="XXX">
+                                                      <font>
+                                                          <Font size="14.0" />
+                                                      </font>
+                                             <VBox.margin>
+                                                <Insets left="20.0" top="10.0" />
+                                             </VBox.margin>
+                                                  </Label>
+                                                  <Label fx:id="datadatedebutLabel" text="XXX">
+                                                      <font>
+                                                          <Font size="14.0" />
+                                                      </font>
+                                             <VBox.margin>
+                                                <Insets left="20.0" top="10.0" />
+                                             </VBox.margin>
+                                                  </Label>
+                                                  <Label fx:id="datanbslotsLabel" text="XXX">
+                                                      <font>
+                                                          <Font size="14.0" />
+                                                      </font>
+                                             <VBox.margin>
+                                                <Insets left="20.0" top="10.0" />
+                                             </VBox.margin>
+                                                  </Label>
+                                                  <Label fx:id="datadureeLabel" text="XXX">
+                                                      <font>
+                                                          <Font size="14.0" />
+                                                      </font>
+                                             <VBox.margin>
+                                                <Insets left="20.0" top="10.0" />
+                                             </VBox.margin>
+                                                  </Label>
+                                                  <Label fx:id="datasuiviLabel" text="XXX">
+                                                      <font>
+                                                          <Font size="14.0" />
+                                                      </font>
+                                             <VBox.margin>
+                                                <Insets left="20.0" top="10.0" />
+                                             </VBox.margin>
+                                                  </Label>
+                                                  <Label fx:id="dataa3Label" text="XXX">
+                                                      <font>
+                                                          <Font size="14.0" />
+                                                      </font>
+                                             <VBox.margin>
+                                                <Insets left="20.0" top="10.0" />
+                                             </VBox.margin>
+                                                  </Label>
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </HBox>
+                           </children>
+                        </HBox>
                                 <Label layoutX="25.0" layoutY="271.0" text="Réplicat(s) de l'expérience">
                                     <font>
                                         <Font name="System Bold" size="18.0" />
@@ -444,6 +575,11 @@
                                 </TableView>
                                 <Button fx:id="resultsButton" layoutX="213.0" layoutY="827.0" mnemonicParsing="false" onAction="#sendResults" style="-fx-background-color: #88d9e6;" text="Envoyer les résultats au chercheur" />
                         <Label fx:id="resInfoLabel" layoutX="463.0" layoutY="835.0" text="XXXXXX" textFill="RED" visible="false" />
+                        <ImageView fx:id="backImageView" fitHeight="35.0" fitWidth="40.0" layoutX="13.0" layoutY="10.0" onMouseClicked="#backListExp" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@back.png" />
+                           </image>
+                        </ImageView>
                             </children>
                         </AnchorPane>
                     </content>
@@ -532,5 +668,3 @@
         </AnchorPane>
     </children>
 </AnchorPane>
-
-
