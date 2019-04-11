@@ -1,3 +1,4 @@
+
 package projetihm;
 
 import java.sql.*;
@@ -249,7 +250,7 @@ public class FXMLDocumentController implements Initializable {
         expIcon.setImage(new Image(getClass().getResource("flask_black.png").toExternalForm()));
     }
 
-        /**
+    /**
      * Méthode permettant l'affichage du panel central permettant la gestion des
      * plaques et le positionnement des puits ainsi que la gestion de l'UX des
      * menus (surlignage du module où navigue l'utilisateur)
@@ -808,6 +809,12 @@ public class FXMLDocumentController implements Initializable {
         viewPanel.setVisible(false);
         insertPanel.setVisible(false);
         upletPanel.setVisible(true);
+        //Suppression des bordures rouges
+        expSelectedComboBox.setStyle("-fx-border-width:0px");
+        typeCelluleComboBox.setStyle("-fx-border-width:0px");
+        qteAgentTextField.setStyle("-fx-border-width:0px");
+        qteCelluleTextField.setStyle("-fx-border-width:0px");
+        nomAgentComboBox.setStyle("-fx-border-width:0px");
         //Remise à 0 des comboBox
         expSelectedComboBox.getItems().clear();
         nomAgentComboBox.getItems().clear();
@@ -826,19 +833,8 @@ public class FXMLDocumentController implements Initializable {
             System.out.println(e);
         }
 
-        // Affichage deu produit
-        try {
-            Statement stmt = con.createStatement();
-            ResultSet rs = stmt.executeQuery(
-                    "SELECT NOM_PRODUIT "
-                    + "FROM PRODUIT");
-            while (rs.next()) {
-                String produit = rs.getString(1);
-                nomAgentComboBox.getItems().add(rs.getString(1));
-            }
-        } catch (SQLException e) {
-            System.out.println(e);
-        }
+        // Affichage du produit
+        reloadProduit();
     }
 
     /**
@@ -852,6 +848,8 @@ public class FXMLDocumentController implements Initializable {
     private void expSuiviTempsYes(ActionEvent event
     ) {
         //Gestion des pages et de l'UX
+        a3TextField.setStyle("-fx-border-width:0px");
+        frequenceTextField.setStyle("-fx-border-width:0px");
         frequenceLabel.setVisible(true);
         a3Label.setVisible(true);
         frequenceTextField.setVisible(true);
@@ -869,6 +867,8 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private void expSuiviTempsYesBis(KeyEvent e) {
         //Gestion des pages et de l'UX
+        a3TextField.setStyle("-fx-border-width:0px");
+        frequenceTextField.setStyle("-fx-border-width:0px");
         if (e.getCode() == ENTER) {
             frequenceLabel.setVisible(true);
             a3Label.setVisible(true);
@@ -937,36 +937,119 @@ public class FXMLDocumentController implements Initializable {
     }
 
     /**
+     * Méthode permettant de recharger la comboBox des produits
+     *
+     */
+    public void reloadProduit() {
+        // Affichage du produit
+        try {
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery(
+                    "SELECT NOM_PRODUIT "
+                    + "FROM PRODUIT");
+            while (rs.next()) {
+                String produit = rs.getString(1);
+                nomAgentComboBox.getItems().add(rs.getString(1));
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+    }
+
+    /**
      * Méthode permettant l'ajout d'un uplet
      *
      * @param event
      */
     @FXML
     private void ajoutUplet(ActionEvent event) {
-        if (expSelectedComboBox.getValue() != null && typeCelluleComboBox.getValue() != null && qteAgentTextField.getText().isEmpty() == false && qteCelluleTextField.getText().isEmpty() == false) {
+        String qteAgent = qteAgentTextField.getText().replace(",", ".");
+        String qteCell = qteCelluleTextField.getText().replace(",", ".");
+        double intqteAgent = -1;
+        double intqteCell = -1;
+
+        if (qteAgent.matches("^[0-9]+(.[0-9]+)?$")) {
+            intqteAgent = Double.parseDouble(qteAgent);
+        }
+        if (qteCell.matches("^[0-9]+(.[0-9]+)?$")) {
+            intqteCell = Double.parseDouble(qteCell);
+        }
+        System.out.println(intqteAgent); 
+        System.out.println(intqteCell);
+
+        //Suppresion des bordures rouges
+        expSelectedComboBox.setStyle("-fx-border-width:0px");
+        typeCelluleComboBox.setStyle("-fx-border-width:0px");
+        qteAgentTextField.setStyle("-fx-border-width:0px");
+        qteCelluleTextField.setStyle("-fx-border-width:0px");
+        nomAgentComboBox.setStyle("-fx-border-width:0px");
+        warningUpletLabel.setText("");
+        reloadProduit();
+
+        if (nomAgentComboBox.getValue() != null && expSelectedComboBox.getValue() != null && typeCelluleComboBox.getValue() != null && qteAgentTextField.getText().isEmpty() == false && qteCelluleTextField.getText().isEmpty() == false) {
             //Ajout de l'uplet
-            try {
-                Statement stmt1 = con.createStatement();
-                ResultSet rs1 = stmt1.executeQuery("INSERT INTO N_UPLET (ID_EXPERIENCE, TYPE_CELLULE, Q_AGENT, Q_CELLULE) values (" + (expSelectedComboBox.getValue() + "").split(" ")[0] + ",  '" + typeCelluleComboBox.getValue() + "', '" + qteAgentTextField.getText() + "', '" + qteCelluleTextField.getText() + "' )");
-                warningUpletLabel.setText("");
-                warningUpletLabel.setText("Uplet ajouté.");
-                warningUpletLabel.setVisible(true);
-            } catch (SQLException e) {
-                while (e != null) {
-                    String message = e.getMessage();
-                    int errorCode = e.getErrorCode();
-                    if (errorCode == 1722) {
-                        warningUpletLabel.setText("");
-                        warningUpletLabel.setText("Valeur non valide.");
-                        warningUpletLabel.setVisible(true);
+            if (intqteAgent != -1 && intqteCell != -1) {
+                try {
+                    Statement stmt1 = con.createStatement();
+                    ResultSet rs1 = stmt1.executeQuery("INSERT INTO N_UPLET (ID_EXPERIENCE, TYPE_CELLULE, Q_AGENT, Q_CELLULE) values (" + (expSelectedComboBox.getValue() + "").split(" ")[0] + ",  '" + typeCelluleComboBox.getValue() + "', " + intqteAgent + ", " + intqteCell + " )");
+                    warningUpletLabel.setText("");
+                    warningUpletLabel.setText("Uplet ajouté.");
+                    warningUpletLabel.setVisible(true);
+                } catch (SQLException e) {
+                    while (e != null) {
+                        String message = e.getMessage();
+                        int errorCode = e.getErrorCode();
+                        System.out.println(message);
+                        if (!qteAgentTextField.getText().matches("^[0-9]+(.[0-9]+)?$")) {
+                            qteAgentTextField.setStyle("-fx-border-color: RED");
+                            warningUpletLabel.setText("");
+                            warningUpletLabel.setText("Valeur non valide.");
+                            warningUpletLabel.setVisible(true);
+                        }
+                        if (!qteCelluleTextField.getText().matches("^[0-9]+(.[0-9]+)?$")) {
+                            qteCelluleTextField.setStyle("-fx-border-color: RED");
+                            warningUpletLabel.setText("");
+                            warningUpletLabel.setText("Valeur non valide.");
+                            warningUpletLabel.setVisible(true);
+                        }
+
+                        e = e.getNextException();
                     }
-                    e = e.getNextException();
+                }
+            } else {
+                if (!qteAgentTextField.getText().matches("^[0-9]+(.[0-9]+)?$")) {
+                    qteAgentTextField.setStyle("-fx-border-color: RED");
+                    warningUpletLabel.setText("");
+                    warningUpletLabel.setText("Valeur non valide.");
+                    warningUpletLabel.setVisible(true);
+                }
+                if (!qteCelluleTextField.getText().matches("^[0-9]+(.[0-9]+)?$")) {
+                    qteCelluleTextField.setStyle("-fx-border-color: RED");
+                    warningUpletLabel.setText("");
+                    warningUpletLabel.setText("Valeur non valide.");
+                    warningUpletLabel.setVisible(true);
                 }
             }
         } else {
             warningUpletLabel.setText("");
             warningUpletLabel.setText("Veuillez remplir tous les champs.");
             warningUpletLabel.setVisible(true);
+        }
+        //Affichage en rouge des contours lorsque les champs sont vides
+        if (expSelectedComboBox.getValue() == null) {
+            expSelectedComboBox.setStyle("-fx-border-color: RED");
+        }
+        if (typeCelluleComboBox.getValue() == null) {
+            typeCelluleComboBox.setStyle("-fx-border-color: RED");
+        }
+        if (qteAgentTextField.getText().isEmpty() == true) {
+            qteAgentTextField.setStyle("-fx-border-color: RED");
+        }
+        if (qteCelluleTextField.getText().isEmpty() == true) {
+            qteCelluleTextField.setStyle("-fx-border-color: RED");
+        }
+        if (nomAgentComboBox.getValue() == null) {
+            nomAgentComboBox.setStyle("-fx-border-color: RED");
         }
     }
 
@@ -1424,17 +1507,45 @@ public class FXMLDocumentController implements Initializable {
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             String dateString = localdate.format(dateTimeFormatter);
             String frequence = frequenceTextField.getText();
-            String a3 = a3TextField.getText();
-            String a1 = a1TextField.getText();
-            String a2 = a2TextField.getText();
+            String a3 = a3TextField.getText().replace(",", ".");
+            String a1 = a1TextField.getText().replace(",", ".");
+            String a2 = a2TextField.getText().replace(",", ".");
             String nb_slot = nbSlotTextField.getText();
-            String duree = dureeExpTextField.getText();
-
+            String duree = dureeExpTextField.getText().replace(",", ".");
+            double intduree = -1;
+            double inta1 = -1;
+            double inta2 = -1;
+            double inta3 = -1;
+            int intfrequence = -1;
+            int intnbslot = -1;
             String email = "";
             String statut = "à faire";
             warningLabel.setVisible(false);
 
-            if (libelle.isEmpty() == false && dateString.isEmpty() == false && a1.isEmpty() == false && a2.isEmpty() == false && nb_slot.isEmpty() == false && duree.isEmpty() == false && equipeComboBox.getValue() != null && typeExpComboBox.getValue() != null && (ouiRadio.isSelected() == true || ouiRadio.isSelected() == true)) {
+            if (duree.matches("^[0-9]+(.[0-9]+)?$")) {
+                intduree = Double.parseDouble(duree);
+            }
+            //Encadrement de a1 si la valeur saisie n'est pas un nombre
+            if (a1.matches("^[0-9]+(.[0-9]+)?$")) {
+                inta1 = Double.parseDouble(a1);
+            }
+
+            //Encadrement de a2 si la valeur saisie n'est pas un nombre
+            if (a2.matches("^[0-9]+(.[0-9]+)?$")) {
+                inta2 = Double.parseDouble(a2);
+            }
+            //Encadrement du nombre de slots si la valeur saisie n'est pas un nombre
+            if (nbSlotTextField.getText().matches("^[0-9]+$")) {
+                intnbslot = Integer.parseInt(nbSlotTextField.getText());
+            }
+            if (a3.matches("^[0-9]+(.[0-9]+)?$")) {
+                inta3 = Double.parseDouble(a3);
+            }
+            if (frequenceTextField.getText().matches("^[0-9]+$")) {
+                intfrequence = Integer.parseInt(frequenceTextField.getText());
+            }
+
+            if (libelle.isEmpty() == false && dateString.isEmpty() == false && a1.isEmpty() == false && a2.isEmpty() == false && nb_slot.isEmpty() == false && duree.isEmpty() == false && equipeComboBox.getValue() != null && typeExpComboBox.getValue() != null && (ouiRadio.isSelected() == true || nonRadio.isSelected() == true)) {
                 String nomEquipe = (String) equipeComboBox.getValue();
                 String typeExp = (String) typeExpComboBox.getValue();
                 //Récupération de l'email de l'équipe selectionnée
@@ -1449,39 +1560,145 @@ public class FXMLDocumentController implements Initializable {
 
                 //requête d'insertion d'une expérience
                 try {
-                    if (!"".equals(a3) && !"".equals(frequence) && ouiRadio.isSelected() == true) {
+                    if (inta3 != -1 && intfrequence != -1 && ouiRadio.isSelected() == true && intduree != -1 && inta1 != -1 && inta2 != -1 && intnbslot != -1) {
                         Statement stmt1 = con.createStatement();
-                        ResultSet rs1 = stmt1.executeQuery("INSERT INTO EXPERIENCE (LIBELLE_EXP, EMAIL_EQUIPE, DATE_DEMANDE, TYPE_EXP, A1, A2, NB_SLOT, DUREE_EXP, A3, STATUT_EXP, FREQUENCE) values ('" + libelle + "', '" + email + "', '" + dateString + "', '" + typeExp + "', " + a1 + ", " + a2 + ", " + nb_slot + ", " + duree + ", " + a3 + ", '" + statut + "', '" + frequence + "')");
+                        ResultSet rs1 = stmt1.executeQuery("INSERT INTO EXPERIENCE (LIBELLE_EXP, EMAIL_EQUIPE, DATE_DEMANDE, TYPE_EXP, A1, A2, NB_SLOT, DUREE_EXP, A3, STATUT_EXP, FREQUENCE) values ('" + libelle + "', '" + email + "', '" + dateString + "', '" + typeExp + "', " + inta1 + ", " + inta2 + ", " + intnbslot + ", " + intduree + ", " + inta3 + ", '" + statut + "', '" + intfrequence + "')");
                         warningLabel.setText("");
                         warningLabel.setText("Expérience ajoutée.");
                         warningLabel.setVisible(true);
-                    } else if ("".equals(a3) && "".equals(frequence) && ouiRadio.isSelected() == true) {
+                    } else if (("".equals(a3) || "".equals(frequence)) && ouiRadio.isSelected() == true) {
                         warningLabel.setText("");
                         warningLabel.setText("Veuillez remplir tous les champs.");
                         warningLabel.setVisible(true);
-                    } else {
+                    } else if (ouiRadio.isSelected() == false && intduree != -1 && inta1 != -1 && inta2 != -1 && intnbslot != -1) {
                         Statement stmt2 = con.createStatement();
                         ResultSet rs2 = stmt2.executeQuery("INSERT INTO EXPERIENCE (LIBELLE_EXP, EMAIL_EQUIPE, DATE_DEMANDE, TYPE_EXP, A1, A2, NB_SLOT, DUREE_EXP, STATUT_EXP) "
-                                + "values ('" + libelle + "', '" + email + "', '" + dateString + "', '" + typeExp + "', " + a1 + ", " + a2 + ", " + nb_slot + ", " + duree + ", '" + statut + "')");
+                                + "values ('" + libelle + "', '" + email + "', '" + dateString + "', '" + typeExp + "', " + inta1 + ", " + inta2 + ", " + intnbslot + ", " + intduree + ", '" + statut + "')");
                         warningLabel.setText("");
                         warningLabel.setText("Expérience ajoutée.");
                         warningLabel.setVisible(true);
+                    } else {
+                        if (!dureeExpTextField.getText().matches("^[0-9]+(.[0-9]+)?$")) {
+                            dureeExpTextField.setStyle("-fx-border-color: RED");
+                            warningLabel.setText("");
+                            warningLabel.setText("Valeur saisie incorrecte.");
+                            warningLabel.setVisible(true);
+                        }
+                        //Encadrement de a1 si la valeur saisie n'est pas un nombre
+                        if (!a1TextField.getText().matches("^[0-9]+(.[0-9]+)?$")) {
+                            a1TextField.setStyle("-fx-border-color: RED");
+                            warningLabel.setText("");
+                            warningLabel.setText("Valeur saisie incorrecte.");
+                            warningLabel.setVisible(true);
+                        }
+
+                        //Encadrement de a2 si la valeur saisie n'est pas un nombre
+                        if (!a2TextField.getText().matches("^[0-9]+(.[0-9]+)?$")) {
+                            a2TextField.setStyle("-fx-border-color: RED");
+                            warningLabel.setText("");
+                            warningLabel.setText("Valeur saisie incorrecte.");
+                            warningLabel.setVisible(true);
+                        }
+                        //Encadrement du nombre de slots si la valeur saisie n'est pas un nombre
+                        if (!nbSlotTextField.getText().matches("^[0-9]+$")) {
+                            nbSlotTextField.setStyle("-fx-border-color: RED");
+                            warningLabel.setText("");
+                            warningLabel.setText("Valeur saisie incorrecte.");
+                            warningLabel.setVisible(true);
+                        }
+
+                        if (ouiRadio.isSelected() == true) {
+                            //Encadrement de la fréquence si la valeur saisie n'est pas un nombre
+                            if (!frequenceTextField.getText().matches("^[0-9]+$")) {
+                                frequenceTextField.setStyle("-fx-border-color: RED");
+                                warningLabel.setText("");
+                                warningLabel.setText("Valeur saisie incorrecte.");
+                                warningLabel.setVisible(true);
+                            }
+
+                            //Encadrement de a3 si la valeur saisie n'est pas un nombre
+                            if (a3TextField.getText().matches("^[0-9]+(.[0-9]+)?$")) {
+                                if (inta3 < 0 || inta3 > 1) {
+                                    a3TextField.setStyle("-fx-border-color: RED");
+                                    warningLabel.setText("");
+                                    warningLabel.setText("Attention, la valeur de a3 doit être comprise entre 0 et 1.");
+                                    warningLabel.setVisible(true);
+                                }
+                            } else {
+                                a3TextField.setStyle("-fx-border-color: RED");
+                                warningLabel.setText("");
+                                warningLabel.setText("Valeur saisie incorrecte.");
+                                warningLabel.setVisible(true);
+                            }
+                        }
                     }
 
                 } catch (SQLException e) {
                     System.out.println("Exception SQL : ");
                     while (e != null) {
-                        String message = e.getMessage();
-                        int errorCode = e.getErrorCode();
-                        if (errorCode == 984) {
+                        //String message = e.getMessage();
+                        //int errorCode = e.getErrorCode();
+                        //System.out.println(message);
+                        //Encadrement de la durée si la valeur saisie n'est pas un nombre
+                        if (!dureeExpTextField.getText().matches("^[0-9]+(.[0-9]+)?$")) {
+                            dureeExpTextField.setStyle("-fx-border-color: RED");
                             warningLabel.setText("");
-                            warningLabel.setText("Une valeur saisie est incorrecte.");
+                            warningLabel.setText("Valeur saisie incorrecte.");
                             warningLabel.setVisible(true);
-                        } else if (errorCode == 2290) {
+                        }
+                        //Encadrement de a1 si la valeur saisie n'est pas un nombre
+                        if (!a1TextField.getText().matches("^[0-9]+(.[0-9]+)?$")) {
+                            a1TextField.setStyle("-fx-border-color: RED");
+                            warningLabel.setText("");
+                            warningLabel.setText("Valeur saisie incorrecte.");
+                            warningLabel.setVisible(true);
+                        }
+
+                        //Encadrement de a2 si la valeur saisie n'est pas un nombre
+                        if (!a2TextField.getText().matches("^[0-9]+(.[0-9]+)?$")) {
+                            a2TextField.setStyle("-fx-border-color: RED");
+                            warningLabel.setText("");
+                            warningLabel.setText("Valeur saisie incorrecte.");
+                            warningLabel.setVisible(true);
+                        }
+                        //Encadrement du nombre de slots si la valeur saisie n'est pas un nombre
+                        if (!nbSlotTextField.getText().matches("^[0-9]+$")) {
+                            nbSlotTextField.setStyle("-fx-border-color: RED");
+                            warningLabel.setText("");
+                            warningLabel.setText("Valeur saisie incorrecte.");
+                            warningLabel.setVisible(true);
+                        }
+
+                        if (ouiRadio.isSelected() == true) {
+                            //Encadrement de la fréquence si la valeur saisie n'est pas un nombre
+                            if (!frequenceTextField.getText().matches("^[0-9]+(.[0-9]+)?$")) {
+                                frequenceTextField.setStyle("-fx-border-color: RED");
+                                warningLabel.setText("");
+                                warningLabel.setText("Valeur saisie incorrecte.");
+                                warningLabel.setVisible(true);
+                            }
+
+                            //Encadrement de a3 si la valeur saisie n'est pas un nombre
+                            if (a3TextField.getText().matches("^[0-9]+(.[0-9]+)?$")) {
+                                if (inta3 < 0 || inta3 > 1) {
+                                    a3TextField.setStyle("-fx-border-color: RED");
+                                    warningLabel.setText("");
+                                    warningLabel.setText("Attention, la valeur de a3 doit être comprise entre 0 et 1.");
+                                    warningLabel.setVisible(true);
+                                }
+                            } else {
+                                a3TextField.setStyle("-fx-border-color: RED");
+                                warningLabel.setText("");
+                                warningLabel.setText("Valeur saisie incorrecte.");
+                                warningLabel.setVisible(true);
+                            }
+                        }
+
+                        if (inta1 > inta2) {
                             a1TextField.setStyle("-fx-border-color: RED");
                             a2TextField.setStyle("-fx-border-color: RED");
                             warningLabel.setText("");
-                            warningLabel.setText("La valeur de a2 doit être supérieure à celle de a1.");
+                            warningLabel.setText("Attention, la valeur de a2 doit être supérieure à celle de a1.");
                             warningLabel.setVisible(true);
                         }
                         e = e.getNextException();
@@ -1521,7 +1738,7 @@ public class FXMLDocumentController implements Initializable {
                 frequenceTextField.setStyle("-fx-border-color: RED");
             }
 
-            if (ouiRadio.isSelected() == false && ouiRadio.isSelected() == false) {
+            if (ouiRadio.isSelected() == false && nonRadio.isSelected() == false) {
                 ouiRadio.setStyle("-fx-border-color: RED");
                 nonRadio.setStyle("-fx-border-color: RED");
             }
@@ -1577,4 +1794,3 @@ public class FXMLDocumentController implements Initializable {
         connectServer();
     }
 }
-
