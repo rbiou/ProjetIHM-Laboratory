@@ -25,6 +25,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -37,7 +38,9 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.KeyCode;
 import static javafx.scene.input.KeyCode.CONTROL;
 import static javafx.scene.input.KeyCode.ENTER;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
 /**
@@ -50,13 +53,15 @@ public class FXMLDocumentController implements Initializable {
 
     //Variables FXML
     @FXML
-    private ImageView homeIcon, expIcon, upletIcon, eyeIcon, addIcon, plaqueIcon;
+    private Rectangle instructionsRectangle;
     @FXML
-    private AnchorPane topPanel, welcomePanel, navPanel, loginPanel, menuPanel, insertPanel, viewPanel, upletPanel, newPlaquePanel;
+    private ImageView homeIcon, expIcon, upletIcon, eyeIcon, addIcon, plaqueIcon, instruction3ImageView, instruction4ImageView;
+    @FXML
+    private AnchorPane topPanel, welcomePanel, navPanel, loginPanel, menuPanel, insertPanel, viewPanel, upletPanel;
     @FXML
     private ScrollPane viewdetailsPanel, plaqueScrollPane;
     @FXML
-    private Label resInfoLabel, warningSearch, datasuiviLabel, fonctionLabel, welcomeLabel, loginErrorLabel, frequenceLabel, a3Label, frequenceviewLabel, a3viewLabel, datalibelleLabel, dataequipeLabel, datastatutLabel, dataa1Label, dataa2Label, datadatetransmissionLabel, datafrequenceLabel, datatypeLabel, datadatedemandeLabel, datadatedebutLabel, datanbslotsLabel, datadureeLabel, dataa3Label, slotsRestantsLabel, warningLabel, warningUpletLabel, plaqueErrorLabel;
+    private Label resInfoLabel, warningSearch, datasuiviLabel, fonctionLabel, welcomeLabel, loginErrorLabel, frequenceLabel, a3Label, frequenceviewLabel, a3viewLabel, datalibelleLabel, dataequipeLabel, datastatutLabel, dataa1Label, dataa2Label, datadatetransmissionLabel, datafrequenceLabel, datatypeLabel, datadatedemandeLabel, datadatedebutLabel, datanbslotsLabel, datadureeLabel, dataa3Label, slotsRestantsLabel, warningLabel, warningUpletLabel, plaqueErrorLabel, instruction1Label, instruction2Label, anySelectedLabel, errorInsertPlaqueLabel;
     @FXML
     private TableView viewTable;
     @FXML
@@ -73,6 +78,8 @@ public class FXMLDocumentController implements Initializable {
     private TableView viewTableView, expUpletTableView, resUpletTableView;
     @FXML
     private TableColumn idColumn1, libelleColumn1, typeColumn1, datedemandeColumn1, equipeColumn1, launcherColumn1, statutColumn1, detailsColumn1;
+    @FXML
+    private VBox newPlaquePanel;
     //Variables d'environnement user
     private static String nameUser, functionUser;
     //Variables non-FXML
@@ -246,6 +253,10 @@ public class FXMLDocumentController implements Initializable {
      */
     @FXML
     private void setPlaquePanel(MouseEvent event) {
+        //Affichage des instructions
+        setInstructionsOn();
+        //Remise à Z des bordures rouges en cas d'erreur et du label d'erreur du formulaire lors de son précédent envoi
+        resetErrorMessages();
         //Reset des combobox
         choixExperienceComboBox.getItems().clear();
         choixPlaqueComboBox.getItems().clear();
@@ -255,12 +266,14 @@ public class FXMLDocumentController implements Initializable {
         try {
             Statement stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery(
-                    "SELECT ID_EXPERIENCE, LIBELLE_EXP, NOM_EQUIPE "
-                    + "FROM EXPERIENCE "
-                    + "JOIN EQUIPE ON EXPERIENCE.EMAIL_EQUIPE = EQUIPE.EMAIL_EQUIPE "
-                    + "WHERE STATUT_EXP = 'en cours'");
+                    "SELECT ID_EXPERIENCE, LIBELLE_EXP, NOM_EQUIPE, NB_SLOT, "
+                    + "(SELECT COUNT(*) FROM RESULTATS_UPLET JOIN N_UPLET ON RESULTATS_UPLET.ID_UPLET = N_UPLET.ID_UPLET WHERE EXPERIENCE.ID_EXPERIENCE = ID_EXPERIENCE) AS TOT_RES, "
+                    + "(SELECT COUNT(*) FROM N_UPLET WHERE EXPERIENCE.ID_EXPERIENCE = ID_EXPERIENCE) AS TOT_UPLET "
+                    + "FROM EXPERIENCE JOIN EQUIPE ON EXPERIENCE.EMAIL_EQUIPE = EQUIPE.EMAIL_EQUIPE "
+                    + "WHERE STATUT_EXP = 'en cours' "
+                    + "ORDER BY ((TOT_UPLET*NB_SLOT)-(TOT_RES*NB_SLOT)) DESC");
             while (rs.next()) {
-                choixExperienceComboBox.getItems().add(rs.getString(1) + " - " + rs.getString(2) + " - Equipe " + rs.getString(3));
+                choixExperienceComboBox.getItems().add(rs.getString(1) + " - " + rs.getString(2) + " - Equipe " + rs.getString(3) + " - " + ((rs.getInt(6)*rs.getInt(4))-(rs.getInt(5)*rs.getInt(4))) + " puits à analyser");
             }
         } catch (SQLException e) {
             System.out.println(e);
@@ -269,11 +282,12 @@ public class FXMLDocumentController implements Initializable {
         try {
             Statement stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery(
-                    "SELECT NUM_PLAQUE, TYPE_PLAQUE "
+                    "SELECT NUM_PLAQUE, TYPE_PLAQUE, (SELECT COUNT(*) FROM SLOT WHERE SLOT.NUM_PLAQUE=PLAQUE.NUM_PLAQUE) AS TOT "
                     + "FROM PLAQUE "
-                    + "WHERE REFUS = 0 AND (SELECT COUNT(*) FROM SLOT WHERE SLOT.NUM_PLAQUE=PLAQUE.NUM_PLAQUE) < TYPE_PLAQUE");
+                    + "WHERE REFUS = 0 AND (SELECT COUNT(*) FROM SLOT WHERE SLOT.NUM_PLAQUE=PLAQUE.NUM_PLAQUE) < TYPE_PLAQUE "
+                    + "ORDER BY TOT DESC");
             while (rs.next()) {
-                choixPlaqueComboBox.getItems().add("Plaque n° " + rs.getString(1) + " - " + rs.getString(2) + " slots");
+                choixPlaqueComboBox.getItems().add("Plaque n° " + rs.getString(1) + " - " + rs.getString(2) + " puits - " + rs.getString(3) + " puit(s) disponible(s)");
             }
             choixPlaqueComboBox.getItems().add(0, "Nouvelle plaque");
         } catch (SQLException e) {
@@ -320,149 +334,211 @@ public class FXMLDocumentController implements Initializable {
     }
 
     /**
-     * Méthode permettant l'affichage graphique de la plaque permettant de
-     * positionner les expériences sollicités par les chercheurs
+     * Méthode permettant de masquer les instructions pour sélectionner les
+     * réplicas sur la plaque lorsque l'utilisateur entre dans le panel pour
+     * sélectionner les puits.
+     *
+     * @param event
+     */
+    @FXML
+    private void setInstructionsOff(MouseEvent event) {
+        anySelectedLabel.setEffect(null);
+        instructionsRectangle.setVisible(false);
+        instruction1Label.setVisible(false);
+        instruction2Label.setVisible(false);
+        instruction3ImageView.setVisible(false);
+        instruction4ImageView.setVisible(false);
+    }
+
+    /**
+     * Méthode permettant d'afficher les instructions pour sélectionner les
+     * réplicas sur la plaque lorsque l'utilisateur arrive sur la partie pour
+     * gérer les réplicas.
+     */
+    @FXML
+    private void setInstructionsOn() {
+        anySelectedLabel.setEffect(new GaussianBlur(5.5));
+        instructionsRectangle.setVisible(true);
+        instruction1Label.setVisible(true);
+        instruction2Label.setVisible(true);
+        instruction3ImageView.setVisible(true);
+        instruction4ImageView.setVisible(true);
+    }
+    
+    /**
+     * Méthode permettant d'afficher les instructions au clic du lien "Comment ça marche ?" pour sélectionner les
+     * réplicas sur la plaque lorsque l'utilisateur arrive sur la partie pour
+     * gérer les réplicas.
+     */
+    @FXML
+    private void setInstructionsOnAgain(ActionEvent e) {
+        anySelectedLabel.setEffect(new GaussianBlur(5.5));
+        instructionsRectangle.setVisible(true);
+        instruction1Label.setVisible(true);
+        instruction2Label.setVisible(true);
+        instruction3ImageView.setVisible(true);
+        instruction4ImageView.setVisible(true);
+    }
+    
+    /**
+     * Listener appelant la méthode SlotsPositionChecker permettant l'affichage
+     * graphique de la plaque permettant de positionner les expériences
+     * sollicités par les chercheurs
      *
      * @param event
      */
     @FXML
     private void setSlotsPositionChecker(ActionEvent event) {
+        SlotsPositionChecker();
+    }
+
+    /**
+     * Méthode permettant l'affichage graphique de la plaque permettant de
+     * positionner les expériences sollicités par les chercheurs
+     *
+     */
+    private void SlotsPositionChecker() {
         //Par défaut, aucun message n'est affiché pour guider l'utilisateur dans sa sélection des puits
         slotsRestantsLabel.setVisible(false);
-        //Vide la plaque précédente
+        //Vide la plaque précédente et les instructions
         rectPlaque.getChildren().clear();
+        anySelectedLabel.setVisible(true);
         //Initialisation du nombre de slots cochés
         nb_checked_slots = 0;
-        if (choixPlaqueComboBox.getValue() != null && choixExperienceComboBox.getValue() != null) {
+        if (choixPlaqueComboBox.getValue() != null) {
             //Selection ou création de la plaque
             plaqueUsed = getPlaqueUsed();
             if (!"Nouvelle plaque".equals(choixPlaqueComboBox.getValue() + "")) {
-                //Si l'utilisateur a voulu ajouté une nouvelle plaque, on retire le formulaire de saisie d'une nouvelle plaque
+                //Si l'utilisateur a voulu ajouté ou a ajouté une nouvelle plaque, on retire le formulaire de saisie d'une nouvelle plaque 
                 newPlaquePanel.setVisible(false);
-                //Liste des slots/réplicas occupés
-                ArrayList<ArrayList> taken_slots = new ArrayList<>();
-                //Liste des slots/réplicas cochés par l'utilisateur
-                new_slots = new ArrayList<>();
-                //Liste des uplets à placer pour l'expérience sélectionnée
-                uplets_to_attribute = new ArrayList<>();
-                //Recherche des propriétés de la plaque : slots disponibles, slots occupés
-                try {
-                    Statement stmt = con.createStatement();
-                    ResultSet rs = stmt.executeQuery(
-                            "SELECT X,Y "
-                            + "FROM SLOT "
-                            + "WHERE NUM_PLAQUE = " + plaqueUsed);
-                    while (rs.next()) {
-                        taken_slots.add(new ArrayList<>(Arrays.asList(rs.getInt(1), rs.getInt(2))));
+                if (choixExperienceComboBox.getValue() != null) {
+                    //On retire les instructions
+                    anySelectedLabel.setVisible(false);
+                    //Liste des slots/réplicas occupés
+                    ArrayList<ArrayList> taken_slots = new ArrayList<>();
+                    //Liste des slots/réplicas cochés par l'utilisateur
+                    new_slots = new ArrayList<>();
+                    //Liste des uplets à placer pour l'expérience sélectionnée
+                    uplets_to_attribute = new ArrayList<>();
+                    //Recherche des propriétés de la plaque : slots disponibles, slots occupés
+                    try {
+                        Statement stmt = con.createStatement();
+                        ResultSet rs = stmt.executeQuery(
+                                "SELECT X,Y "
+                                + "FROM SLOT "
+                                + "WHERE NUM_PLAQUE = " + plaqueUsed);
+                        while (rs.next()) {
+                            taken_slots.add(new ArrayList<>(Arrays.asList(rs.getInt(1), rs.getInt(2))));
+                        }
+                    } catch (SQLException e) {
+                        System.out.println(e);
                     }
-                } catch (SQLException e) {
-                    System.out.println(e);
-                }
-                try {
-                    Statement stmt = con.createStatement();
-                    ResultSet rs = stmt.executeQuery(
-                            "SELECT NB_SLOT "
-                            + "FROM EXPERIENCE "
-                            + "WHERE ID_EXPERIENCE = " + (choixExperienceComboBox.getValue() + "").split(" ")[0]);
-                    while (rs.next()) {
-                        slots_to_check = rs.getInt(1);
-                        slots_by_uplet = rs.getInt(1);
+                    try {
+                        Statement stmt = con.createStatement();
+                        ResultSet rs = stmt.executeQuery(
+                                "SELECT NB_SLOT "
+                                + "FROM EXPERIENCE "
+                                + "WHERE ID_EXPERIENCE = " + (choixExperienceComboBox.getValue() + "").split(" ")[0]);
+                        while (rs.next()) {
+                            slots_to_check = rs.getInt(1);
+                            slots_by_uplet = rs.getInt(1);
+                        }
+                    } catch (SQLException e) {
+                        System.out.println(e);
                     }
-                } catch (SQLException e) {
-                    System.out.println(e);
-                }
-                try {
-                    Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-                    ResultSet rs = stmt.executeQuery(
-                            "SELECT ID_UPLET "
-                            + "FROM N_UPLET "
-                            + "WHERE ID_EXPERIENCE = " + (choixExperienceComboBox.getValue() + "").split(" ")[0] + " AND (SELECT COUNT(*) FROM SLOT WHERE ID_UPLET = N_UPLET.ID_UPLET) = 0");
-                    while (rs.next()) {
-                        uplets_to_attribute.add(rs.getInt(1));
+                    try {
+                        Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+                        ResultSet rs = stmt.executeQuery(
+                                "SELECT ID_UPLET "
+                                + "FROM N_UPLET "
+                                + "WHERE ID_EXPERIENCE = " + (choixExperienceComboBox.getValue() + "").split(" ")[0] + " AND (SELECT COUNT(*) FROM RESULTATS_UPLET WHERE RESULTATS_UPLET.ID_UPLET = N_UPLET.ID_UPLET) = 0");
+                        while (rs.next()) {
+                            uplets_to_attribute.add(rs.getInt(1));
+                        }
+                        int size = 0;
+                        if (rs != null) {
+                            rs.beforeFirst();
+                            rs.last();
+                            size = rs.getRow();
+                        }
+                        slots_to_check = slots_to_check * size;
+                    } catch (SQLException e) {
+                        System.out.println(e);
                     }
-                    int size = 0;
-                    if (rs != null) {
-                        rs.beforeFirst();
-                        rs.last();
-                        size = rs.getRow();
+                    //Re-initialisation des contraintes de dimensionnement de l'affichage graphique de la plaque
+                    rectPlaque.getRowConstraints()
+                            .clear();
+                    rectPlaque.getColumnConstraints()
+                            .clear();
+                    //Initiatilasion des variables de boucles, du nombre de colonnes et de lignes à 0
+                    c = 0;
+                    l = 0;
+                    Integer i, j;
+                    //Si la plaque de culture à 96 puits, alors l'affichage doit être sous forme de 12 colonnes et 8 lignes 
+                    if ("96".equals(
+                            (choixPlaqueComboBox.getValue() + "").split(" ")[4])) {
+                        c = 12;
+                        l = 8;
+                        //Si la plaque de culture à 384 puits, alors l'affichage doit être sous forme de 24 colonnes et 16 lignes 
+                    } else if ("384".equals(
+                            (choixPlaqueComboBox.getValue() + "").split(" ")[4])) {
+                        c = 24;
+                        l = 16;
                     }
-                    slots_to_check = slots_to_check * size;
-                } catch (SQLException e) {
-                    System.out.println(e);
-                }
-                //Re-initialisation des contraintes de dimensionnement de l'affichage graphique de la plaque
-                rectPlaque.getRowConstraints()
-                        .clear();
-                rectPlaque.getColumnConstraints()
-                        .clear();
-                //Initiatilasion des variables de boucles, du nombre de colonnes et de lignes à 0
-                c = 0;
-                l = 0;
-                Integer i, j;
-                //Si la plaque de culture à 96 puits, alors l'affichage doit être sous forme de 12 colonnes et 8 lignes 
-                if ("96".equals(
-                        (choixPlaqueComboBox.getValue() + "").split(" ")[4])) {
-                    c = 12;
-                    l = 8;
-                    //Si la plaque de culture à 384 puits, alors l'affichage doit être sous forme de 24 colonnes et 16 lignes 
-                } else if ("384".equals(
-                        (choixPlaqueComboBox.getValue() + "").split(" ")[4])) {
-                    c = 24;
-                    l = 16;
-                }
-                //Ajout, ligne par ligne, colonne par colonne, de boutons radios représentant les puits au GridPane représentant la plaque
-                i = 0;
-                while (i < l) {
-                    j = 0;
-                    while (j < c) {
-                        if (taken_slots.contains(Arrays.asList(i, j))) {
-                            RadioButton disableButton = new RadioButton();
-                            disableButton.setDisable(true);
-                            disableButton.setSelected(true);
-                            rectPlaque.add(disableButton, j, i);
-                        } else {
-                            RadioButton availableButton = new RadioButton();
-                            availableButton.setStyle("-fx-mark-highlight-color: #88d9e6 ; -fx-mark-color: #88d9e6;");
-                            availableButton.setOnMouseEntered((MouseEvent event1) -> {
-                                if (controlPressed) {
+                    //Ajout, ligne par ligne, colonne par colonne, de boutons radios représentant les puits au GridPane représentant la plaque
+                    i = 0;
+                    while (i < l) {
+                        j = 0;
+                        while (j < c) {
+                            if (taken_slots.contains(Arrays.asList(i, j))) {
+                                RadioButton disableButton = new RadioButton();
+                                disableButton.setDisable(true);
+                                disableButton.setSelected(true);
+                                rectPlaque.add(disableButton, j, i);
+                            } else {
+                                RadioButton availableButton = new RadioButton();
+                                availableButton.setStyle("-fx-mark-highlight-color: #88d9e6 ; -fx-mark-color: #88d9e6;");
+                                availableButton.setOnMouseEntered((MouseEvent event1) -> {
+                                    if (controlPressed) {
+                                        //Nombre de slots/réplicas cochés
+                                        if (availableButton.isSelected() == false && availableButton.isDisabled() == false) {
+                                            availableButton.setSelected(true);
+                                            nb_checked_slots++;
+                                            new_slots.add(new ArrayList<>(Arrays.asList(GridPane.getColumnIndex(availableButton), GridPane.getRowIndex(availableButton))));
+                                        } else if (availableButton.isSelected() == true && availableButton.isDisabled() == false) {
+                                            availableButton.setSelected(false);
+                                            nb_checked_slots--;
+                                            new_slots.remove(new ArrayList<>(Arrays.asList(GridPane.getColumnIndex(availableButton), GridPane.getRowIndex(availableButton))));
+                                        }
+                                        //MAJ des puits désactivés selon le nombre de puits pouvant être placé
+                                        majPuitsPlaque();
+                                    }
+                                });
+                                availableButton.setOnAction((ActionEvent event2) -> {
                                     //Nombre de slots/réplicas cochés
-                                    if (availableButton.isSelected() == false && availableButton.isDisabled() == false) {
+                                    if (availableButton.isSelected() == true && availableButton.isDisabled() == false) {
                                         availableButton.setSelected(true);
                                         nb_checked_slots++;
                                         new_slots.add(new ArrayList<>(Arrays.asList(GridPane.getColumnIndex(availableButton), GridPane.getRowIndex(availableButton))));
-                                    } else if (availableButton.isSelected() == true && availableButton.isDisabled() == false) {
+                                    } else if (availableButton.isSelected() == false && availableButton.isDisabled() == false) {
                                         availableButton.setSelected(false);
                                         nb_checked_slots--;
                                         new_slots.remove(new ArrayList<>(Arrays.asList(GridPane.getColumnIndex(availableButton), GridPane.getRowIndex(availableButton))));
                                     }
                                     //MAJ des puits désactivés selon le nombre de puits pouvant être placé
                                     majPuitsPlaque();
-                                }
-                            });
-                            availableButton.setOnAction((ActionEvent event2) -> {
-                                //Nombre de slots/réplicas cochés
-                                if (availableButton.isSelected() == true && availableButton.isDisabled() == false) {
-                                    availableButton.setSelected(true);
-                                    nb_checked_slots++;
-                                    new_slots.add(new ArrayList<>(Arrays.asList(GridPane.getColumnIndex(availableButton), GridPane.getRowIndex(availableButton))));
-                                } else if (availableButton.isSelected() == false && availableButton.isDisabled() == false) {
-                                    availableButton.setSelected(false);
-                                    nb_checked_slots--;
-                                    new_slots.remove(new ArrayList<>(Arrays.asList(GridPane.getColumnIndex(availableButton), GridPane.getRowIndex(availableButton))));
-                                }
-                                //MAJ des puits désactivés selon le nombre de puits pouvant être placé
-                                majPuitsPlaque();
-                            });
-                            rectPlaque.add(availableButton, j, i);
+                                });
+                                rectPlaque.add(availableButton, j, i);
+                            }
+                            j++;
                         }
-                        j++;
+                        i++;
                     }
-                    i++;
+                    //MAJ des dimensions de la plaque à afficher
+                    majDimensionsPlaque();
+                    //MAJ des puits désactivés selon le nombre de puits pouvant être placé
+                    majPuitsPlaque();
                 }
-                //MAJ des dimensions de la plaque à afficher
-                majDimensionsPlaque();
-                //MAJ des puits désactivés selon le nombre de puits pouvant être placé
-                majPuitsPlaque();
             }
         }
     }
@@ -491,13 +567,34 @@ public class FXMLDocumentController implements Initializable {
      */
     @FXML
     private void addPlaque(ActionEvent event) {
+        //Remise à Z des bordures rouges en cas d'erreur et du label d'erreur du formulaire
+        resetErrorMessagesNewPlaque();
         String slotsPlaque = "";
         if (radioButton96.isSelected() == true) {
             slotsPlaque = "96";
         } else if (radioButton384.isSelected() == true) {
             slotsPlaque = "384";
         }
-        if (!"".equals(slotsPlaque) && !numPlaqueTextField.getText().isEmpty()) {
+        //Affichage des messages d'erreur et des emplacements des erreurs
+        Boolean ok = true;
+        if (numPlaqueTextField.getText().isEmpty()) {
+            numPlaqueTextField.setStyle("-fx-border-color: RED");
+            plaqueErrorLabel.setVisible(true);
+            plaqueErrorLabel.setText(plaqueErrorLabel.getText() + "N° de plaque manquant. ");
+        }
+        if ("".equals(slotsPlaque)) {
+            radioButton96.setStyle("-fx-border-color: RED");
+            radioButton384.setStyle("-fx-border-color: RED");
+            plaqueErrorLabel.setVisible(true);
+            plaqueErrorLabel.setText(plaqueErrorLabel.getText() + "Type de plaque manquant. ");
+        }
+        if (!numPlaqueTextField.getText().matches("^[0-9]+$") && !numPlaqueTextField.getText().isEmpty()) {
+            numPlaqueTextField.setStyle("-fx-border-color: RED");
+            plaqueErrorLabel.setVisible(true);
+            plaqueErrorLabel.setText(plaqueErrorLabel.getText() + "N° de plaque invalide : chiffres uniquement. ");
+        }
+        //Insertion de la plaque
+        if (!"".equals(slotsPlaque) && !numPlaqueTextField.getText().isEmpty() && numPlaqueTextField.getText().matches("^[0-9]+$")) {
             Integer plaqueExistante = 1;
             try {
                 Statement stmt = con.createStatement();
@@ -521,13 +618,12 @@ public class FXMLDocumentController implements Initializable {
                 }
                 choixPlaqueComboBox.setValue("Plaque n° " + numPlaqueTextField.getText() + " - " + slotsPlaque + " slots");
                 newPlaquePanel.setVisible(false);
+                //Reset des erreurs précédentes après l'envoi du formulaire
+                resetErrorMessagesNewPlaque();
             } else {
                 plaqueErrorLabel.setText("Plaque déjà existante.");
                 plaqueErrorLabel.setVisible(true);
             }
-        } else {
-            plaqueErrorLabel.setText("Champ(s) non rempli(s).");
-            plaqueErrorLabel.setVisible(true);
         }
     }
 
@@ -602,6 +698,34 @@ public class FXMLDocumentController implements Initializable {
     }
 
     /**
+     * Méthode reset-ant les messages d'erreur lors de la précédente tentative
+     * d'envoi du formulaire pour l'ajout de réplicas sur une plaque
+     */
+    private void resetErrorMessages() {
+        //Remise à Z du label d'erreur du formulaire à son précédent envoi
+        errorInsertPlaqueLabel.setText("");
+        errorInsertPlaqueLabel.setVisible(false);
+        //Remise à Z des bordures rouges en cas d'erreur au précédent envoi du formulaire
+        choixExperienceComboBox.setStyle("-fx-border-width: 0");
+        choixPlaqueComboBox.setStyle("-fx-border-width: 0");
+        rectPlaque.setStyle("-fx-border-color: black");
+    }
+
+    /**
+     * Méthode reset-ant les messages d'erreur lors de la précédente tentative
+     * d'envoi du formulaire pour l'ajout de nouvelle plaque
+     */
+    private void resetErrorMessagesNewPlaque() {
+        //Remise à Z du label d'erreur du formulaire à son précédent envoi
+        plaqueErrorLabel.setText("");
+        plaqueErrorLabel.setVisible(false);
+        //Remise à Z des bordures rouges en cas d'erreur au précédent envoi du formulaire
+        numPlaqueTextField.setStyle("-fx-border-width: 0");
+        radioButton96.setStyle("-fx-border-width: 0");
+        radioButton384.setStyle("-fx-border-width: 0");
+    }
+
+    /**
      * Méthode appelant la méthode permettant l'insertion de slots quand la
      * touche "Entrée" est préssée
      *
@@ -632,20 +756,35 @@ public class FXMLDocumentController implements Initializable {
      */
     @FXML
     private void insertSlots() {
-        Boolean ok = false;
+        //Remise à Z des bordures rouges en cas d'erreur et du label d'erreur du formulaire
+        resetErrorMessages();
+        //Affichage des messages d'erreur et des emplacements des erreurs
+        Boolean ok = true;
         if (choixPlaqueComboBox.getValue() == null) {
             choixPlaqueComboBox.setStyle("-fx-border-color: RED");
+            errorInsertPlaqueLabel.setVisible(true);
+            errorInsertPlaqueLabel.setText(errorInsertPlaqueLabel.getText() + "Plaque manquante. ");
         }
         if (choixExperienceComboBox.getValue() == null) {
             choixExperienceComboBox.setStyle("-fx-border-color: RED");
+            errorInsertPlaqueLabel.setVisible(true);
+            errorInsertPlaqueLabel.setText(errorInsertPlaqueLabel.getText() + "Expérience manquante. ");
         }
         if (nb_checked_slots == null) {
             rectPlaque.setStyle("-fx-border-color: RED");
+            errorInsertPlaqueLabel.setVisible(true);
+            errorInsertPlaqueLabel.setText(errorInsertPlaqueLabel.getText() + "Pas de puits sélectionnés. ");
         }
-        if (nb_checked_slots == 0) {
-            rectPlaque.setStyle("-fx-border-color: RED");
+        if (nb_checked_slots != null) {
+            if (nb_checked_slots == 0) {
+                ok = false;
+                rectPlaque.setStyle("-fx-border-color: RED");
+                errorInsertPlaqueLabel.setVisible(true);
+                errorInsertPlaqueLabel.setText(errorInsertPlaqueLabel.getText() + "Pas de puits sélectionnés. ");
+
+            }
         }
-        if (nb_checked_slots != 0 && nb_checked_slots != null && choixExperienceComboBox.getValue() != null && choixPlaqueComboBox.getValue() != null) {
+        if (ok && nb_checked_slots != null && choixExperienceComboBox.getValue() != null && choixPlaqueComboBox.getValue() != null) {
             if (new_slots.size() % slots_by_uplet == 0) {
                 //Insertion des slots un par un
                 uplets_to_attribute.forEach((uplet) -> {
@@ -663,14 +802,16 @@ public class FXMLDocumentController implements Initializable {
                         }
                     }
                 });
-                //Remise à Z du label d'erreur
+                //Remise à Z du label de suivi de la sélection de la plaque
                 slotsRestantsLabel.setText("");
                 //Remise à Z du nombre de slots cochés
                 nb_checked_slots = 0;
                 //Remise à Z de la liste des slots à ajouter
                 new_slots.clear();
-                //Remise à Z de la plaque
-                rectPlaque.getChildren().clear();
+                //MAJ de la plaque
+                SlotsPositionChecker();
+                //Remise à Z des bordures rouges en cas d'erreur et du label d'erreur du formulaire
+                resetErrorMessages();
             } else {
                 FadeTransition fadeTransition = new FadeTransition(Duration.seconds(0.1), slotsRestantsLabel);
                 fadeTransition.setFromValue(0.0);
