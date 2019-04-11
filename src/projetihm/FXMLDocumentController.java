@@ -273,7 +273,7 @@ public class FXMLDocumentController implements Initializable {
                     + "WHERE STATUT_EXP = 'en cours' "
                     + "ORDER BY ((TOT_UPLET*NB_SLOT)-(TOT_RES*NB_SLOT)) DESC");
             while (rs.next()) {
-                choixExperienceComboBox.getItems().add(rs.getString(1) + " - " + rs.getString(2) + " - Equipe " + rs.getString(3) + " - " + ((rs.getInt(6)*rs.getInt(4))-(rs.getInt(5)*rs.getInt(4))) + " puits à analyser");
+                choixExperienceComboBox.getItems().add(rs.getString(1) + " - " + rs.getString(2) + " - Equipe " + rs.getString(3) + " - " + ((rs.getInt(6) * rs.getInt(4)) - (rs.getInt(5) * rs.getInt(4))) + " puits à analyser");
             }
         } catch (SQLException e) {
             System.out.println(e);
@@ -364,11 +364,11 @@ public class FXMLDocumentController implements Initializable {
         instruction3ImageView.setVisible(true);
         instruction4ImageView.setVisible(true);
     }
-    
+
     /**
-     * Méthode permettant d'afficher les instructions au clic du lien "Comment ça marche ?" pour sélectionner les
-     * réplicas sur la plaque lorsque l'utilisateur arrive sur la partie pour
-     * gérer les réplicas.
+     * Méthode permettant d'afficher les instructions au clic du lien "Comment
+     * ça marche ?" pour sélectionner les réplicas sur la plaque lorsque
+     * l'utilisateur arrive sur la partie pour gérer les réplicas.
      */
     @FXML
     private void setInstructionsOnAgain(ActionEvent e) {
@@ -379,7 +379,7 @@ public class FXMLDocumentController implements Initializable {
         instruction3ImageView.setVisible(true);
         instruction4ImageView.setVisible(true);
     }
-    
+
     /**
      * Listener appelant la méthode SlotsPositionChecker permettant l'affichage
      * graphique de la plaque permettant de positionner les expériences
@@ -859,15 +859,15 @@ public class FXMLDocumentController implements Initializable {
      */
     @FXML
     private void setViewPanel(MouseEvent event) {
-        reloadTableauExp(); 
+        reloadTableauExp();
     }
-    
+
     /**
-     * Méthode permettant l'affichage du tableau des expériences
-     * visible par les laborantins
+     * Méthode permettant l'affichage du tableau des expériences visible par les
+     * laborantins
      */
     private void reloadTableauExp() {
-            TableExp();
+        TableExp();
         //Gestion des pages et de l'UX
         eyeIcon.setImage(new Image(getClass().getResource("eye_white.png").toExternalForm()));
         addIcon.setImage(new Image(getClass().getResource("add_black.png").toExternalForm()));
@@ -887,8 +887,7 @@ public class FXMLDocumentController implements Initializable {
         searchdateTextField.setStyle("-fx-border-width:0px");
         warningSearch.setText("");
     }
-    
-    
+
     /**
      * Méthode permettant l'affichage du panel central permettant l'ajout d'une
      * expérience ainsi que la gestion de l'UX des menus (surlignage du module
@@ -1086,6 +1085,30 @@ public class FXMLDocumentController implements Initializable {
     }
 
     /**
+     * Listener permettant de réinitialisé le tableau et d'afficher toutes les
+     * expériences
+     *
+     * @param event
+     */
+    @FXML
+    private void annuleRecherche(ActionEvent event) {
+        reloadTableauExp();
+    }
+
+    /**
+     * Listener permettant de réinitialisé le tableau et d'afficher toutes les
+     * expériences
+     *
+     * @param keyEvent
+     */
+    @FXML
+    private void annuleRechercheBis(KeyEvent e) {
+        if (e.getCode() == ENTER) {
+            reloadTableauExp();
+        }
+    }
+
+    /**
      * Méthode permettant l'envoi des résultats de l'expérience sélectionnée à
      * l'équipe de recherche l'ayant commandité
      *
@@ -1259,16 +1282,21 @@ public class FXMLDocumentController implements Initializable {
                         datalibelleLabel.setText(getTableView().getItems().get(getIndex()).getLibelle());
                         dataequipeLabel.setText(getTableView().getItems().get(getIndex()).getEmail_equipe());
                         datastatutLabel.setText(getTableView().getItems().get(getIndex()).getStatut());
-                        dataa1Label.setText(String.valueOf(getTableView().getItems().get(getIndex()).getA1()));
-                        dataa2Label.setText(String.valueOf(getTableView().getItems().get(getIndex()).getA2()));
+                        if ("acceptée".equals(datastatutLabel.getText())) {
+                            datastatutLabel.setTextFill(Color.GREEN);
+                        } else {
+                            datastatutLabel.setTextFill(Color.RED);
+                        }
+                        dataa1Label.setText(String.valueOf(getTableView().getItems().get(getIndex()).getA1()) + " u.a");
+                        dataa2Label.setText(String.valueOf(getTableView().getItems().get(getIndex()).getA2()) + " u.a");
                         datadatetransmissionLabel.setText(getTableView().getItems().get(getIndex()).getDate_transmission());
-                        datafrequenceLabel.setText(String.valueOf(getTableView().getItems().get(getIndex()).getFrequence()));
+                        datafrequenceLabel.setText(String.valueOf(getTableView().getItems().get(getIndex()).getFrequence()) + " u.a");
                         datatypeLabel.setText(getTableView().getItems().get(getIndex()).getType_exp());
                         datadatedemandeLabel.setText(getTableView().getItems().get(getIndex()).getDate_demande());
                         datadatedebutLabel.setText(getTableView().getItems().get(getIndex()).getDate_deb());
-                        datanbslotsLabel.setText(String.valueOf(getTableView().getItems().get(getIndex()).getNb_slot()));
-                        datadureeLabel.setText(String.valueOf(getTableView().getItems().get(getIndex()).getDuree()));
-                        dataa3Label.setText(String.valueOf(getTableView().getItems().get(getIndex()).getA3()));
+                        datanbslotsLabel.setText(String.valueOf(getTableView().getItems().get(getIndex()).getNb_slot()) + " u.a");
+                        datadureeLabel.setText(String.valueOf(getTableView().getItems().get(getIndex()).getDuree()) + " heure(s)");
+                        dataa3Label.setText(String.valueOf(getTableView().getItems().get(getIndex()).getA3()) + " u.a");
                         if (getTableView().getItems().get(getIndex()).getA3() == 0) {
                             datasuiviLabel.setText("NON");
                         } else {
@@ -1314,8 +1342,20 @@ public class FXMLDocumentController implements Initializable {
             Statement stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT ID_UPLET, TYPE_CELLULE, Q_AGENT, Q_CELLULE, RENOUV, URGENT, DATE_ECHEANCE, ETAT FROM N_UPLET JOIN EXPERIENCE USING (ID_EXPERIENCE) WHERE ID_EXPERIENCE = " + idExp + " ");
             while (rs.next()) {
-                Uplet uplet = new Uplet(rs.getInt(1), rs.getString(2), rs.getInt(3), rs.getInt(4), rs.getInt(5), rs.getInt(6), rs.getString(7), rs.getString(8));
-                listUplet.add(uplet);
+              
+                if (rs.getInt(5) == 0 && rs.getString(7) == null) {
+                    Uplet uplet = new Uplet(rs.getInt(1), rs.getString(2), (rs.getString(3) + " µL"), (rs.getString(4) + " µL"), "Non", rs.getInt(6), "Aucune", rs.getString(8));
+                    listUplet.add(uplet);
+                } else if (rs.getInt(5) == 1 && rs.getString(7) == null) {
+                    Uplet uplet = new Uplet(rs.getInt(1), rs.getString(2), (rs.getString(3) + " µL"), (rs.getString(4) + " µL"), "Oui", rs.getInt(6), "Aucune", rs.getString(8));
+                    listUplet.add(uplet);
+                } else if (rs.getInt(5) == 1 && rs.getString(7) != null) {
+                    Uplet uplet = new Uplet(rs.getInt(1), rs.getString(2), (rs.getString(3) + " µL"), (rs.getString(4) + " µL"), "Oui", rs.getInt(6), rs.getString(7), rs.getString(8));
+                    listUplet.add(uplet);
+                } else {
+                    Uplet uplet = new Uplet(rs.getInt(1), rs.getString(2), (rs.getString(3) + " µL"), (rs.getString(4) + " µL"), "Non", rs.getInt(6), rs.getString(7), rs.getString(8));
+                    listUplet.add(uplet);
+                }
             }
         } catch (SQLException ex) {
             System.out.println(ex);
@@ -2006,10 +2046,10 @@ public class FXMLDocumentController implements Initializable {
      */
     @FXML
     private void backListExp(MouseEvent event) {
-        reloadTableauExp(); 
-        viewdetailsPanel.setVisible(false); 
+        reloadTableauExp();
+        viewdetailsPanel.setVisible(false);
     }
-    
+
     /**
      * Méthode de déconnexion de la base de données Oracle
      */
@@ -2034,5 +2074,6 @@ public class FXMLDocumentController implements Initializable {
         connectServer();
     }
 }
+
 
 
