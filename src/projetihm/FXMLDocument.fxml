@@ -584,69 +584,171 @@
                         </AnchorPane>
                     </content>
                 </ScrollPane>
-                <ScrollPane fx:id="plaqueScrollPane" layoutX="110.0" layoutY="104.0" prefHeight="401.0" prefWidth="621.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="110.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="104.0">
+                <ScrollPane fx:id="plaqueScrollPane" fitToHeight="true" fitToWidth="true" layoutX="110.0" layoutY="104.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="110.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="104.0">
                     <content>
-                        <AnchorPane fx:id="plaquePanel" prefHeight="659.0" prefWidth="621.0">
+                        <AnchorPane fx:id="plaquePanel">
                             <children>
-                                <Rectangle fx:id="rectangle11" arcHeight="5.0" arcWidth="5.0" fill="#dad9d9" height="117.0" layoutX="16.0" layoutY="62.0" stroke="TRANSPARENT" strokeType="INSIDE" width="575.0" />
-                                <Rectangle fx:id="rectangle1" arcHeight="5.0" arcWidth="5.0" fill="#dad9d9" height="66.0" layoutX="16.0" layoutY="194.0" stroke="TRANSPARENT" strokeType="INSIDE" width="575.0" />
-                                <Label fx:id="plaqueTitreLabel" layoutX="270.0" layoutY="195.0" text="Plaque" textFill="#479aa7">
-                                    <font>
-                                        <Font name="System Bold" size="15.0" />
-                                    </font>
-                                </Label>
-                                <Label fx:id="plaqueSelectedLabel" layoutX="150.0" layoutY="226.0" text="Plaque utilisée* :">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Label>
-                        <AnchorPane fx:id="newPlaquePanel" layoutX="16.0" layoutY="259.0" prefHeight="66.0" prefWidth="575.0" style="-fx-background-color: #dad9d9;" visible="false">
+                        <VBox alignment="CENTER" layoutX="20.0" layoutY="66.0" prefHeight="83.0" prefWidth="575.0" style="-fx-background-color: #dad9d9;" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0">
                            <children>
-                                      <Label fx:id="numPlaqueLabel" layoutY="3.0" text="N° plaque* :">
+                                      <Label fx:id="titreSelectionLabel" alignment="CENTER" text="Selection de l'expérience à traiter" textAlignment="CENTER" textFill="#479aa7">
                                           <font>
-                                              <Font size="14.0" />
+                                              <Font name="System Bold" size="15.0" />
                                           </font>
+                                 <VBox.margin>
+                                    <Insets top="10.0" />
+                                 </VBox.margin>
                                       </Label>
-                                      <Label fx:id="nbPuitLabel" layoutX="256.0" layoutY="3.0" text="Nombre de puits* :">
-                                          <font>
-                                              <Font size="14.0" />
-                                          </font>
-                                      </Label>
-                                      <TextField fx:id="numPlaqueTextField" layoutX="81.0" promptText="Saisir le numéro de la plaque" />
-                                      <RadioButton fx:id="radioButton96" layoutX="388.0" layoutY="4.0" mnemonicParsing="false" onAction="#setSlotsChoice96" text="96" />
-                                      <RadioButton fx:id="radioButton384" layoutX="441.0" layoutY="4.0" mnemonicParsing="false" onAction="#setSlotsChoice384" text="384" />
-                                      <Button fx:id="AjoutPlaqueButton" layoutX="384.0" layoutY="36.0" mnemonicParsing="false" onAction="#addPlaque" style="-fx-background-color: #88d9e6;" text="Ajouter la plaque" />
-                              <Label fx:id="plaqueErrorLabel" layoutX="256.0" layoutY="40.0" text="Plaque déjà existante !" textFill="RED" visible="false" />
+                              <HBox alignment="CENTER" prefHeight="50.0" prefWidth="200.0">
+                                 <children>
+                                            <Label fx:id="choixExperienceLabel" text="Choisir une expérience à traiter : ">
+                                                <font>
+                                                    <Font size="14.0" />
+                                                </font>
+                                            </Label>
+                                            <ComboBox fx:id="choixExperienceComboBox" onAction="#setSlotsPositionChecker" prefHeight="25.0" prefWidth="198.0" promptText="Sélectionner un réplicat" />
+                                 </children>
+                              </HBox>
                            </children>
-                        </AnchorPane>
+                        </VBox>
+                        <HBox alignment="CENTER" layoutX="50.0" layoutY="197.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0">
+                           <children>
+                              <VBox prefHeight="340.0" prefWidth="307.0">
+                                 <children>
+                                    <VBox alignment="TOP_CENTER" prefHeight="117.0" prefWidth="273.0" style="-fx-background-color: #dad9d9;">
+                                       <children>
+                                                  <Label fx:id="plaqueTitreLabel" text="Plaque" textFill="#479aa7">
+                                                      <font>
+                                                          <Font name="System Bold" size="15.0" />
+                                                      </font>
+                                             <VBox.margin>
+                                                <Insets bottom="15.0" top="10.0" />
+                                             </VBox.margin>
+                                                  </Label>
+                                                  <Label fx:id="plaqueSelectedLabel" text="Plaque à utiliser* :">
+                                                      <font>
+                                                          <Font size="14.0" />
+                                                      </font>
+                                             <VBox.margin>
+                                                <Insets bottom="10.0" />
+                                             </VBox.margin>
+                                                  </Label>
+                                                  <ComboBox fx:id="choixPlaqueComboBox" onAction="#setSlotsPositionChecker" prefHeight="25.0" prefWidth="226.0" promptText="Sélectionner une plaque">
+                                             <VBox.margin>
+                                                <Insets bottom="10.0" left="20.0" right="20.0" />
+                                             </VBox.margin>
+                                          </ComboBox>
+                                       </children>
+                                    </VBox>
+                                    <VBox fx:id="newPlaquePanel" alignment="TOP_CENTER" prefHeight="168.0" prefWidth="273.0" style="-fx-background-color: #dad9d9;" visible="false">
+                                       <children>
+                                                  <Label fx:id="numPlaqueLabel" text="N° plaque* :">
+                                                      <font>
+                                                          <Font size="14.0" />
+                                                      </font>
+                                             <VBox.margin>
+                                                <Insets bottom="10.0" />
+                                             </VBox.margin>
+                                                  </Label>
+                                                  <TextField fx:id="numPlaqueTextField" prefHeight="25.0" prefWidth="200.0" promptText="Saisir le numéro de la plaque">
+                                             <VBox.margin>
+                                                <Insets bottom="10.0" left="20.0" right="20.0" />
+                                             </VBox.margin>
+                                          </TextField>
+                                                  <Label fx:id="nbPuitLabel" text="Nombre de puits* :">
+                                                      <font>
+                                                          <Font size="14.0" />
+                                                      </font>
+                                             <VBox.margin>
+                                                <Insets />
+                                             </VBox.margin>
+                                                  </Label>
+                                          <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                                             <children>
+                                                        <RadioButton fx:id="radioButton96" mnemonicParsing="false" onAction="#setSlotsChoice96" text="96" />
+                                                        <RadioButton fx:id="radioButton384" mnemonicParsing="false" onAction="#setSlotsChoice384" text="384">
+                                                   <HBox.margin>
+                                                      <Insets left="20.0" />
+                                                   </HBox.margin>
+                                                </RadioButton>
+                                             </children>
+                                          </HBox>
+                                                  <Button fx:id="AjoutPlaqueButton" mnemonicParsing="false" onAction="#addPlaque" style="-fx-background-color: #88d9e6;" text="Ajouter la plaque">
+                                             <VBox.margin>
+                                                <Insets top="10.0" />
+                                             </VBox.margin>
+                                          </Button>
+                                          <Label fx:id="plaqueErrorLabel" text="Plaque déjà existante !" textFill="RED" visible="false">
+                                             <VBox.margin>
+                                                <Insets bottom="5.0" top="10.0" />
+                                             </VBox.margin>
+                                          </Label>
+                                       </children>
+                                    </VBox>
+                                 </children>
+                                 <HBox.margin>
+                                    <Insets right="20.0" top="20.0" />
+                                 </HBox.margin>
+                              </VBox>
+                              <Pane prefHeight="360.0" prefWidth="575.0">
+                                 <children>
+                                            <GridPane fx:id="rectPlaque" alignment="CENTER" layoutY="17.0" prefHeight="282.0" prefWidth="575.0" style="-fx-border-width: 1; -fx-border-color: BLACK;">
+                                                <columnConstraints>
+                                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                                                </columnConstraints>
+                                                <rowConstraints>
+                                                    <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                                                </rowConstraints>
+                                            </GridPane>
+                                    <Label fx:id="anySelectedLabel" layoutX="17.0" layoutY="154.0" prefHeight="20.0" prefWidth="546.0" text="Choisissez une plaque et une expérience pour commencer le positionnement des réplicas.">
+                                       <font>
+                                          <Font name="System Italic" size="14.0" />
+                                       </font>
+                                       <effect>
+                                          <GaussianBlur radius="5.5" />
+                                       </effect>
+                                    </Label>
+                                    <Rectangle fx:id="instructionsRectangle" arcHeight="5.0" arcWidth="5.0" fill="#6e6e6e" height="282.0" layoutY="17.0" onMouseEntered="#setInstructionsOff" opacity="0.5" smooth="false" strokeMiterLimit="0.0" strokeType="INSIDE" strokeWidth="0.0" width="575.0" />
+                                            <Button fx:id="analyseButton" layoutX="419.0" layoutY="307.0" mnemonicParsing="false" onAction="#insertSlots" style="-fx-background-color: #88d9e6;" text="Valider" />
+                                    <Label fx:id="errorInsertPlaqueLabel" layoutX="3.0" layoutY="310.0" text="Label" textFill="RED" visible="false" />
+                                    <Label fx:id="slotsRestantsLabel" layoutX="225.0" text="X puits restants à déterminer" visible="false" />
+                                    <Label fx:id="instruction2Label" layoutX="262.0" layoutY="104.0" text="+">
+                                       <font>
+                                          <Font name="System Bold" size="48.0" />
+                                       </font>
+                                    </Label>
+                                    <Label fx:id="instruction1Label" layoutX="129.0" layoutY="196.0" text="pour définir l'emplacement des réplicas">
+                                       <font>
+                                          <Font name="System Bold Italic" size="18.0" />
+                                       </font>
+                                    </Label>
+                                    <Hyperlink layoutY="299.0" onAction="#setInstructionsOnAgain" text="💬 Comment ça marche ?" textFill="#7bbfc9">
+                                       <font>
+                                          <Font name="System Bold Italic" size="12.0" />
+                                       </font>
+                                    </Hyperlink>
+                                    <ImageView fx:id="instruction4ImageView" fitHeight="60.0" fitWidth="84.0" layoutX="-22.0" layoutY="-341.0" pickOnBounds="true" x="180.0" y="450.0">
+                                       <image>
+                                          <Image url="@control_key.png" />
+                                       </image>
+                                    </ImageView>
+                                    <ImageView fx:id="instruction3ImageView" fitHeight="150.0" fitWidth="200.0" layoutX="-20.0" layoutY="-343.0" pickOnBounds="true" preserveRatio="true" x="300.0" y="400.0">
+                                       <image>
+                                          <Image url="@mouse_pointer.gif" />
+                                       </image>
+                                    </ImageView>
+                                 </children>
+                                 <HBox.margin>
+                                    <Insets left="20.0" />
+                                 </HBox.margin>
+                              </Pane>
+                           </children>
+                        </HBox>
                                 <Line endX="208.33334350585938" layoutX="101.0" layoutY="48.0" startX="-100.0" />
                                 <Label fx:id="titreReplicatLabel" layoutX="20.0" layoutY="14.0" text="Choix de la plaque pour le réplicat">
                                     <font>
                                         <Font name="System Bold" size="18.0" />
                                     </font>
                                 </Label>
-                                <ComboBox fx:id="choixPlaqueComboBox" layoutX="270.0" layoutY="224.0" onAction="#setSlotsPositionChecker" prefHeight="25.0" prefWidth="137.0" promptText="Sélectionner une plaque" />
-                                <ComboBox fx:id="choixExperienceComboBox" layoutX="304.0" layoutY="104.0" onAction="#setSlotsPositionChecker" prefHeight="25.0" prefWidth="137.0" promptText="Sélectionner un réplicat" />
-                                <Label fx:id="choixExperienceLabel" layoutX="150.0" layoutY="106.0" text="Choisir une expérience : ">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Label>
-                                <Label fx:id="titreSelectionLabel" layoutX="173.0" layoutY="71.0" text="Selection de l'expérience et de l'uplet" textFill="#479aa7">
-                                    <font>
-                                        <Font name="System Bold" size="15.0" />
-                                    </font>
-                                </Label>
-                                <GridPane fx:id="rectPlaque" alignment="CENTER" layoutX="18.0" layoutY="363.0" prefHeight="282.0" prefWidth="575.0" style="-fx-border-width: 1; -fx-border-color: BLACK;">
-                                    <columnConstraints>
-                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-                                    </columnConstraints>
-                                    <rowConstraints>
-                                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                                    </rowConstraints>
-                                </GridPane>
-                                <Button fx:id="analyseButton" layoutX="437.0" layoutY="653.0" mnemonicParsing="false" onAction="#insertSlots" style="-fx-background-color: #88d9e6;" text="Valider" />
-                        <Label fx:id="slotsRestantsLabel" layoutX="243.0" layoutY="346.0" text="X puits restants à déterminer" visible="false" />
                             </children>
                         </AnchorPane>
                     </content>
