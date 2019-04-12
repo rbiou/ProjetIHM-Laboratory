@@ -781,6 +781,11 @@
                         <Insets top="20.0" />
                      </VBox.margin>
                   </PasswordField>
+                      <Label fx:id="loginErrorLabel" text="error" textFill="RED" visible="false">
+                     <VBox.margin>
+                        <Insets right="50.0" top="5.0" />
+                     </VBox.margin>
+                  </Label>
                       <Button fx:id="connexionButton" mnemonicParsing="false" onAction="#connectUser" style="-fx-background-color: #88d9e6;" text="Connexion">
                      <VBox.margin>
                         <Insets left="150.0" top="30.0" />
@@ -788,9 +793,9 @@
                   </Button>
                </children>
             </VBox>
-                <Label fx:id="loginErrorLabel" layoutX="392.0" layoutY="432.0" text="error" textFill="RED" visible="false" AnchorPane.topAnchor="432.0" />
             </children>
         </AnchorPane>
     </children>
 </AnchorPane>
+
 
