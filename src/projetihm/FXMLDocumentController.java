@@ -116,19 +116,16 @@ public class FXMLDocumentController implements Initializable {
             //Connexion en utilisant la BDD
             try {
                 Statement stmt = con.createStatement();
-//                ResultSet rs = stmt.executeQuery(
-//                        "SELECT PERSONNE.PRENOM_PERSONNE, FONCTION.LIBELLE_FONCTION "
-//                        + "FROM PERSONNE "
-//                        + "JOIN FONCTION ON PERSONNE.ID_FONCTION = FONCTION.ID_FONCTION "
-//                        + "WHERE EMAIL_PERSONNE ='" + mailTextField.getText() + "' AND PASSWORD = ENCRYPTER('" + passwordTextField.getText() + "')");
-                existingUser = 1;
-                nameUser = "Remi";
-                functionUser = "laborantin";
-//                while (rs.next()) {
-//                    existingUser = 1;
-//                    nameUser = rs.getString(1);
-//                    functionUser = rs.getString(2);
-//                }
+                ResultSet rs = stmt.executeQuery(
+                        "SELECT PERSONNE.PRENOM_PERSONNE, FONCTION.LIBELLE_FONCTION "
+                        + "FROM PERSONNE "
+                        + "JOIN FONCTION ON PERSONNE.ID_FONCTION = FONCTION.ID_FONCTION "
+                        + "WHERE EMAIL_PERSONNE ='" + mailTextField.getText() + "' AND '" + passwordTextField.getText()+ "' = decrypter(PERSONNE.PASSWORD)");
+                while (rs.next()) {
+                    existingUser = 1;
+                    nameUser = rs.getString(1);
+                    functionUser = rs.getString(2);
+                }
             } catch (SQLException e) {
                 System.out.println(e);
             }
@@ -1117,6 +1114,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private void sendResults(ActionEvent event
     ) {
+
         try {
             Statement stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT DATE_TRANSMISSION, STATUT_EXP FROM EXPERIENCE WHERE ID_EXPERIENCE = " + idExperience + " ");
@@ -1160,6 +1158,17 @@ public class FXMLDocumentController implements Initializable {
             resInfoLabel.setText("");
             resInfoLabel.setText("Ces résultats ont déjà été transmis au chercheur.");
             resInfoLabel.setVisible(true);
+        }
+
+        //Mise à jour de l'affichage de la date de transmission 
+        try {
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT DATE_TRANSMISSION FROM EXPERIENCE WHERE ID_EXPERIENCE = " + idExperience + " ");
+            while (rs.next()) {
+                datadatetransmissionLabel.setText(rs.getString(1));
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
         }
 
     }
@@ -1289,7 +1298,11 @@ public class FXMLDocumentController implements Initializable {
                         }
                         dataa1Label.setText(String.valueOf(getTableView().getItems().get(getIndex()).getA1()) + " u.a");
                         dataa2Label.setText(String.valueOf(getTableView().getItems().get(getIndex()).getA2()) + " u.a");
-                        datadatetransmissionLabel.setText(getTableView().getItems().get(getIndex()).getDate_transmission());
+                        if ((getTableView().getItems().get(getIndex()).getDate_transmission()) == null) {
+                            datadatetransmissionLabel.setText("Résultats non transmis");
+                        } else {
+                            datadatetransmissionLabel.setText(getTableView().getItems().get(getIndex()).getDate_transmission());
+                        }
                         datafrequenceLabel.setText(String.valueOf(getTableView().getItems().get(getIndex()).getFrequence()) + " u.a");
                         datatypeLabel.setText(getTableView().getItems().get(getIndex()).getType_exp());
                         datadatedemandeLabel.setText(getTableView().getItems().get(getIndex()).getDate_demande());
@@ -1297,8 +1310,10 @@ public class FXMLDocumentController implements Initializable {
                         datanbslotsLabel.setText(String.valueOf(getTableView().getItems().get(getIndex()).getNb_slot()) + " u.a");
                         datadureeLabel.setText(String.valueOf(getTableView().getItems().get(getIndex()).getDuree()) + " heure(s)");
                         dataa3Label.setText(String.valueOf(getTableView().getItems().get(getIndex()).getA3()) + " u.a");
-                        if (getTableView().getItems().get(getIndex()).getA3() == 0) {
+                        if (getTableView().getItems().get(getIndex()).getA3() == 0 && getTableView().getItems().get(getIndex()).getFrequence() == 0) {
                             datasuiviLabel.setText("NON");
+                            datafrequenceLabel.setText("Pas de valeur");
+                            dataa3Label.setText("Pas de valeur");
                         } else {
                             datasuiviLabel.setText("OUI");
                         }
@@ -1342,7 +1357,7 @@ public class FXMLDocumentController implements Initializable {
             Statement stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT ID_UPLET, TYPE_CELLULE, Q_AGENT, Q_CELLULE, RENOUV, URGENT, DATE_ECHEANCE, ETAT FROM N_UPLET JOIN EXPERIENCE USING (ID_EXPERIENCE) WHERE ID_EXPERIENCE = " + idExp + " ");
             while (rs.next()) {
-              
+
                 if (rs.getInt(5) == 0 && rs.getString(7) == null) {
                     Uplet uplet = new Uplet(rs.getInt(1), rs.getString(2), (rs.getString(3) + " µL"), (rs.getString(4) + " µL"), "Non", rs.getInt(6), "Aucune", rs.getString(8));
                     listUplet.add(uplet);
@@ -2074,6 +2089,7 @@ public class FXMLDocumentController implements Initializable {
         connectServer();
     }
 }
+
 
 
 
