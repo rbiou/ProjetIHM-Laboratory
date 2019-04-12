@@ -715,8 +715,8 @@
                                        </effect>
                                     </Label>
                                     <Rectangle fx:id="instructionsRectangle" arcHeight="5.0" arcWidth="5.0" fill="#6e6e6e" height="282.0" layoutY="17.0" onMouseEntered="#setInstructionsOff" opacity="0.5" smooth="false" strokeMiterLimit="0.0" strokeType="INSIDE" strokeWidth="0.0" width="575.0" />
-                                            <Button fx:id="analyseButton" layoutX="419.0" layoutY="307.0" mnemonicParsing="false" onAction="#insertSlots" style="-fx-background-color: #88d9e6;" text="Valider" />
-                                    <Label fx:id="errorInsertPlaqueLabel" layoutX="3.0" layoutY="310.0" text="Label" textFill="RED" visible="false" />
+                                            <Button fx:id="analyseButton" layoutX="419.0" layoutY="338.0" mnemonicParsing="false" onAction="#insertSlots" prefHeight="25.0" prefWidth="77.0" style="-fx-background-color: #88d9e6;" text="Valider" />
+                                    <Label fx:id="errorInsertPlaqueLabel" layoutX="3.0" layoutY="338.0" text="Label" textFill="RED" visible="false" />
                                     <Label fx:id="slotsRestantsLabel" layoutX="225.0" text="X puits restants à déterminer" visible="false" />
                                     <Label fx:id="instruction2Label" layoutX="262.0" layoutY="104.0" text="+">
                                        <font>
@@ -738,7 +738,7 @@
                                           <Image url="@control_key.png" />
                                        </image>
                                     </ImageView>
-                                    <ImageView fx:id="instruction3ImageView" fitHeight="150.0" fitWidth="200.0" layoutX="-20.0" layoutY="-343.0" pickOnBounds="true" preserveRatio="true" x="300.0" y="400.0">
+                                    <ImageView fx:id="instruction3ImageView" fitHeight="150.0" fitWidth="200.0" layoutX="3.0" layoutY="-343.0" pickOnBounds="true" preserveRatio="true" x="300.0" y="400.0">
                                        <image>
                                           <Image url="@mouse_pointer.gif" />
                                        </image>
