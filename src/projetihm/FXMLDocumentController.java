@@ -103,8 +103,8 @@ public class FXMLDocumentController implements Initializable {
     private String dateRecup, statut_exp, plaqueUsed;
 
     /**
-     * Listener permettant la connexion d'un utilisateur lorsqu'il clique 
-     * sur le bouton connexion
+     * Listener permettant la connexion d'un utilisateur lorsqu'il clique sur le
+     * bouton connexion
      *
      * @param event
      */
@@ -132,7 +132,7 @@ public class FXMLDocumentController implements Initializable {
      * l'application
      */
     private void connexionUser() {
-        existingUser = 0; 
+        existingUser = 0;
         //Contrôle si les champs de saisie pour se connecter ne sont pas vides
         if (mailTextField.getText().isEmpty() == false && passwordTextField.getText().isEmpty() == false) {
             //Connexion en utilisant la BDD
@@ -1633,6 +1633,19 @@ public class FXMLDocumentController implements Initializable {
      */
     private void addExp() {
 
+        typeExpComboBox.setStyle("-fx-border-width:0px");
+        equipeComboBox.setStyle("-fx-border-width:0px");
+        dureeExpTextField.setStyle("-fx-border-width:0px");
+        nbSlotTextField.setStyle("-fx-border-width:0px");
+        a2TextField.setStyle("-fx-border-width:0px");
+        a1TextField.setStyle("-fx-border-width:0px");
+        a3TextField.setStyle("-fx-border-width:0px");
+        frequenceTextField.setStyle("-fx-border-width:0px");
+        dateDemandeDate.setStyle("-fx-border-width:0px");
+        libelleTextField.setStyle("-fx-border-width:0px");
+        ouiRadio.setStyle("-fx-border-width:0px");
+        nonRadio.setStyle("-fx-border-width:0px");
+
         if (dateDemandeDate.getValue() != null) {
             LocalDate localdate = dateDemandeDate.getValue();
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -1700,10 +1713,18 @@ public class FXMLDocumentController implements Initializable {
                         chargementComboBox();
                         warningLabel.setText("Expérience ajoutée.");
                         warningLabel.setVisible(true);
-                    } else if (("".equals(a3) || "".equals(frequence)) && ouiRadio.isSelected() == true) {
+                    } else if (("".equals(a3) && "".equals(frequence)) && ouiRadio.isSelected() == true) {
                         warningLabel.setText("");
                         warningLabel.setText("Veuillez remplir tous les champs.");
                         warningLabel.setVisible(true);
+                        a3TextField.setStyle("-fx-border-color: RED");
+                        frequenceTextField.setStyle("-fx-border-color: RED");
+                    } else if ("".equals(a3) && ouiRadio.isSelected() == true) {
+                        a3TextField.setStyle("-fx-border-color: RED");
+                        frequenceTextField.setStyle("-fx-border-width:0px");
+                    } else if ("".equals(frequence) && ouiRadio.isSelected() == true) {
+                        frequenceTextField.setStyle("-fx-border-color: RED");
+                        a3TextField.setStyle("-fx-border-width:0px");
                     } else if (ouiRadio.isSelected() == false && intduree != -1 && inta1 != -1 && inta2 != -1 && intnbslot != -1) {
                         Statement stmt2 = con.createStatement();
                         ResultSet rs2 = stmt2.executeQuery("INSERT INTO EXPERIENCE (LIBELLE_EXP, EMAIL_EQUIPE, DATE_DEMANDE, TYPE_EXP, A1, A2, NB_SLOT, DUREE_EXP, STATUT_EXP) "
@@ -1740,7 +1761,7 @@ public class FXMLDocumentController implements Initializable {
                         if (!nbSlotTextField.getText().matches("^[0-9]+$")) {
                             nbSlotTextField.setStyle("-fx-border-color: RED");
                             warningLabel.setText("");
-                            warningLabel.setText("Valeur saisie incorrecte.");
+                            warningLabel.setText("Valeur saisie incorrecte. Le nombre de puits doit être un entier.");
                             warningLabel.setVisible(true);
                         }
 
@@ -1749,7 +1770,7 @@ public class FXMLDocumentController implements Initializable {
                             if (!frequenceTextField.getText().matches("^[0-9]+$")) {
                                 frequenceTextField.setStyle("-fx-border-color: RED");
                                 warningLabel.setText("");
-                                warningLabel.setText("Valeur saisie incorrecte.");
+                                warningLabel.setText("Valeur saisie incorrecte. La fréquence doit être un entier.");
                                 warningLabel.setVisible(true);
                             }
 
@@ -1773,9 +1794,6 @@ public class FXMLDocumentController implements Initializable {
                 } catch (SQLException e) {
                     System.out.println("Exception SQL : ");
                     while (e != null) {
-                        //String message = e.getMessage();
-                        //int errorCode = e.getErrorCode();
-                        //System.out.println(message);
                         //Encadrement de la durée si la valeur saisie n'est pas un nombre
                         if (!dureeExpTextField.getText().matches("^[0-9]+(.[0-9]+)?$")) {
                             dureeExpTextField.setStyle("-fx-border-color: RED");
@@ -1866,12 +1884,6 @@ public class FXMLDocumentController implements Initializable {
                 if (typeExpComboBox.getValue() == null) {
                     typeExpComboBox.setStyle("-fx-border-color: RED");
                 }
-                if (a3.isEmpty() == true) {
-                    a3TextField.setStyle("-fx-border-color: RED");
-                }
-                if (frequence.isEmpty() == true) {
-                    frequenceTextField.setStyle("-fx-border-color: RED");
-                }
                 if (ouiRadio.isSelected() == false && nonRadio.isSelected() == false) {
                     ouiRadio.setStyle("-fx-border-color: RED");
                     nonRadio.setStyle("-fx-border-color: RED");
@@ -1890,6 +1902,12 @@ public class FXMLDocumentController implements Initializable {
      * Méthode d'insertion d'un uplet appelée dans les listeners
      */
     private void addUplet() {
+         expSelectedComboBox.setStyle("-fx-border-width:0px");
+        typeCelluleComboBox.setStyle("-fx-border-width:0px");
+        qteAgentTextField.setStyle("-fx-border-width:0px");
+        qteCelluleTextField.setStyle("-fx-border-width:0px");
+        nomAgentComboBox.setStyle("-fx-border-width:0px");
+        
         String qteAgent = qteAgentTextField.getText().replace(",", ".");
         String qteCell = qteCelluleTextField.getText().replace(",", ".");
         double intqteAgent = -1;
