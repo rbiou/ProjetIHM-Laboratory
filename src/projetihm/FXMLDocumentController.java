@@ -83,8 +83,7 @@ public class FXMLDocumentController implements Initializable {
     //Variables d'environnement user
     private static String nameUser, functionUser;
     //Variables non-FXML
-    private Integer existingUser =0; 
-    private Integer slots_to_check, nb_checked_slots, c, l, slots_by_uplet;
+    private Integer existingUser, slots_to_check, nb_checked_slots, c, l, slots_by_uplet;
     private Connection con;
     //Decalarations des listes utilisées pour la recherche d'expérience
     private ObservableList<Experience> listExp = FXCollections.observableArrayList();
@@ -104,14 +103,36 @@ public class FXMLDocumentController implements Initializable {
     private String dateRecup, statut_exp, plaqueUsed;
 
     /**
-     * Méthode qui permet de connecter l'utilisateur à notre application en
-     * contrôlant ses identifiants qui renvoie ensuite au tableau de bord de
-     * l'application
+     * Listener permettant la connexion d'un utilisateur lorsqu'il clique 
+     * sur le bouton connexion
      *
      * @param event
      */
     @FXML
     private void connectUser(ActionEvent event) {
+        connexionUser();
+    }
+
+    /**
+     * Listener permettant la connexion d'un utilisateur lorsqu'il clique sur le
+     * clavier (entrer) via le bouton connexion
+     *
+     * @param e
+     */
+    @FXML
+    private void connectUserBis(KeyEvent e) {
+        if (e.getCode() == ENTER) {
+            connexionUser();
+        }
+    }
+
+    /**
+     * Méthode qui permet de connecter l'utilisateur à notre application en
+     * contrôlant ses identifiants qui renvoie ensuite au tableau de bord de
+     * l'application
+     */
+    private void connexionUser() {
+        existingUser = 0; 
         //Contrôle si les champs de saisie pour se connecter ne sont pas vides
         if (mailTextField.getText().isEmpty() == false && passwordTextField.getText().isEmpty() == false) {
             //Connexion en utilisant la BDD
@@ -133,304 +154,282 @@ public class FXMLDocumentController implements Initializable {
                     String message = e.getMessage();
                     int errorCode = e.getErrorCode();
                     System.out.println(errorCode);
-//                    if (errorCode == 2290) {
-//                    }
                 }
-                }
-                if (existingUser != 0) {
-                    //Affichage du profil de l'utilisateur sur le tableau de bord
-                    welcomeLabel.setText("Bienvenue " + nameUser);
-                    fonctionLabel.setText("Fonction : " + functionUser);
-                    //Réinitialisation des champs de saisies pour se connecter
-                    mailTextField.setText("");
-                    passwordTextField.setText("");
-                    //Gestion des pages
-                    welcomePanel.setVisible(true);
-                    welcomeLabel.setVisible(true);
-                    fonctionLabel.setVisible(true);
-                    menuPanel.setVisible(true);
-                    loginPanel.setVisible(false);
-                    navPanel.setVisible(true);
-                    loginErrorLabel.setVisible(false);
-                } else {
-                    //Affichage d'un message d'erreur
-                    loginErrorLabel.setText("Mauvais identifiants.");
-                    loginErrorLabel.setVisible(true);
-                }
-            }else {
+            }
+            if (existingUser != 0) {
+                //Affichage du profil de l'utilisateur sur le tableau de bord
+                welcomeLabel.setText("Bienvenue " + nameUser);
+                fonctionLabel.setText("Fonction : " + functionUser);
+                //Réinitialisation des champs de saisies pour se connecter
+                mailTextField.setText("");
+                passwordTextField.setText("");
+                //Gestion des pages
+                welcomePanel.setVisible(true);
+                welcomeLabel.setVisible(true);
+                fonctionLabel.setVisible(true);
+                menuPanel.setVisible(true);
+                loginPanel.setVisible(false);
+                navPanel.setVisible(true);
+                loginErrorLabel.setVisible(false);
+            } else {
+                //Affichage d'un message d'erreur
+                loginErrorLabel.setText("Mauvais identifiants.");
+                loginErrorLabel.setVisible(true);
+            }
+        } else {
             //Affichage d'un message d'erreur
             loginErrorLabel.setText("Tous les champs doivent être remplis.");
             loginErrorLabel.setVisible(true);
         }
-        }
+    }
 
-        /**
-         * Méthode permettant la déconnexion de l'utilisateur connecté sur
-         * l'interface où la méthode est appelée
-         *
-         * @param event
-         */
-        @FXML
-        private void logOff
-        (MouseEvent event
-        
-            ) {
+    /**
+     * Méthode permettant la déconnexion de l'utilisateur connecté sur
+     * l'interface où la méthode est appelée
+     *
+     * @param event
+     */
+    @FXML
+    private void logOff(MouseEvent event
+    ) {
         //Gestion des pages
         loginPanel.setVisible(true);
-            navPanel.setVisible(false);
-            welcomePanel.setVisible(false);
-            menuPanel.setVisible(false);
-        }
+        navPanel.setVisible(false);
+        welcomePanel.setVisible(false);
+        menuPanel.setVisible(false);
+    }
 
-        /**
-         * Méthode permettant l'affichage du panel central de gestion des
-         * expériences (où l'on retrouve la possibilité d'ajouter une
-         * expérience, une plaque, ...) ainsi que la gestion de l'UX des menus
-         * (surlignage du module où navigue l'utilisateur)
-         *
-         * @param event
-         */
-        @FXML
-        private void setExperiencePanel
-        (MouseEvent event
-        
-            ) {
+    /**
+     * Méthode permettant l'affichage du panel central de gestion des
+     * expériences (où l'on retrouve la possibilité d'ajouter une expérience,
+     * une plaque, ...) ainsi que la gestion de l'UX des menus (surlignage du
+     * module où navigue l'utilisateur)
+     *
+     * @param event
+     */
+    @FXML
+    private void setExperiencePanel(MouseEvent event
+    ) {
         //Gestion des pages & de l'UX dans le cas d'un utilisateur étant chercheur
         if ("chercheur".equals(functionUser)) {
-                upletIcon.setVisible(true);
-                addIcon.setVisible(true);
-                eyeIcon.setVisible(false);
-                plaqueIcon.setVisible(false);
-                insertPanel.setVisible(true);
-                upletIcon.setImage(new Image(getClass().getResource("circle_black.png").toExternalForm()));
-                addIcon.setImage(new Image(getClass().getResource("add_white.png").toExternalForm()));
-                //Gestion des pages & de l'UX dans le cas d'un utilisateur étant laborantin
-            } else if ("laborantin".equals(functionUser)) {
-                upletIcon.setVisible(false);
-                addIcon.setVisible(false);
-                eyeIcon.setVisible(true);
-                plaqueIcon.setVisible(true);
-                viewPanel.setVisible(true);
-                eyeIcon.setImage(new Image(getClass().getResource("eye_white.png").toExternalForm()));
-                plaqueIcon.setImage(new Image(getClass().getResource("square_black.png").toExternalForm()));
-            }
-            //Réinitialisation des textFields, ComboBox et suppression des bordures rouge
-            clearChercheur();
-            //Chargement des comboBox
-            chargementComboBox();
-
-            //Gestion des pages et de l'UX
-            topPanel.setVisible(true);
-            welcomePanel.setVisible(false);
-            menuPanel.setVisible(false);
-            plaqueScrollPane.setVisible(false);
+            upletIcon.setVisible(true);
+            addIcon.setVisible(true);
+            eyeIcon.setVisible(false);
+            plaqueIcon.setVisible(false);
+            insertPanel.setVisible(true);
             upletIcon.setImage(new Image(getClass().getResource("circle_black.png").toExternalForm()));
-            homeIcon.setImage(new Image(getClass().getResource("home_black.png").toExternalForm()));
-            expIcon.setImage(new Image(getClass().getResource("flask_white.png").toExternalForm()));
-
-            //chargement du tableau
-            TableExp();
+            addIcon.setImage(new Image(getClass().getResource("add_white.png").toExternalForm()));
+            //Gestion des pages & de l'UX dans le cas d'un utilisateur étant laborantin
+        } else if ("laborantin".equals(functionUser)) {
+            upletIcon.setVisible(false);
+            addIcon.setVisible(false);
+            eyeIcon.setVisible(true);
+            plaqueIcon.setVisible(true);
+            viewPanel.setVisible(true);
+            eyeIcon.setImage(new Image(getClass().getResource("eye_white.png").toExternalForm()));
+            plaqueIcon.setImage(new Image(getClass().getResource("square_black.png").toExternalForm()));
         }
+        //Réinitialisation des textFields, ComboBox et suppression des bordures rouge
+        clearChercheur();
+        //Chargement des comboBox
+        chargementComboBox();
 
-        /**
-         * Méthode permettant l'affichage du panel central permettant d'avoir
-         * une vue d'ensemble des fonctionnalités disponibles à l'utilisateur,
-         * ainsi que son profil avec la possibilité de se déconnecter ainsi que
-         * la gestion de l'UX des menus (surlignage du module où navigue
-         * l'utilisateur)
-         *
-         * @param event
-         */
-        @FXML
-        private void setHomePanel
-        (MouseEvent event
-        
-            ) {
+        //Gestion des pages et de l'UX
+        topPanel.setVisible(true);
+        welcomePanel.setVisible(false);
+        menuPanel.setVisible(false);
+        plaqueScrollPane.setVisible(false);
+        upletIcon.setImage(new Image(getClass().getResource("circle_black.png").toExternalForm()));
+        homeIcon.setImage(new Image(getClass().getResource("home_black.png").toExternalForm()));
+        expIcon.setImage(new Image(getClass().getResource("flask_white.png").toExternalForm()));
+
+        //chargement du tableau
+        TableExp();
+    }
+
+    /**
+     * Méthode permettant l'affichage du panel central permettant d'avoir une
+     * vue d'ensemble des fonctionnalités disponibles à l'utilisateur, ainsi que
+     * son profil avec la possibilité de se déconnecter ainsi que la gestion de
+     * l'UX des menus (surlignage du module où navigue l'utilisateur)
+     *
+     * @param event
+     */
+    @FXML
+    private void setHomePanel(MouseEvent event
+    ) {
         //Gestion des pages et de l'UX
         topPanel.setVisible(false);
-            welcomePanel.setVisible(true);
-            menuPanel.setVisible(true);
-            viewPanel.setVisible(false);
-            upletPanel.setVisible(false);
-            insertPanel.setVisible(false);
-            plaqueScrollPane.setVisible(false);
-            viewdetailsPanel.setVisible(false);
-            homeIcon.setImage(new Image(getClass().getResource("home_white.png").toExternalForm()));
-            expIcon.setImage(new Image(getClass().getResource("flask_black.png").toExternalForm()));
-        }
+        welcomePanel.setVisible(true);
+        menuPanel.setVisible(true);
+        viewPanel.setVisible(false);
+        upletPanel.setVisible(false);
+        insertPanel.setVisible(false);
+        plaqueScrollPane.setVisible(false);
+        viewdetailsPanel.setVisible(false);
+        homeIcon.setImage(new Image(getClass().getResource("home_white.png").toExternalForm()));
+        expIcon.setImage(new Image(getClass().getResource("flask_black.png").toExternalForm()));
+    }
 
-        /**
-         * Méthode permettant l'affichage du panel central permettant la gestion
-         * des plaques et le positionnement des puits ainsi que la gestion de
-         * l'UX des menus (surlignage du module où navigue l'utilisateur)
-         *
-         * @param event
-         */
-        @FXML
-        private void setPlaquePanel
-        (MouseEvent event
-        
-            ) {
+    /**
+     * Méthode permettant l'affichage du panel central permettant la gestion des
+     * plaques et le positionnement des puits ainsi que la gestion de l'UX des
+     * menus (surlignage du module où navigue l'utilisateur)
+     *
+     * @param event
+     */
+    @FXML
+    private void setPlaquePanel(MouseEvent event
+    ) {
         //Affichage des instructions
         setInstructionsOn();
-            //Remise à Z des bordures rouges en cas d'erreur et du label d'erreur du formulaire lors de son précédent envoi
-            resetErrorMessages();
-            //Reset des combobox
-            choixExperienceComboBox.getItems().clear();
-            choixPlaqueComboBox.getItems().clear();
-            //Par défaut, l'utilisateur n'ajoute pas une nouvelle plaque
-            newPlaquePanel.setVisible(false);
-            //Selection de l'expérience et de l'uplet/réplica à traiter
-            try {
-                Statement stmt = con.createStatement();
-                ResultSet rs = stmt.executeQuery(
-                        "SELECT ID_EXPERIENCE, LIBELLE_EXP, NOM_EQUIPE, NB_SLOT, "
-                        + "(SELECT COUNT(*) FROM RESULTATS_UPLET JOIN N_UPLET ON RESULTATS_UPLET.ID_UPLET = N_UPLET.ID_UPLET WHERE EXPERIENCE.ID_EXPERIENCE = ID_EXPERIENCE) AS TOT_RES, "
-                        + "(SELECT COUNT(*) FROM N_UPLET WHERE EXPERIENCE.ID_EXPERIENCE = ID_EXPERIENCE) AS TOT_UPLET "
-                        + "FROM EXPERIENCE JOIN EQUIPE ON EXPERIENCE.EMAIL_EQUIPE = EQUIPE.EMAIL_EQUIPE "
-                        + "WHERE STATUT_EXP = 'en cours' "
-                        + "ORDER BY ((TOT_UPLET*NB_SLOT)-(TOT_RES*NB_SLOT)) DESC");
-                while (rs.next()) {
-                    choixExperienceComboBox.getItems().add(rs.getString(1) + " - " + rs.getString(2) + " - Equipe " + rs.getString(3) + " - " + ((rs.getInt(6) * rs.getInt(4)) - (rs.getInt(5) * rs.getInt(4))) + " puits à analyser");
-                }
-            } catch (SQLException e) {
-                System.out.println(e);
+        //Remise à Z des bordures rouges en cas d'erreur et du label d'erreur du formulaire lors de son précédent envoi
+        resetErrorMessages();
+        //Reset des combobox
+        choixExperienceComboBox.getItems().clear();
+        choixPlaqueComboBox.getItems().clear();
+        //Par défaut, l'utilisateur n'ajoute pas une nouvelle plaque
+        newPlaquePanel.setVisible(false);
+        //Selection de l'expérience et de l'uplet/réplica à traiter
+        try {
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery(
+                    "SELECT ID_EXPERIENCE, LIBELLE_EXP, NOM_EQUIPE, NB_SLOT, "
+                    + "(SELECT COUNT(*) FROM RESULTATS_UPLET JOIN N_UPLET ON RESULTATS_UPLET.ID_UPLET = N_UPLET.ID_UPLET WHERE EXPERIENCE.ID_EXPERIENCE = ID_EXPERIENCE) AS TOT_RES, "
+                    + "(SELECT COUNT(*) FROM N_UPLET WHERE EXPERIENCE.ID_EXPERIENCE = ID_EXPERIENCE) AS TOT_UPLET "
+                    + "FROM EXPERIENCE JOIN EQUIPE ON EXPERIENCE.EMAIL_EQUIPE = EQUIPE.EMAIL_EQUIPE "
+                    + "WHERE STATUT_EXP = 'en cours' "
+                    + "ORDER BY ((TOT_UPLET*NB_SLOT)-(TOT_RES*NB_SLOT)) DESC");
+            while (rs.next()) {
+                choixExperienceComboBox.getItems().add(rs.getString(1) + " - " + rs.getString(2) + " - Equipe " + rs.getString(3) + " - " + ((rs.getInt(6) * rs.getInt(4)) - (rs.getInt(5) * rs.getInt(4))) + " puits à analyser");
             }
-            //Selection de la plaque à traiter
-            try {
-                Statement stmt = con.createStatement();
-                ResultSet rs = stmt.executeQuery(
-                        "SELECT NUM_PLAQUE, TYPE_PLAQUE, (SELECT COUNT(*) FROM SLOT WHERE SLOT.NUM_PLAQUE=PLAQUE.NUM_PLAQUE) AS TOT "
-                        + "FROM PLAQUE "
-                        + "WHERE REFUS = 0 AND (SELECT COUNT(*) FROM SLOT WHERE SLOT.NUM_PLAQUE=PLAQUE.NUM_PLAQUE) < TYPE_PLAQUE "
-                        + "ORDER BY TOT DESC");
-                while (rs.next()) {
-                    choixPlaqueComboBox.getItems().add("Plaque n° " + rs.getString(1) + " - " + rs.getString(2) + " puits - " + rs.getString(3) + " puit(s) disponible(s)");
-                }
-                choixPlaqueComboBox.getItems().add(0, "Nouvelle plaque");
-            } catch (SQLException e) {
-                System.out.println(e);
-            }
-            //Gestion des pages et de l'UX
-            eyeIcon.setImage(new Image(getClass().getResource("eye_black.png").toExternalForm()));
-            addIcon.setImage(new Image(getClass().getResource("add_black.png").toExternalForm()));
-            upletIcon.setImage(new Image(getClass().getResource("circle_black.png").toExternalForm()));
-            plaqueIcon.setImage(new Image(getClass().getResource("square_white.png").toExternalForm()));
-            topPanel.setVisible(true);
-            viewPanel.setVisible(false);
-            insertPanel.setVisible(false);
-            upletPanel.setVisible(false);
-            plaqueScrollPane.setVisible(true);
+        } catch (SQLException e) {
+            System.out.println(e);
         }
+        //Selection de la plaque à traiter
+        try {
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery(
+                    "SELECT NUM_PLAQUE, TYPE_PLAQUE, (SELECT COUNT(*) FROM SLOT WHERE SLOT.NUM_PLAQUE=PLAQUE.NUM_PLAQUE) AS TOT "
+                    + "FROM PLAQUE "
+                    + "WHERE REFUS = 0 AND (SELECT COUNT(*) FROM SLOT WHERE SLOT.NUM_PLAQUE=PLAQUE.NUM_PLAQUE) < TYPE_PLAQUE "
+                    + "ORDER BY TOT DESC");
+            while (rs.next()) {
+                choixPlaqueComboBox.getItems().add("Plaque n° " + rs.getString(1) + " - " + rs.getString(2) + " puits - " + rs.getString(3) + " puit(s) disponible(s)");
+            }
+            choixPlaqueComboBox.getItems().add(0, "Nouvelle plaque");
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        //Gestion des pages et de l'UX
+        eyeIcon.setImage(new Image(getClass().getResource("eye_black.png").toExternalForm()));
+        addIcon.setImage(new Image(getClass().getResource("add_black.png").toExternalForm()));
+        upletIcon.setImage(new Image(getClass().getResource("circle_black.png").toExternalForm()));
+        plaqueIcon.setImage(new Image(getClass().getResource("square_white.png").toExternalForm()));
+        topPanel.setVisible(true);
+        viewPanel.setVisible(false);
+        insertPanel.setVisible(false);
+        upletPanel.setVisible(false);
+        plaqueScrollPane.setVisible(true);
+    }
 
-        /**
-         * Méthode permettant le bon affichage des boutons concernant le choix
-         * du nombre de slots sur une plaque lors que la création d'une nouvelle
-         * plaque : une plaque a soit 96, soit 384 slots donc les 2 boutons
-         * radios ne peuvent être cochés. Cas du bouton radio 96 slots.
-         *
-         * @param event
-         */
-        @FXML
-        private void setSlotsChoice96
-        (ActionEvent event
-        
-            ) {
+    /**
+     * Méthode permettant le bon affichage des boutons concernant le choix du
+     * nombre de slots sur une plaque lors que la création d'une nouvelle plaque
+     * : une plaque a soit 96, soit 384 slots donc les 2 boutons radios ne
+     * peuvent être cochés. Cas du bouton radio 96 slots.
+     *
+     * @param event
+     */
+    @FXML
+    private void setSlotsChoice96(ActionEvent event
+    ) {
         radioButton384.setSelected(false);
-            radioButton96.setSelected(true);
-        }
+        radioButton96.setSelected(true);
+    }
 
-        /**
-         * Méthode permettant le bon affichage des boutons concernant le choix
-         * du nombre de slots sur une plaque lors que la création d'une nouvelle
-         * plaque : une plaque a soit 96, soit 384 slots donc les 2 boutons
-         * radios ne peuvent être cochés. Cas du bouton radio 384 slots.
-         *
-         * @param event
-         */
-        @FXML
-        private void setSlotsChoice384
-        (ActionEvent event
-        
-            ) {
+    /**
+     * Méthode permettant le bon affichage des boutons concernant le choix du
+     * nombre de slots sur une plaque lors que la création d'une nouvelle plaque
+     * : une plaque a soit 96, soit 384 slots donc les 2 boutons radios ne
+     * peuvent être cochés. Cas du bouton radio 384 slots.
+     *
+     * @param event
+     */
+    @FXML
+    private void setSlotsChoice384(ActionEvent event
+    ) {
         radioButton384.setSelected(true);
-            radioButton96.setSelected(false);
-        }
+        radioButton96.setSelected(false);
+    }
 
-        /**
-         * Méthode permettant de masquer les instructions pour sélectionner les
-         * réplicas sur la plaque lorsque l'utilisateur entre dans le panel pour
-         * sélectionner les puits.
-         *
-         * @param event
-         */
-        @FXML
-        private void setInstructionsOff
-        (MouseEvent event
-        
-            ) {
+    /**
+     * Méthode permettant de masquer les instructions pour sélectionner les
+     * réplicas sur la plaque lorsque l'utilisateur entre dans le panel pour
+     * sélectionner les puits.
+     *
+     * @param event
+     */
+    @FXML
+    private void setInstructionsOff(MouseEvent event
+    ) {
         anySelectedLabel.setEffect(null);
-            instructionsRectangle.setVisible(false);
-            instruction1Label.setVisible(false);
-            instruction2Label.setVisible(false);
-            instruction3ImageView.setVisible(false);
-            instruction4ImageView.setVisible(false);
-        }
+        instructionsRectangle.setVisible(false);
+        instruction1Label.setVisible(false);
+        instruction2Label.setVisible(false);
+        instruction3ImageView.setVisible(false);
+        instruction4ImageView.setVisible(false);
+    }
 
-        /**
-         * Méthode permettant d'afficher les instructions pour sélectionner les
-         * réplicas sur la plaque lorsque l'utilisateur arrive sur la partie
-         * pour gérer les réplicas.
-         */
-        @FXML
-        private void setInstructionsOn
-        
-            () {
+    /**
+     * Méthode permettant d'afficher les instructions pour sélectionner les
+     * réplicas sur la plaque lorsque l'utilisateur arrive sur la partie pour
+     * gérer les réplicas.
+     */
+    @FXML
+    private void setInstructionsOn() {
         anySelectedLabel.setEffect(new GaussianBlur(5.5));
-            instructionsRectangle.setVisible(true);
-            instruction1Label.setVisible(true);
-            instruction2Label.setVisible(true);
-            instruction3ImageView.setVisible(true);
-            instruction4ImageView.setVisible(true);
-        }
+        instructionsRectangle.setVisible(true);
+        instruction1Label.setVisible(true);
+        instruction2Label.setVisible(true);
+        instruction3ImageView.setVisible(true);
+        instruction4ImageView.setVisible(true);
+    }
 
-        /**
-         * Méthode permettant d'afficher les instructions au clic du lien
-         * "Comment ça marche ?" pour sélectionner les réplicas sur la plaque
-         * lorsque l'utilisateur arrive sur la partie pour gérer les réplicas.
-         */
-        @FXML
-        private void setInstructionsOnAgain
-        (ActionEvent e
-        
-            ) {
+    /**
+     * Méthode permettant d'afficher les instructions au clic du lien "Comment
+     * ça marche ?" pour sélectionner les réplicas sur la plaque lorsque
+     * l'utilisateur arrive sur la partie pour gérer les réplicas.
+     */
+    @FXML
+    private void setInstructionsOnAgain(ActionEvent e
+    ) {
         anySelectedLabel.setEffect(new GaussianBlur(5.5));
-            instructionsRectangle.setVisible(true);
-            instruction1Label.setVisible(true);
-            instruction2Label.setVisible(true);
-            instruction3ImageView.setVisible(true);
-            instruction4ImageView.setVisible(true);
-        }
+        instructionsRectangle.setVisible(true);
+        instruction1Label.setVisible(true);
+        instruction2Label.setVisible(true);
+        instruction3ImageView.setVisible(true);
+        instruction4ImageView.setVisible(true);
+    }
 
-        /**
-         * Listener appelant la méthode SlotsPositionChecker permettant
-         * l'affichage graphique de la plaque permettant de positionner les
-         * expériences sollicités par les chercheurs
-         *
-         * @param event
-         */
-        @FXML
-        private void setSlotsPositionChecker
-        (ActionEvent event
-        
-            ) {
+    /**
+     * Listener appelant la méthode SlotsPositionChecker permettant l'affichage
+     * graphique de la plaque permettant de positionner les expériences
+     * sollicités par les chercheurs
+     *
+     * @param event
+     */
+    @FXML
+    private void setSlotsPositionChecker(ActionEvent event
+    ) {
         SlotsPositionChecker();
-        }
-        /**
-         * Méthode permettant l'affichage graphique de la plaque permettant de
-         * positionner les expériences sollicités par les chercheurs
-         *
-         */
+    }
+
+    /**
+     * Méthode permettant l'affichage graphique de la plaque permettant de
+     * positionner les expériences sollicités par les chercheurs
+     *
+     */
     private void SlotsPositionChecker() {
         //Par défaut, aucun message n'est affiché pour guider l'utilisateur dans sa sélection des puits
         slotsRestantsLabel.setVisible(false);
@@ -2126,6 +2125,7 @@ public class FXMLDocumentController implements Initializable {
         connectServer();
     }
 }
+
 
 
 
