@@ -635,7 +635,7 @@ public class FXMLDocumentController implements Initializable {
         if (!numPlaqueTextField.getText().matches("^[0-9]+$") && !numPlaqueTextField.getText().isEmpty()) {
             numPlaqueTextField.setStyle("-fx-border-color: RED");
             plaqueErrorLabel.setVisible(true);
-            plaqueErrorLabel.setText(plaqueErrorLabel.getText() + "N° de plaque invalide : chiffres uniquement. ");
+            plaqueErrorLabel.setText(plaqueErrorLabel.getText() + "N° de plaque invalide : chiffres uniq. ");
         }
         //Insertion de la plaque
         if (!"".equals(slotsPlaque) && !numPlaqueTextField.getText().isEmpty() && numPlaqueTextField.getText().matches("^[0-9]+$")) {
@@ -1477,45 +1477,53 @@ public class FXMLDocumentController implements Initializable {
         TableColumn<ResUplet, String> colonneidUpletRes = new TableColumn<>("Identifiant uplet");
         colonneidUpletRes.setCellValueFactory(new PropertyValueFactory("idUplet"));
         colonneidUpletRes.setStyle("-fx-alignment: CENTER;");
-        ///////////////////////////////////////////////////////////////////////////
-        TableColumn<ResUplet, String> colonneMoyenneTR = new TableColumn<>("Transparence : Moyenne");
-        colonneMoyenneTR.setCellValueFactory(new PropertyValueFactory("moyenneTR"));
-        colonneMoyenneTR.setStyle("-fx-alignment: CENTER;");
-        ////////////////////////////////////////////////////////////////////////////
-        TableColumn<ResUplet, String> colonneEcartTypeTR = new TableColumn<>("Transparence : Ecart-type");
-        colonneEcartTypeTR.setCellValueFactory(new PropertyValueFactory("ecartTypeTR"));
-        colonneEcartTypeTR.setStyle("-fx-alignment: CENTER;");
-        ////////////////////////////////////////////////////////////////////////////////
-        TableColumn<ResUplet, String> colonneMoyenneR = new TableColumn<>("Rouge : Moyenne");
-        colonneMoyenneR.setCellValueFactory(new PropertyValueFactory("moyenneR"));
-        colonneMoyenneR.setStyle("-fx-alignment: CENTER;");
-        ////////////////////////////////////////////////////////////////////////////
-        TableColumn<ResUplet, String> colonneEcartTypeR = new TableColumn<>("Rouge : Ecart-type");
-        colonneEcartTypeR.setCellValueFactory(new PropertyValueFactory("ecartTypeR"));
-        colonneEcartTypeR.setStyle("-fx-alignment: CENTER;");
-        ////////////////////////////////////////////////////////////////////////////
-        TableColumn<ResUplet, String> colonneMoyenneV = new TableColumn<>("Vert : Moyenne");
-        colonneMoyenneV.setCellValueFactory(new PropertyValueFactory("moyenneR"));
-        colonneMoyenneV.setStyle("-fx-alignment: CENTER;");
-        ////////////////////////////////////////////////////////////////////////////
-        TableColumn<ResUplet, String> colonneEcartTypeV = new TableColumn<>("Vert : Ecart-type");
-        colonneEcartTypeV.setCellValueFactory(new PropertyValueFactory("ecartTypeR"));
-        colonneEcartTypeV.setStyle("-fx-alignment: CENTER;");
-        ///////////////////////////////////////////////////////////////////////////
-        TableColumn<ResUplet, String> colonneMoyenneB = new TableColumn<>("Bleu : Moyenne");
-        colonneMoyenneB.setCellValueFactory(new PropertyValueFactory("moyenneR"));
-        colonneMoyenneB.setStyle("-fx-alignment: CENTER;");
-        ////////////////////////////////////////////////////////////////////////////
-        TableColumn<ResUplet, String> colonneEcartTypeB = new TableColumn<>("Bleu : Ecart-type");
-        colonneEcartTypeB.setCellValueFactory(new PropertyValueFactory("ecartTypeR"));
-        colonneEcartTypeB.setStyle("-fx-alignment: CENTER;");
+        if (datatypeLabel.getText().equals("opacimétrique")) {
+            ///////////////////////////////////////////////////////////////////////////
+            TableColumn<ResUplet, String> colonneMoyenneTR = new TableColumn<>("Transparence : Moyenne");
+            colonneMoyenneTR.setCellValueFactory(new PropertyValueFactory("moyenneTR"));
+            colonneMoyenneTR.setStyle("-fx-alignment: CENTER;");
+            ////////////////////////////////////////////////////////////////////////////
+            TableColumn<ResUplet, String> colonneEcartTypeTR = new TableColumn<>("Transparence : Ecart-type");
+            colonneEcartTypeTR.setCellValueFactory(new PropertyValueFactory("ecartTypeTR"));
+            colonneEcartTypeTR.setStyle("-fx-alignment: CENTER;");
+            ///////////////////////////////////////////////////////////////////////////
+            resUpletTableView.getColumns().addAll(colonneidUpletRes, colonneMoyenneTR, colonneEcartTypeTR);
+        }
+        if (datatypeLabel.getText().equals("colorimétrique")) {
+            ////////////////////////////////////////////////////////////////////////////////
+            TableColumn<ResUplet, String> colonneMoyenneR = new TableColumn<>("Rouge : Moyenne");
+            colonneMoyenneR.setCellValueFactory(new PropertyValueFactory("moyenneR"));
+            colonneMoyenneR.setStyle("-fx-alignment: CENTER;");
+            ////////////////////////////////////////////////////////////////////////////
+            TableColumn<ResUplet, String> colonneEcartTypeR = new TableColumn<>("Rouge : Ecart-type");
+            colonneEcartTypeR.setCellValueFactory(new PropertyValueFactory("ecartTypeR"));
+            colonneEcartTypeR.setStyle("-fx-alignment: CENTER;");
+            ////////////////////////////////////////////////////////////////////////////
+            TableColumn<ResUplet, String> colonneMoyenneV = new TableColumn<>("Vert : Moyenne");
+            colonneMoyenneV.setCellValueFactory(new PropertyValueFactory("moyenneR"));
+            colonneMoyenneV.setStyle("-fx-alignment: CENTER;");
+            ////////////////////////////////////////////////////////////////////////////
+            TableColumn<ResUplet, String> colonneEcartTypeV = new TableColumn<>("Vert : Ecart-type");
+            colonneEcartTypeV.setCellValueFactory(new PropertyValueFactory("ecartTypeR"));
+            colonneEcartTypeV.setStyle("-fx-alignment: CENTER;");
+            ///////////////////////////////////////////////////////////////////////////
+            TableColumn<ResUplet, String> colonneMoyenneB = new TableColumn<>("Bleu : Moyenne");
+            colonneMoyenneB.setCellValueFactory(new PropertyValueFactory("moyenneR"));
+            colonneMoyenneB.setStyle("-fx-alignment: CENTER;");
+            ////////////////////////////////////////////////////////////////////////////
+            TableColumn<ResUplet, String> colonneEcartTypeB = new TableColumn<>("Bleu : Ecart-type");
+            colonneEcartTypeB.setCellValueFactory(new PropertyValueFactory("ecartTypeR"));
+            colonneEcartTypeB.setStyle("-fx-alignment: CENTER;");
+            ///////////////////////////////////////////////////////////////////////////
+            resUpletTableView.getColumns().addAll(colonneidUpletRes, colonneMoyenneR, colonneEcartTypeR, colonneMoyenneV, colonneEcartTypeV, colonneMoyenneB, colonneEcartTypeB);
+        }
         ///////////////////////////////////////////////////////////////////////////
         TableColumn<ResUplet, String> colonneStatutResUplet = new TableColumn<>("Statut du résultat");
         colonneStatutResUplet.setCellValueFactory(new PropertyValueFactory("statutUplet"));
         colonneStatutResUplet.setStyle("-fx-alignment: CENTER;");
         //////////////////////////////////////////////////////////////////////////
         resUpletTableView.setItems(listResUplet);
-        resUpletTableView.getColumns().addAll(colonneidUpletRes, colonneMoyenneTR, colonneEcartTypeTR, colonneMoyenneR, colonneEcartTypeR, colonneMoyenneV, colonneEcartTypeV, colonneMoyenneB, colonneEcartTypeB, colonneStatutResUplet);
+        resUpletTableView.getColumns().addAll(colonneStatutResUplet);
     }
 
     private void rechercherExp() {
@@ -2161,9 +2169,3 @@ public class FXMLDocumentController implements Initializable {
         connectServer();
     }
 }
-
-
-
-
-
-
