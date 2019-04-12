@@ -271,7 +271,7 @@ public class FXMLDocumentController implements Initializable {
         expIcon.setImage(new Image(getClass().getResource("flask_black.png").toExternalForm()));
     }
 
-    /**
+        /**
      * Méthode permettant l'affichage du panel central permettant la gestion des
      * plaques et le positionnement des puits ainsi que la gestion de l'UX des
      * menus (surlignage du module où navigue l'utilisateur)
@@ -279,8 +279,7 @@ public class FXMLDocumentController implements Initializable {
      * @param event
      */
     @FXML
-    private void setPlaquePanel(MouseEvent event
-    ) {
+    private void PlaquePanel() {
         //Affichage des instructions
         setInstructionsOn();
         //Remise à Z des bordures rouges en cas d'erreur et du label d'erreur du formulaire lors de son précédent envoi
@@ -295,13 +294,13 @@ public class FXMLDocumentController implements Initializable {
             Statement stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery(
                     "SELECT ID_EXPERIENCE, LIBELLE_EXP, NOM_EQUIPE, NB_SLOT, "
-                    + "(SELECT COUNT(*) FROM RESULTATS_UPLET JOIN N_UPLET ON RESULTATS_UPLET.ID_UPLET = N_UPLET.ID_UPLET WHERE EXPERIENCE.ID_EXPERIENCE = ID_EXPERIENCE) AS TOT_RES, "
+                    + "(SELECT COUNT(*) FROM N_UPLET WHERE N_UPLET.ID_EXPERIENCE = EXPERIENCE.ID_EXPERIENCE AND (SELECT COUNT(*) FROM SLOT WHERE SLOT.ID_UPLET = N_UPLET.ID_UPLET) != 0) AS TOT_UPLET_PLACE, "
                     + "(SELECT COUNT(*) FROM N_UPLET WHERE EXPERIENCE.ID_EXPERIENCE = ID_EXPERIENCE) AS TOT_UPLET "
                     + "FROM EXPERIENCE JOIN EQUIPE ON EXPERIENCE.EMAIL_EQUIPE = EQUIPE.EMAIL_EQUIPE "
-                    + "WHERE STATUT_EXP = 'en cours' "
-                    + "ORDER BY ((TOT_UPLET*NB_SLOT)-(TOT_RES*NB_SLOT)) DESC");
+                    + "WHERE STATUT_EXP = 'en cours' AND (((SELECT COUNT(*) FROM N_UPLET WHERE EXPERIENCE.ID_EXPERIENCE = N_UPLET.ID_EXPERIENCE)*NB_SLOT)-((SELECT COUNT(*) FROM N_UPLET WHERE N_UPLET.ID_EXPERIENCE = EXPERIENCE.ID_EXPERIENCE AND (SELECT COUNT(*) FROM SLOT WHERE SLOT.ID_UPLET = N_UPLET.ID_UPLET) != 0)*NB_SLOT)) > 0"
+                    + "ORDER BY ((TOT_UPLET*NB_SLOT)-(TOT_UPLET_PLACE*NB_SLOT)) DESC");
             while (rs.next()) {
-                choixExperienceComboBox.getItems().add(rs.getString(1) + " - " + rs.getString(2) + " - Equipe " + rs.getString(3) + " - " + ((rs.getInt(6) * rs.getInt(4)) - (rs.getInt(5) * rs.getInt(4))) + " puits à analyser");
+                choixExperienceComboBox.getItems().add(rs.getString(1) + " - " + rs.getString(2) + " - Equipe " + rs.getString(3) + " - " + ((rs.getInt(6) * rs.getInt(4)) - (rs.getInt(5) * rs.getInt(4))) + " puits à placer pour analyse");
             }
         } catch (SQLException e) {
             System.out.println(e);
@@ -315,7 +314,7 @@ public class FXMLDocumentController implements Initializable {
                     + "WHERE REFUS = 0 AND (SELECT COUNT(*) FROM SLOT WHERE SLOT.NUM_PLAQUE=PLAQUE.NUM_PLAQUE) < TYPE_PLAQUE "
                     + "ORDER BY TOT DESC");
             while (rs.next()) {
-                choixPlaqueComboBox.getItems().add("Plaque n° " + rs.getString(1) + " - " + rs.getString(2) + " puits - " + rs.getString(3) + " puit(s) disponible(s)");
+                choixPlaqueComboBox.getItems().add("Plaque n° " + rs.getString(1) + " - " + rs.getString(2) + " puits - " + (rs.getInt(2) - rs.getInt(3)) + " puit(s) disponible(s)");
             }
             choixPlaqueComboBox.getItems().add(0, "Nouvelle plaque");
         } catch (SQLException e) {
@@ -334,6 +333,18 @@ public class FXMLDocumentController implements Initializable {
     }
 
     /**
+     * Listener appelant la méthode PlaquePanel permettant l'affichage graphique
+     * du formulaire permettant de positionner les expériences sollicités par
+     * les chercheurs
+     *
+     * @param event
+     */
+    @FXML
+    private void setPlaquePanel(MouseEvent event) {
+        PlaquePanel();
+    }
+
+    /**
      * Méthode permettant le bon affichage des boutons concernant le choix du
      * nombre de slots sur une plaque lors que la création d'une nouvelle plaque
      * : une plaque a soit 96, soit 384 slots donc les 2 boutons radios ne
@@ -342,8 +353,7 @@ public class FXMLDocumentController implements Initializable {
      * @param event
      */
     @FXML
-    private void setSlotsChoice96(ActionEvent event
-    ) {
+    private void setSlotsChoice96(ActionEvent event) {
         radioButton384.setSelected(false);
         radioButton96.setSelected(true);
     }
@@ -357,8 +367,7 @@ public class FXMLDocumentController implements Initializable {
      * @param event
      */
     @FXML
-    private void setSlotsChoice384(ActionEvent event
-    ) {
+    private void setSlotsChoice384(ActionEvent event) {
         radioButton384.setSelected(true);
         radioButton96.setSelected(false);
     }
@@ -371,8 +380,7 @@ public class FXMLDocumentController implements Initializable {
      * @param event
      */
     @FXML
-    private void setInstructionsOff(MouseEvent event
-    ) {
+    private void setInstructionsOff(MouseEvent event) {
         anySelectedLabel.setEffect(null);
         instructionsRectangle.setVisible(false);
         instruction1Label.setVisible(false);
@@ -402,8 +410,7 @@ public class FXMLDocumentController implements Initializable {
      * l'utilisateur arrive sur la partie pour gérer les réplicas.
      */
     @FXML
-    private void setInstructionsOnAgain(ActionEvent e
-    ) {
+    private void setInstructionsOnAgain(ActionEvent e) {
         anySelectedLabel.setEffect(new GaussianBlur(5.5));
         instructionsRectangle.setVisible(true);
         instruction1Label.setVisible(true);
@@ -420,8 +427,7 @@ public class FXMLDocumentController implements Initializable {
      * @param event
      */
     @FXML
-    private void setSlotsPositionChecker(ActionEvent event
-    ) {
+    private void setSlotsPositionChecker(ActionEvent event) {
         SlotsPositionChecker();
     }
 
@@ -431,6 +437,11 @@ public class FXMLDocumentController implements Initializable {
      *
      */
     private void SlotsPositionChecker() {
+        //Nouvelle saisie du formulaire donc on efface la validation de l'ancien formulaire si il a déjà été envoyé
+        if (errorInsertPlaqueLabel.getText().equals("Définition de réplica(s) réussie.")){
+            errorInsertPlaqueLabel.setTextFill(Color.RED);
+            errorInsertPlaqueLabel.setVisible(false);
+        }
         //Par défaut, aucun message n'est affiché pour guider l'utilisateur dans sa sélection des puits
         slotsRestantsLabel.setVisible(false);
         //Vide la plaque précédente et les instructions
@@ -484,7 +495,7 @@ public class FXMLDocumentController implements Initializable {
                         ResultSet rs = stmt.executeQuery(
                                 "SELECT ID_UPLET "
                                 + "FROM N_UPLET "
-                                + "WHERE ID_EXPERIENCE = " + (choixExperienceComboBox.getValue() + "").split(" ")[0] + " AND (SELECT COUNT(*) FROM RESULTATS_UPLET WHERE RESULTATS_UPLET.ID_UPLET = N_UPLET.ID_UPLET) = 0");
+                                + "WHERE ID_EXPERIENCE = " + (choixExperienceComboBox.getValue() + "").split(" ")[0] + " AND (SELECT COUNT(*) FROM SLOT WHERE SLOT.ID_UPLET = N_UPLET.ID_UPLET) = 0");
                         while (rs.next()) {
                             uplets_to_attribute.add(rs.getInt(1));
                         }
@@ -713,6 +724,7 @@ public class FXMLDocumentController implements Initializable {
      */
     private void setMessagePlaque() {
         slotsRestantsLabel.setVisible(true);
+        errorInsertPlaqueLabel.setTextFill(Color.RED);
         if (choixPlaqueComboBox.getValue() == "Nouvelle plaque") {
             slotsRestantsLabel.setVisible(false);
         } else if (slots_to_check == 0) {
@@ -841,10 +853,16 @@ public class FXMLDocumentController implements Initializable {
                 nb_checked_slots = 0;
                 //Remise à Z de la liste des slots à ajouter
                 new_slots.clear();
+                //MAJ du formulaire
+                PlaquePanel();
                 //MAJ de la plaque
                 SlotsPositionChecker();
                 //Remise à Z des bordures rouges en cas d'erreur et du label d'erreur du formulaire
                 resetErrorMessages();
+                //Message comme quoi insertion OK
+                errorInsertPlaqueLabel.setText("Définition de réplica(s) réussie.");
+                errorInsertPlaqueLabel.setTextFill(Color.GREEN);
+                errorInsertPlaqueLabel.setVisible(true);
             } else {
                 FadeTransition fadeTransition = new FadeTransition(Duration.seconds(0.1), slotsRestantsLabel);
                 fadeTransition.setFromValue(0.0);
