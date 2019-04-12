@@ -47,7 +47,7 @@ import javafx.util.Duration;
  * Controller de notre application de gestion de laboratoire
  *
  * @author Rémi BIOU, Chloé FOUCHER
- * @version 28/03/2019
+ * @version 12/04/2019
  */
 public class FXMLDocumentController implements Initializable {
 
@@ -85,6 +85,11 @@ public class FXMLDocumentController implements Initializable {
     //Variables non-FXML
     private Integer existingUser, slots_to_check, nb_checked_slots, c, l, slots_by_uplet;
     private Connection con;
+    private ArrayList<ArrayList> new_slots;
+    private boolean controlPressed = false;
+    private ArrayList<Integer> uplets_to_attribute;
+    private int idExperience; //Id de l'expérience selectionnée pour avoir plus de détails
+    private String dateRecup, statut_exp, plaqueUsed;
     //Decalarations des listes utilisées pour la recherche d'expérience
     private ObservableList<Experience> listExp = FXCollections.observableArrayList();
     private ObservableList<Uplet> listUplet = FXCollections.observableArrayList();
@@ -96,11 +101,6 @@ public class FXMLDocumentController implements Initializable {
     private ObservableList<Experience> listExpSearchStatutDate = FXCollections.observableArrayList();
     private ObservableList<Experience> listExpSearchEquipeDate = FXCollections.observableArrayList();
     private ObservableList<Experience> listExpSearchAll = FXCollections.observableArrayList();
-    private ArrayList<ArrayList> new_slots;
-    private boolean controlPressed = false;
-    private ArrayList<Integer> uplets_to_attribute;
-    private int idExperience; //Id de l'expérience selectionnée pour avoir plus de détails
-    private String dateRecup, statut_exp, plaqueUsed;
 
     /**
      * Listener permettant la connexion d'un utilisateur lorsqu'il clique sur le
@@ -128,8 +128,8 @@ public class FXMLDocumentController implements Initializable {
 
     /**
      * Méthode qui permet de connecter l'utilisateur à notre application en
-     * contrôlant ses identifiants qui renvoie ensuite au tableau de bord de
-     * l'application
+     * contrôlant ses identifiants. Une fois la connexion établie, l'utilisateur
+     * est dirigé vers le tableau de bord de l'application
      */
     private void connexionUser() {
         existingUser = 0;
@@ -184,7 +184,7 @@ public class FXMLDocumentController implements Initializable {
     }
 
     /**
-     * Méthode permettant la déconnexion de l'utilisateur connecté sur
+     * Listener permettant la déconnexion de l'utilisateur connecté sur
      * l'interface où la méthode est appelée
      *
      * @param event
@@ -200,7 +200,7 @@ public class FXMLDocumentController implements Initializable {
     }
 
     /**
-     * Méthode permettant l'affichage du panel central de gestion des
+     * Listener permettant l'affichage du panel central de gestion des
      * expériences (où l'on retrouve la possibilité d'ajouter une expérience,
      * une plaque, ...) ainsi que la gestion de l'UX des menus (surlignage du
      * module où navigue l'utilisateur)
@@ -229,7 +229,8 @@ public class FXMLDocumentController implements Initializable {
             eyeIcon.setImage(new Image(getClass().getResource("eye_white.png").toExternalForm()));
             plaqueIcon.setImage(new Image(getClass().getResource("square_black.png").toExternalForm()));
         }
-        //Réinitialisation des textFields, ComboBox et suppression des bordures rouge
+
+        //Réinitialisation des textFields, ComboBox et suppression des bordures rouges
         clearChercheur();
         //Chargement des comboBox
         chargementComboBox();
@@ -243,12 +244,12 @@ public class FXMLDocumentController implements Initializable {
         homeIcon.setImage(new Image(getClass().getResource("home_black.png").toExternalForm()));
         expIcon.setImage(new Image(getClass().getResource("flask_white.png").toExternalForm()));
 
-        //chargement du tableau
+        //Chargement du tableau pour afficher toutes les expériences au laborantin
         TableExp();
     }
 
     /**
-     * Méthode permettant l'affichage du panel central permettant d'avoir une
+     * Listener permettant l'affichage du panel central permettant d'avoir une
      * vue d'ensemble des fonctionnalités disponibles à l'utilisateur, ainsi que
      * son profil avec la possibilité de se déconnecter ainsi que la gestion de
      * l'UX des menus (surlignage du module où navigue l'utilisateur)
@@ -271,12 +272,11 @@ public class FXMLDocumentController implements Initializable {
         expIcon.setImage(new Image(getClass().getResource("flask_black.png").toExternalForm()));
     }
 
-        /**
+    /**
      * Méthode permettant l'affichage du panel central permettant la gestion des
      * plaques et le positionnement des puits ainsi que la gestion de l'UX des
      * menus (surlignage du module où navigue l'utilisateur)
      *
-     * @param event
      */
     @FXML
     private void PlaquePanel() {
@@ -334,7 +334,7 @@ public class FXMLDocumentController implements Initializable {
 
     /**
      * Listener appelant la méthode PlaquePanel permettant l'affichage graphique
-     * du formulaire permettant de positionner les expériences sollicités par
+     * du formulaire permettant de positionner les expériences sollicitées par
      * les chercheurs
      *
      * @param event
@@ -345,10 +345,11 @@ public class FXMLDocumentController implements Initializable {
     }
 
     /**
-     * Méthode permettant le bon affichage des boutons concernant le choix du
+     * Listener permettant le bon affichage des boutons concernant le choix du
      * nombre de slots sur une plaque lors que la création d'une nouvelle plaque
      * : une plaque a soit 96, soit 384 slots donc les 2 boutons radios ne
-     * peuvent être cochés. Cas du bouton radio 96 slots.
+     * peuvent être cochés. Cas du bouton radio 96 slots. --> Au clique sur le
+     * bouton
      *
      * @param event
      */
@@ -359,7 +360,22 @@ public class FXMLDocumentController implements Initializable {
     }
 
     /**
-     * Méthode permettant le bon affichage des boutons concernant le choix du
+     * Listener permettant le bon affichage des boutons concernant le choix du
+     * nombre de slots sur une plaque lors que la création d'une nouvelle plaque
+     * : une plaque a soit 96, soit 384 slots donc les 2 boutons radios ne
+     * peuvent être cochés. Cas du bouton radio 96 slots. --> En pressant la
+     * touche entrée en ayant selectionner le bouton radio
+     *
+     * @param e
+     */
+    @FXML
+    private void setSlotsChoice96Bis(KeyEvent e) {
+        radioButton384.setSelected(false);
+        radioButton96.setSelected(true);
+    }
+
+    /**
+     * Listener permettant le bon affichage des boutons concernant le choix du
      * nombre de slots sur une plaque lors que la création d'une nouvelle plaque
      * : une plaque a soit 96, soit 384 slots donc les 2 boutons radios ne
      * peuvent être cochés. Cas du bouton radio 384 slots.
@@ -373,7 +389,22 @@ public class FXMLDocumentController implements Initializable {
     }
 
     /**
-     * Méthode permettant de masquer les instructions pour sélectionner les
+     * Listener permettant le bon affichage des boutons concernant le choix du
+     * nombre de slots sur une plaque lors que la création d'une nouvelle plaque
+     * : une plaque a soit 96, soit 384 slots donc les 2 boutons radios ne
+     * peuvent être cochés. Cas du bouton radio 384 slots. --> En pressant la
+     * touche entrée en ayant selectionner le bouton radio
+     *
+     * @param e
+     */
+    @FXML
+    private void setSlotsChoice384Bis(KeyEvent e) {
+        radioButton384.setSelected(false);
+        radioButton96.setSelected(true);
+    }
+
+    /**
+     * Listener permettant de masquer les instructions pour sélectionner les
      * réplicas sur la plaque lorsque l'utilisateur entre dans le panel pour
      * sélectionner les puits.
      *
@@ -405,7 +436,7 @@ public class FXMLDocumentController implements Initializable {
     }
 
     /**
-     * Méthode permettant d'afficher les instructions au clic du lien "Comment
+     * Listener permettant d'afficher les instructions au clic du lien "Comment
      * ça marche ?" pour sélectionner les réplicas sur la plaque lorsque
      * l'utilisateur arrive sur la partie pour gérer les réplicas.
      */
@@ -438,7 +469,7 @@ public class FXMLDocumentController implements Initializable {
      */
     private void SlotsPositionChecker() {
         //Nouvelle saisie du formulaire donc on efface la validation de l'ancien formulaire si il a déjà été envoyé
-        if (errorInsertPlaqueLabel.getText().equals("Définition de réplica(s) réussie.")){
+        if (errorInsertPlaqueLabel.getText().equals("Définition de réplica(s) réussie.")) {
             errorInsertPlaqueLabel.setTextFill(Color.RED);
             errorInsertPlaqueLabel.setVisible(false);
         }
@@ -604,13 +635,7 @@ public class FXMLDocumentController implements Initializable {
         }
     }
 
-    /**
-     * Méthode permettant l'ajout d'une nouvelle plaque.
-     *
-     * @param : event
-     */
-    @FXML
-    private void addPlaque(ActionEvent event) {
+    private void addPlaqueMethode() {
         //Remise à Z des bordures rouges en cas d'erreur et du label d'erreur du formulaire
         resetErrorMessagesNewPlaque();
         String slotsPlaque = "";
@@ -668,6 +693,30 @@ public class FXMLDocumentController implements Initializable {
                 plaqueErrorLabel.setText("Plaque déjà existante.");
                 plaqueErrorLabel.setVisible(true);
             }
+        }
+    }
+
+    /**
+     * Listener permettant l'ajout d'une nouvelle plaque lorsque l'utilisateur
+     * clique sur le bouton 'ajouter'
+     *
+     * @param : event
+     */
+    @FXML
+    private void addPlaque(ActionEvent event) {
+        addPlaqueMethode();
+    }
+
+    /**
+     * Listener permettant l'ajout d'une nouvelle plaque lorsque l'utilisateur
+     * presse la touche entrer en ayant selectionner le bouton 'ajouter'
+     *
+     * @param : e
+     */
+    @FXML
+    private void addPlaqueBis(KeyEvent e) {
+        if (e.getCode() == ENTER) {
+            addPlaqueMethode();
         }
     }
 
@@ -771,10 +820,10 @@ public class FXMLDocumentController implements Initializable {
     }
 
     /**
-     * Méthode appelant la méthode permettant l'insertion de slots quand la
+     * Listener appelant la méthode permettant l'insertion de slots quand la
      * touche "Entrée" est préssée
      *
-     * @param : event
+     * @param : e
      */
     @FXML
     private void onEnterPressedInsertSlots(KeyEvent e) {
@@ -784,10 +833,10 @@ public class FXMLDocumentController implements Initializable {
     }
 
     /**
-     * Méthode appelant la méthode permettant l'insertion de slots quand le
+     * Listener appelant la méthode permettant l'insertion de slots quand le
      * bouton "Valider" est cliqué
      *
-     * @param : event
+     * @param : e
      */
     @FXML
     private void onClickInsertSlots(ActionEvent e) {
@@ -874,8 +923,8 @@ public class FXMLDocumentController implements Initializable {
     }
 
     /**
-     * Méthode détectant la pression de la touche Ctrl d'un utilisateur (lors de
-     * la sélection des emplacements de slots)
+     * Listener détectant la pression de la touche Ctrl d'un utilisateur (lors
+     * de la sélection des emplacements de slots)
      *
      * @param e
      */
@@ -888,8 +937,8 @@ public class FXMLDocumentController implements Initializable {
     }
 
     /**
-     * Méthode détectant le relachement de la touche Ctrl d'un utilisateur (lors
-     * de la sélection des emplacements de slots)
+     * Listener détectant le relachement de la touche Ctrl d'un utilisateur
+     * (lors de la sélection des emplacements de slots)
      *
      * @param e
      */
@@ -902,7 +951,7 @@ public class FXMLDocumentController implements Initializable {
     }
 
     /**
-     * Méthode permettant l'affichage du panel central permettant la
+     * Listener permettant l'affichage du panel central permettant la
      * visualisation de toutes les expériences stockées ainsi que la gestion de
      * l'UX des menus (surlignage du module où navigue l'utilisateur)
      *
@@ -914,10 +963,11 @@ public class FXMLDocumentController implements Initializable {
     }
 
     /**
-     * Méthode permettant l'affichage du tableau des expériences visible par les
-     * laborantins
+     * Méthode permettant l'affichage du tableau des expériences visibles par
+     * les laborantins
      */
     private void reloadTableauExp() {
+        //Appel de la méthode permettant la création de la table javaFX
         TableExp();
         //Gestion des pages et de l'UX
         eyeIcon.setImage(new Image(getClass().getResource("eye_white.png").toExternalForm()));
@@ -940,7 +990,7 @@ public class FXMLDocumentController implements Initializable {
     }
 
     /**
-     * Méthode permettant l'affichage du panel central permettant l'ajout d'une
+     * Listener permettant l'affichage du panel central permettant l'ajout d'une
      * expérience ainsi que la gestion de l'UX des menus (surlignage du module
      * où navigue l'utilisateur)
      *
@@ -964,7 +1014,7 @@ public class FXMLDocumentController implements Initializable {
     }
 
     /**
-     * Méthode permettant l'affichage du panel central permettant l'ajout d'un
+     * Listener permettant l'affichage du panel central permettant l'ajout d'un
      * uplet/réplica de la part du chercheur ainsi que la gestion de l'UX des
      * menus (surlignage du module où navigue l'utilisateur)
      *
@@ -989,9 +1039,9 @@ public class FXMLDocumentController implements Initializable {
     }
 
     /**
-     * Méthode activant l'affichage du formulaire permettant la saisie des
-     * paramètres d'une expérience suivi dans le temps, lors de l'ajout d'une
-     * expérience
+     * Listener activant l'affichage du formulaire permettant la saisie des
+     * paramètres d'une expérience suivie dans le temps, lors de l'ajout d'une
+     * expérience --> AU CLIQUE
      *
      * @param event
      */
@@ -1009,7 +1059,7 @@ public class FXMLDocumentController implements Initializable {
     }
 
     /**
-     * Méthode activant l'affichage du formulaire permettant la saisie des
+     * Listener activant l'affichage du formulaire permettant la saisie des
      * paramètres d'une expérience suivi dans le temps, lors de l'ajout d'une
      * expérience --> AVEC LE CLAVIER
      *
@@ -1031,7 +1081,7 @@ public class FXMLDocumentController implements Initializable {
     }
 
     /**
-     * Méthode désactivant l'affichage du formulaire permettant la saisie des
+     * Listener désactivant l'affichage du formulaire permettant la saisie des
      * paramètres d'une expérience suivi dans le temps, lors de l'ajout d'une
      * expérience --> AVEC LE CLAVIER
      *
@@ -1052,9 +1102,9 @@ public class FXMLDocumentController implements Initializable {
     }
 
     /**
-     * Méthode désactivant l'affichage du formulaire permettant la saisie des
+     * Listener désactivant l'affichage du formulaire permettant la saisie des
      * paramètres d'une expérience suivi dans le temps, lors de l'ajout d'une
-     * expérience
+     * expérience --> AU CLIQUE
      *
      * @param event
      */
@@ -1069,6 +1119,13 @@ public class FXMLDocumentController implements Initializable {
         ouiRadio.setSelected(false);
     }
 
+    /**
+     * Listener permettant l'ajout d'une expérience à la base de données en
+     * faisant appelle à la méthode addExp() --> Quand l'utilisateur presse la
+     * touche entrée
+     *
+     * @param event
+     */
     @FXML
     private void ajoutExperienceBis(KeyEvent e
     ) {
@@ -1078,7 +1135,8 @@ public class FXMLDocumentController implements Initializable {
     }
 
     /**
-     * Méthode permettant l'ajout d'une expérience à la base de données
+     * Listener permettant l'ajout d'une expérience à la base de données -->
+     * Quand l'utilisateur clique sur le bouton
      *
      * @param event
      */
@@ -1089,6 +1147,7 @@ public class FXMLDocumentController implements Initializable {
 
     /**
      * Listener sur le bouton d'ajout d'un uplet permettant d'ajouter un uplet
+     * lorsque l'utilisateur clique sur le bouton
      *
      * @param event
      */
@@ -1099,9 +1158,9 @@ public class FXMLDocumentController implements Initializable {
 
     /**
      * Listener sur le bouton d'ajout d'un uplet permettant d'ajouter un uplet
-     * --> AVEC LE CLAVIER
+     * lorsque l'utilisateur presse la touche entrée
      *
-     * @param Keyevent
+     * @param e
      */
     @FXML
     private void ajoutUpletBis(KeyEvent e) {
@@ -1111,12 +1170,12 @@ public class FXMLDocumentController implements Initializable {
     }
 
     /**
-     * Listener permettant la recherche d'expérience parmis celle en base de
-     * données selon 3 critères non-obligatoires : - l'équipe commanditaire - le
-     * statut de l'expérience - la date de début de l'expérience --> AVEC LE
+     * Listener permettant la recherche d'expérience parmis celles dans la base
+     * de données selon 3 critères non-obligatoires : - l'équipe commanditaire -
+     * le statut de l'expérience - la date de début de l'expérience --> AVEC LE
      * CLAVIER
      *
-     * @param KeyEvent
+     * @param e
      */
     @FXML
     private void searchExperienceBis(KeyEvent e) {
@@ -1126,7 +1185,8 @@ public class FXMLDocumentController implements Initializable {
     /**
      * Listener permettant la recherche d'expérience parmis celle en base de
      * données selon 3 critères non-obligatoires : - l'équipe commanditaire - le
-     * statut de l'expérience - la date de début de l'expérience
+     * statut de l'expérience - la date de début de l'expérience --> EN CLIQUANT
+     * SUR LE BOUTON
      *
      * @param event
      */
@@ -1137,7 +1197,7 @@ public class FXMLDocumentController implements Initializable {
 
     /**
      * Listener permettant de réinitialisé le tableau et d'afficher toutes les
-     * expériences
+     * expériences --> EN CLIQUANT SUR LE BOUTON
      *
      * @param event
      */
@@ -1148,9 +1208,9 @@ public class FXMLDocumentController implements Initializable {
 
     /**
      * Listener permettant de réinitialisé le tableau et d'afficher toutes les
-     * expériences
+     * expériences --> EN PRESSANT LA TOUCHE ENTREE
      *
-     * @param keyEvent
+     * @param e
      */
     @FXML
     private void annuleRechercheBis(KeyEvent e) {
@@ -1160,7 +1220,7 @@ public class FXMLDocumentController implements Initializable {
     }
 
     /**
-     * Méthode permettant l'envoi des résultats de l'expérience sélectionnée à
+     * Listener permettant l'envoi des résultats de l'expérience sélectionnée à
      * l'équipe de recherche l'ayant commandité
      *
      * @param event
@@ -1168,7 +1228,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private void sendResults(ActionEvent event
     ) {
-
+        //Récupération de la date de transmission et du statut pour l'expérience selectionnée
         try {
             Statement stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT DATE_TRANSMISSION, STATUT_EXP FROM EXPERIENCE WHERE ID_EXPERIENCE = " + idExperience + " ");
@@ -1180,6 +1240,7 @@ public class FXMLDocumentController implements Initializable {
             System.out.println(ex);
         }
 
+        //Mise à jour de la date de transmission (avec la date du jour) pour l'expérience selectionné dans le cas où la date de transmission est nulle
         if (dateRecup == null) {
             if ("acceptée".equals(statut_exp) || "refusée".equals(statut_exp)) {
                 try {
@@ -1195,6 +1256,8 @@ public class FXMLDocumentController implements Initializable {
                         String message = e.getMessage();
                         int errorCode = e.getErrorCode();
                         System.out.println(errorCode);
+                        //Récupération du code d'erreur oracle dans le cas où le laborantin souhaite envoyer les résultats au chercheur pour une expérience non terminée
+                        // cf : TRIGGER DE CONTROLE 
                         if (errorCode == 2290) {
                             resInfoLabel.setText("");
                             resInfoLabel.setText("Impossible d'envoyer les résultats. L'expérience n'est pas terminée.");
@@ -1203,12 +1266,12 @@ public class FXMLDocumentController implements Initializable {
                         e = e.getNextException();
                     }
                 }
-            } else {
+            } else { //Si le statut est "àfaire" ou "en cours", il est impossible d'envoyer les résultats au chercheur
                 resInfoLabel.setText("");
                 resInfoLabel.setText("Impossible d'envoyer les résultats. L'expérience n'est pas terminée.");
                 resInfoLabel.setVisible(true);
             }
-        } else {
+        } else { // Si la date n'est pas nulle, les résultats ont donc déjà été transmis
             resInfoLabel.setText("");
             resInfoLabel.setText("Ces résultats ont déjà été transmis au chercheur.");
             resInfoLabel.setVisible(true);
@@ -1224,9 +1287,11 @@ public class FXMLDocumentController implements Initializable {
         } catch (SQLException e) {
             System.out.println(e);
         }
-
     }
 
+    /*
+    * Méthode de chargement du tableau contenant l'ensemble des expériences
+     */
     public void reloadTableView() {
         listExp.clear();
         //remise à 0 de la table view
@@ -1240,9 +1305,9 @@ public class FXMLDocumentController implements Initializable {
                 listExp.add(experience);
             }
         } catch (SQLException ex) {
-            //
+            System.out.println(ex);
         }
-
+        //Création des colonnes de la tableView auxquelles sont ajoutées les données de la liste d'expérience (listExp)
         TableColumn<Experience, String> colonneLibelle = new TableColumn<>("Libelle");
         colonneLibelle.setCellValueFactory(new PropertyValueFactory("libelle"));
         colonneLibelle.setStyle("-fx-alignment: CENTER;");
@@ -1264,44 +1329,56 @@ public class FXMLDocumentController implements Initializable {
         colonneStatut.setStyle("-fx-alignment: CENTER;");
         ///////////////////////////////////////////////////////////////////////////
         viewTableView.setItems(listExp);
+        //Ajout des colonnes à la tableView
         viewTableView.getColumns().addAll(colonneLibelle, colonneEquipe, colonneDateDemande, colonneTypeExp, colonneStatut);
     }
 
+    /*
+    * Méthode permettant l'ajout des boutons à la tableView dans 2 colonnes distinctes
+     */
     public void TableExp() {
         reloadTableView();
+        //Création de la première colonne contenant soit les boutons : play ou stop
         TableColumn<Experience, Void> colonneStart = new TableColumn<>("Gestion de l'expérience");
 
+        //Création de la cellule contenant le bouton (play ou stop), ou un label : TERMINEE
         Callback<TableColumn<Experience, Void>, TableCell<Experience, Void>> cellFactory;
         cellFactory = (final TableColumn<Experience, Void> param) -> {
             final TableCell<Experience, Void> cell = new TableCell<Experience, Void>() {
+                //Création du premier bouton : PLAY et de son listener associé
                 private final Button btnPlay = new Button();
 
                 {
                     btnPlay.setOnAction((ActionEvent event) -> {
+                        //Quand l'expérience est lancée, son statut passe de "à faire" à "en cours"
                         int Idexperience = getTableView().getItems().get(getIndex()).getId_exp();
                         try {
                             Statement stmt = con.createStatement();
                             ResultSet rs = stmt.executeQuery("UPDATE EXPERIENCE SET STATUT_EXP = 'en cours' WHERE ID_EXPERIENCE = " + Idexperience + " ");
                             TableExp();
                         } catch (SQLException ex) {
-                            //
+                            System.out.println(ex);
                         }
                     });
                 }
+                //Création du deuxième bouton : STOP et de son listener associé
                 private final Button btnStop = new Button();
 
                 {
+                    //Quand l'expérience est terminée, son statut passe de "en cours" à "terminé"
                     btnStop.setOnAction((ActionEvent event) -> {
                         int Idexperience = getTableView().getItems().get(getIndex()).getId_exp();
                         try {
                             Statement stmt = con.createStatement();
                             ResultSet rs = stmt.executeQuery("UPDATE EXPERIENCE SET TERMINE = 1 WHERE ID_EXPERIENCE = " + Idexperience + " ");
                         } catch (SQLException ex) {
-                            //
+                            System.out.println(ex);
                         }
+                        //Mise à jour du tableau des expériences pour afficher en directe les modifications 
                         TableExp();
                     });
                 }
+                //Création du label terminée
                 private final Label termine = new Label("Terminée");
 
                 @Override
@@ -1310,15 +1387,19 @@ public class FXMLDocumentController implements Initializable {
                     if (empty) {
                         setGraphic(null);
                     } else {
+                        //Récupération de l'expérience concernée
                         Experience experience = getTableView().getItems().get(getIndex());
+                        //Si son statut est en cours, le bouton stop est affichée pour pouvoir l'arrêter
                         if ("en cours".equals(experience.getStatut())) {
                             btnStop.setGraphic(new ImageView(new Image(getClass().getResource("stop.png").toExternalForm(), 20, 20, true, true)));
                             setGraphic(btnStop);
                             setStyle("-fx-alignment : CENTER;");
+                            //Si son statut est à faire, on affiche le bouton PLAY pour pouvoir la lancer
                         } else if ("à faire".equals(experience.getStatut())) {
                             setStyle("-fx-alignment : CENTER;");
                             btnPlay.setGraphic(new ImageView(new Image(getClass().getResource("play.png").toExternalForm(), 20, 20, true, true)));
                             setGraphic(btnPlay);
+                            //Si l'expérience est terminée c'est à faire que son statut est acceptée ou refusée alors on affiche le label TERMINEE
                         } else if ("acceptée".equals(experience.getStatut()) || "refusée".equals(experience.getStatut())) {
                             setStyle("-fx-alignment : CENTER;");
                             setGraphic(termine);
@@ -1328,18 +1409,23 @@ public class FXMLDocumentController implements Initializable {
             };
             return cell;
         };
+        //Ajout de la cellule créer à la colonne
         colonneStart.setCellFactory(cellFactory);
+        //Ajout de la colonne à la tableView
         viewTableView.getColumns().add(colonneStart);
 
+        //Création de la deuxième colonne contenant un bouton "+" pour afficher davantage de détails, notamment les résultats de l'expérience
         TableColumn<Experience, Void> colonneDetails = new TableColumn<>("Détails");
         Callback<TableColumn<Experience, Void>, TableCell<Experience, Void>> cellFactoryDetails;
         cellFactoryDetails = (final TableColumn<Experience, Void> param) -> {
             final TableCell<Experience, Void> cellDetails = new TableCell<Experience, Void>() {
+                //Création du bouton "+" et de son listener associé
                 private final Button btnDetails = new Button();
 
                 {
                     btnDetails.setOnAction((ActionEvent event) -> {
                         resInfoLabel.setText("");
+                        //Récupération des valeurs de l'expérience sur laquelle le laborantin souhaite obtenir plus d'information
                         idExperience = getTableView().getItems().get(getIndex()).getId_exp();
                         viewdetailsPanel.setVisible(true);
                         datalibelleLabel.setText(getTableView().getItems().get(getIndex()).getLibelle());
@@ -1371,6 +1457,7 @@ public class FXMLDocumentController implements Initializable {
                         } else {
                             datasuiviLabel.setText("OUI");
                         }
+                        //Affichage des resultats de l'expérience dans 2 tableView
                         resultatsExp(idExperience);
                     });
                 }
@@ -1381,6 +1468,7 @@ public class FXMLDocumentController implements Initializable {
                     if (empty) {
                         setGraphic(null);
                     } else {
+                        //Affichage du bouton et de l'image 
                         btnDetails.setGraphic(new ImageView(new Image(getClass().getResource("details.png").toExternalForm(), 20, 20, true, true)));
                         setGraphic(btnDetails);
                         setStyle("-fx-alignment : CENTER;");
@@ -1389,13 +1477,16 @@ public class FXMLDocumentController implements Initializable {
             };
             return cellDetails;
         };
+        //Ajout de la cellulle à la colonne
         colonneDetails.setCellFactory(cellFactoryDetails);
+        //Ajout de la colonne à la tableView
         viewTableView.getColumns().add(colonneDetails);
 
     }
 
     /**
-     * Récupération des uplets de l'expérience et de leur résultats
+     * Récupération des uplets de l'expérience et de leur résultats afin de
+     * pouvoir les afficher dans des tableView pour le laborantin
      *
      * @param idExp
      */
@@ -1406,12 +1497,14 @@ public class FXMLDocumentController implements Initializable {
         //Remise à 0 des listes de donnéees
         listUplet.clear();
         listResUplet.clear();
+
         //Récupération des uplets de l'expérience
         try {
             Statement stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT ID_UPLET, TYPE_CELLULE, Q_AGENT, Q_CELLULE, RENOUV, URGENT, DATE_ECHEANCE, ETAT FROM N_UPLET JOIN EXPERIENCE USING (ID_EXPERIENCE) WHERE ID_EXPERIENCE = " + idExp + " ");
             while (rs.next()) {
 
+                //Insertion différentes selon si le statut est renouvelé et si la date d'échéance est présente
                 if (rs.getInt(5) == 0 && rs.getString(7) == null) {
                     Uplet uplet = new Uplet(rs.getInt(1), rs.getString(2), (rs.getString(3) + " µL"), (rs.getString(4) + " µL"), "Non", rs.getInt(6), "Aucune", rs.getString(8));
                     listUplet.add(uplet);
@@ -1429,7 +1522,8 @@ public class FXMLDocumentController implements Initializable {
         } catch (SQLException ex) {
             System.out.println(ex);
         }
-        //Déclaration des différentes pour afficher les caractéristiques des uplets d'une expérience
+
+        //Déclaration des différentes colonnes pour afficher les caractéristiques des uplets d'une expérience
         TableColumn<Uplet, String> colonneidUplet = new TableColumn<>("Identifiant uplet");
         colonneidUplet.setCellValueFactory(new PropertyValueFactory("id_uplet"));
         colonneidUplet.setStyle("-fx-alignment: CENTER;");
@@ -1458,10 +1552,12 @@ public class FXMLDocumentController implements Initializable {
         colonneEtat.setCellValueFactory(new PropertyValueFactory("etat"));
         colonneEtat.setStyle("-fx-alignment: CENTER;");
         ///////////////////////////////////////////////////////////////////////////
+        //Ajout de la liste à la tableView
         expUpletTableView.setItems(listUplet);
+        //Ajout des colonnes à la tableView
         expUpletTableView.getColumns().addAll(colonneidUplet, colonneTypeCell, colonneAgent, colonneCellule, colonneRenouv, colonneDateEche, colonneEtat);
 
-        //Récupération des uplets de l'expérience
+        //Récupération des résultats uplets de l'expérience
         try {
             Statement stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT ID_UPLET, ECART_TYPE_TR, ECART_TYPE_R, ECART_TYPE_V, ECART_TYPE_B, MOYENNE_TR, MOYENNE_R, MOYENNE_V, MOYENNE_B, STATUT_UPLET FROM RESULTATS_UPLET JOIN N_UPLET USING (ID_UPLET) JOIN EXPERIENCE USING (ID_EXPERIENCE) WHERE ID_EXPERIENCE = " + idExp + " ");
@@ -1477,6 +1573,7 @@ public class FXMLDocumentController implements Initializable {
         TableColumn<ResUplet, String> colonneidUpletRes = new TableColumn<>("Identifiant uplet");
         colonneidUpletRes.setCellValueFactory(new PropertyValueFactory("idUplet"));
         colonneidUpletRes.setStyle("-fx-alignment: CENTER;");
+        //Affichage des résultats opacimétriques ou colorimétriques selon le type de l'expérience
         if (datatypeLabel.getText().equals("opacimétrique")) {
             ///////////////////////////////////////////////////////////////////////////
             TableColumn<ResUplet, String> colonneMoyenneTR = new TableColumn<>("Transparence : Moyenne");
@@ -1522,10 +1619,16 @@ public class FXMLDocumentController implements Initializable {
         colonneStatutResUplet.setCellValueFactory(new PropertyValueFactory("statutUplet"));
         colonneStatutResUplet.setStyle("-fx-alignment: CENTER;");
         //////////////////////////////////////////////////////////////////////////
+        //Ajout de la liste des résultats à la tableView
         resUpletTableView.setItems(listResUplet);
+        //Ajout des colonnes à la tableView
         resUpletTableView.getColumns().addAll(colonneStatutResUplet);
     }
 
+    /**
+     * Méthode permettant la recherche des expériences selon les données
+     * renseignées par le laborantin
+     */
     private void rechercherExp() {
         //Remise à 0 des listes qui stokent les expériences selon la recherche faite par l'utilisateur
         listExpSearchStatut.clear();
@@ -1583,14 +1686,14 @@ public class FXMLDocumentController implements Initializable {
                 }
             }
         }
-
+        //L'équipe et le statut sont renseignés
         for (int i = 0; i < listExp.size(); i++) {
             if (listExp.get(i).getEmail_equipe().equals(searchEquipeTextField.getText()) && listExp.get(i).getStatut().equals(searchstatutTextField.getText())) {
                 listExpSearchStatutEquipe.add(listExp.get(i));
             }
         }
 
-        //Affichage du tableau conditionné à la recherche faite par le laborantin
+        //Affichage du tableau conditionné à la recherche faite par le laborantin --> Affichage des messages d'erreur dans le cas où la liste correspondant aux données saisies est vide
         if (searchEquipeTextField.getText().isEmpty() == true && localdate == null && searchstatutTextField.getText().isEmpty() == false) {
             viewTableView.setItems(listExpSearchStatut);
             if (listExpSearchStatut.isEmpty() == true) {
@@ -1641,7 +1744,7 @@ public class FXMLDocumentController implements Initializable {
                 warningSearch.setVisible(true);
             }
         } else {
-            //Si els 3 champs sont vides -> erreur
+            //Si les 3 champs sont vides -> erreur
             searchEquipeTextField.setStyle("-fx-border-color: RED");
             searchstatutTextField.setStyle("-fx-border-color: RED");
             searchdateTextField.setStyle("-fx-border-color: RED");
@@ -1654,11 +1757,11 @@ public class FXMLDocumentController implements Initializable {
     }
 
     /**
-     * Méthode d'ajout d'un expérience. Cette m"thode est appelée dans les
+     * Méthode d'ajout d'un expérience. Cette méthode est appelée dans les
      * listeners d'ajout d'expérience
      */
     private void addExp() {
-
+        //Remise à 0 des bordures rouges lorsqu'il y a une erreur
         typeExpComboBox.setStyle("-fx-border-width:0px");
         equipeComboBox.setStyle("-fx-border-width:0px");
         dureeExpTextField.setStyle("-fx-border-width:0px");
@@ -1672,49 +1775,56 @@ public class FXMLDocumentController implements Initializable {
         ouiRadio.setStyle("-fx-border-width:0px");
         nonRadio.setStyle("-fx-border-width:0px");
 
+        //Si la date est différente de nulle, alors la saisie peut continuer
         if (dateDemandeDate.getValue() != null) {
+            //Récupération des valeurs saisies par le chercheur
             LocalDate localdate = dateDemandeDate.getValue();
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             String dateString = localdate.format(dateTimeFormatter);
             String libelle = libelleTextField.getText();
             String frequence = frequenceTextField.getText();
-            String a3 = a3TextField.getText().replace(",", ".");
+            String a3 = a3TextField.getText().replace(",", "."); //remplacement de la virgule par un point pour permettent à l'utilisateur d'utilister une virgule ou un point (pas de contraintes)
             String a1 = a1TextField.getText().replace(",", ".");
             String a2 = a2TextField.getText().replace(",", ".");
             String nb_slot = nbSlotTextField.getText();
             String duree = dureeExpTextField.getText().replace(",", ".");
+            String email = "";
+            String statut = "à faire";
+            //Déclaration pour le transtypage des String en numérique
             double intduree = -1;
             double inta1 = -1;
             double inta2 = -1;
             double inta3 = -1;
             int intfrequence = -1;
             int intnbslot = -1;
-            String email = "";
-            String statut = "à faire";
 
+            //Transtypage de la duree de l'expérience si les valeurs saisies sont des chiffres et non des caractères            
             if (duree.matches("^[0-9]+(.[0-9]+)?$")) {
                 intduree = Double.parseDouble(duree);
             }
-            //Encadrement de a1 si la valeur saisie n'est pas un nombre
+            //Transtypage de a1 si les valeurs saisies sont des chiffres et non des caractères
             if (a1.matches("^[0-9]+(.[0-9]+)?$")) {
                 inta1 = Double.parseDouble(a1);
             }
 
-            //Encadrement de a2 si la valeur saisie n'est pas un nombre
+            //Transtypage de a2 si les valeurs saisies sont des chiffres et non des caractères
             if (a2.matches("^[0-9]+(.[0-9]+)?$")) {
                 inta2 = Double.parseDouble(a2);
             }
-            //Encadrement du nombre de slots si la valeur saisie n'est pas un nombre
+            //Transtypage du nombre de slots si les valeurs saisies sont des chiffres et non des caractères
             if (nbSlotTextField.getText().matches("^[0-9]+$")) {
                 intnbslot = Integer.parseInt(nbSlotTextField.getText());
             }
+            //Transtypage de a3 si les valeurs saisies sont des chiffres et non des caractères
             if (a3.matches("^[0-9]+(.[0-9]+)?$")) {
                 inta3 = Double.parseDouble(a3);
             }
+            //Transtypage de la fréquence si les valeurs saisies sont des chiffres et non des caractères
             if (frequenceTextField.getText().matches("^[0-9]+$")) {
                 intfrequence = Integer.parseInt(frequenceTextField.getText());
             }
 
+            //Si tous les champs son remplies
             if (libelle.isEmpty() == false && dateString.isEmpty() == false && a1.isEmpty() == false && a2.isEmpty() == false && nb_slot.isEmpty() == false && duree.isEmpty() == false && equipeComboBox.getValue() != null && typeExpComboBox.getValue() != null && (ouiRadio.isSelected() == true || nonRadio.isSelected() == true)) {
                 String nomEquipe = (String) equipeComboBox.getValue();
                 String typeExp = (String) typeExpComboBox.getValue();
@@ -1739,19 +1849,24 @@ public class FXMLDocumentController implements Initializable {
                         chargementComboBox();
                         warningLabel.setText("Expérience ajoutée.");
                         warningLabel.setVisible(true);
+
                     } else if (("".equals(a3) && "".equals(frequence)) && ouiRadio.isSelected() == true) {
+                        //Expérience suivie dans le temps où la fréquence et a3 sont nulles -> encadrement en rouge
                         warningLabel.setText("");
                         warningLabel.setText("Veuillez remplir tous les champs.");
                         warningLabel.setVisible(true);
                         a3TextField.setStyle("-fx-border-color: RED");
                         frequenceTextField.setStyle("-fx-border-color: RED");
                     } else if ("".equals(a3) && ouiRadio.isSelected() == true) {
+                        //Expérience suivie dans le temps où a3 est null -> encadrement en rouge
                         a3TextField.setStyle("-fx-border-color: RED");
                         frequenceTextField.setStyle("-fx-border-width:0px");
                     } else if ("".equals(frequence) && ouiRadio.isSelected() == true) {
+                        //Expérience suivie dans le temps où la fréquence est null -> encadrement en rouge
                         frequenceTextField.setStyle("-fx-border-color: RED");
                         a3TextField.setStyle("-fx-border-width:0px");
                     } else if (ouiRadio.isSelected() == false && intduree != -1 && inta1 != -1 && inta2 != -1 && intnbslot != -1) {
+                        //Si toutes les valeurs sont renseignées -> INSERTION
                         Statement stmt2 = con.createStatement();
                         ResultSet rs2 = stmt2.executeQuery("INSERT INTO EXPERIENCE (LIBELLE_EXP, EMAIL_EQUIPE, DATE_DEMANDE, TYPE_EXP, A1, A2, NB_SLOT, DUREE_EXP, STATUT_EXP) "
                                 + "values ('" + libelle + "', '" + email + "', '" + dateString + "', '" + typeExp + "', " + inta1 + ", " + inta2 + ", " + intnbslot + ", " + intduree + ", '" + statut + "')");
@@ -1762,6 +1877,7 @@ public class FXMLDocumentController implements Initializable {
                         warningLabel.setText("Expérience ajoutée.");
                         warningLabel.setVisible(true);
                     } else {
+                        //Encadrement de la duree si la valeur saisie n'est pas un nombre
                         if (!dureeExpTextField.getText().matches("^[0-9]+(.[0-9]+)?$")) {
                             dureeExpTextField.setStyle("-fx-border-color: RED");
                             warningLabel.setText("");
@@ -1874,7 +1990,7 @@ public class FXMLDocumentController implements Initializable {
                                 warningLabel.setVisible(true);
                             }
                         }
-
+                        //Vérification que la valeur de a1 est bien supérieure à celle de a2
                         if (inta1 > inta2) {
                             a1TextField.setStyle("-fx-border-color: RED");
                             a2TextField.setStyle("-fx-border-color: RED");
@@ -1885,7 +2001,7 @@ public class FXMLDocumentController implements Initializable {
                         e = e.getNextException();
                     }
                 }
-            } else {
+            } else { //Cas où certain champs sont vides -> Affichage des bordures en rouge
                 warningLabel.setText("");
                 warningLabel.setText("Veuillez remplir tous les champs.");
                 warningLabel.setVisible(true);
@@ -1928,17 +2044,21 @@ public class FXMLDocumentController implements Initializable {
      * Méthode d'insertion d'un uplet appelée dans les listeners
      */
     private void addUplet() {
-         expSelectedComboBox.setStyle("-fx-border-width:0px");
+
+        //Suppression des bordures rouges
+        expSelectedComboBox.setStyle("-fx-border-width:0px");
         typeCelluleComboBox.setStyle("-fx-border-width:0px");
         qteAgentTextField.setStyle("-fx-border-width:0px");
         qteCelluleTextField.setStyle("-fx-border-width:0px");
         nomAgentComboBox.setStyle("-fx-border-width:0px");
-        
+
+        //Récupération des valeurs renseignées par l'utilisateur
         String qteAgent = qteAgentTextField.getText().replace(",", ".");
         String qteCell = qteCelluleTextField.getText().replace(",", ".");
         double intqteAgent = -1;
         double intqteCell = -1;
 
+        //Transtypage des string en double uniquement si la valeur saisie contient des chiffres
         if (qteAgent.matches("^[0-9]+(.[0-9]+)?$")) {
             intqteAgent = Double.parseDouble(qteAgent);
         }
@@ -1946,6 +2066,7 @@ public class FXMLDocumentController implements Initializable {
             intqteCell = Double.parseDouble(qteCell);
         }
 
+        //Si toutes les valeurs sont renseignés et correctes, l'uplet peut alors être ajouté
         if (nomAgentComboBox.getValue() != null && expSelectedComboBox.getValue() != null && typeCelluleComboBox.getValue() != null && qteAgentTextField.getText().isEmpty() == false && qteCelluleTextField.getText().isEmpty() == false) {
             //Ajout de l'uplet
             if (intqteAgent != -1 && intqteCell != -1) {
@@ -1963,6 +2084,7 @@ public class FXMLDocumentController implements Initializable {
                         String message = e.getMessage();
                         int errorCode = e.getErrorCode();
                         System.out.println(message);
+                        //Affichage des bordures rouges si la valeur saisie n'est pas correcte
                         if (!qteAgentTextField.getText().matches("^[0-9]+(.[0-9]+)?$")) {
                             qteAgentTextField.setStyle("-fx-border-color: RED");
                             warningUpletLabel.setText("");
@@ -1975,7 +2097,6 @@ public class FXMLDocumentController implements Initializable {
                             warningUpletLabel.setText("Valeur non valide.");
                             warningUpletLabel.setVisible(true);
                         }
-
                         e = e.getNextException();
                     }
                 }
@@ -1994,6 +2115,7 @@ public class FXMLDocumentController implements Initializable {
                 }
             }
         } else {
+            //Afficahge des bordures rouge si des champs sont vides
             warningUpletLabel.setText("");
             warningUpletLabel.setText("Veuillez remplir tous les champs.");
             warningUpletLabel.setVisible(true);
@@ -2034,6 +2156,9 @@ public class FXMLDocumentController implements Initializable {
         }
     }
 
+    /**
+     * Méthode permettant le chargement des comboBox dans la partie chercheur
+     */
     private void chargementComboBox() {
         //Récupération des équipes enregistrés et ajout à la ComboBox du choix de l'équipe dans le formulaire
         try {
@@ -2078,8 +2203,8 @@ public class FXMLDocumentController implements Initializable {
     }
 
     /**
-     * Remise à 0 des comboBox, textField et messages d'erreur pour la partie
-     * chercheur
+     * Méthode permettant la réinitialisation des comboBox, textField et
+     * messages d'erreur pour la partie chercheur
      */
     private void clearChercheur() {
 
@@ -2136,7 +2261,6 @@ public class FXMLDocumentController implements Initializable {
 
     /**
      * Listener permettant le retour à la liste des expériences
-     *
      * @param : event
      */
     @FXML
@@ -2145,19 +2269,6 @@ public class FXMLDocumentController implements Initializable {
         viewdetailsPanel.setVisible(false);
     }
 
-    /**
-     * Méthode de déconnexion de la base de données Oracle
-     */
-//    @Override
-//    public void stop() {
-//        System.out.println("Connection closed.");
-//        try {
-//            con.close();
-//        } catch (Exception e) {
-//            System.out.println(e);
-//        }
-//        Platform.exit();
-//    }
     /**
      * Méthode d'initialisation des données de l'application()
      *
