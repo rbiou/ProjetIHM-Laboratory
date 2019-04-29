@@ -2086,7 +2086,7 @@ public class FXMLDocumentController implements Initializable {
                     clearChercheur();
                     //Chargement des comboBox
                     chargementComboBox();
-                    warningUpletLabel.setText("Uplet ajouté.");
+                    warningUpletLabel.setText("Réplicat ajouté.");
                     warningUpletLabel.setVisible(true);
                 } catch (SQLException e) {
                     while (e != null) {
