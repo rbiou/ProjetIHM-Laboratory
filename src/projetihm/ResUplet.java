@@ -10,14 +10,14 @@ package projetihm;
 public class ResUplet {
 
     private int idUplet;
-    private int ecartTypeTR;
-    private int moyenneTR;
-    private int ecartTypeR;
-    private int moyenneR;
-    private int ecartTypeV;
-    private int moyenneV;
-    private int ecartTypeB;
-    private int moyenneB;
+    private double ecartTypeTR;
+    private double moyenneTR;
+    private double ecartTypeR;
+    private double moyenneR;    
+    private double ecartTypeV;
+    private double moyenneV;
+    private double ecartTypeB;
+    private double moyenneB;
     private String statutUplet;
 
     /**
@@ -34,7 +34,7 @@ public class ResUplet {
      * @param newMoyB
      * @param newStatutUplet
      */
-    public ResUplet(int newID, int newEcartTypeTR, int newEcartTypeR, int newEcartTypeV, int newEcartTypeB, int newMoyTR, int newMoyR, int newMoyV, int newMoyB, String newStatutUplet) {
+    public ResUplet(int newID, double newEcartTypeTR, double newEcartTypeR, double newEcartTypeV, double newEcartTypeB, double newMoyTR, double newMoyR, double newMoyV, double newMoyB, String newStatutUplet) {
         idUplet = newID;
         ecartTypeTR = newEcartTypeTR;
         ecartTypeV = newEcartTypeV;
@@ -52,7 +52,7 @@ public class ResUplet {
      *
      * @return ecartTypeTR
      */
-    public int getEcartTypeTR() {
+    public double getEcartTypeTR() {
         return ecartTypeTR;
     }
 
@@ -61,7 +61,7 @@ public class ResUplet {
      *
      * @return moyenneTR
      */
-    public int getMoyenneTR() {
+    public double getMoyenneTR() {
         return moyenneTR;
     }
 
@@ -70,7 +70,7 @@ public class ResUplet {
      *
      * @return ecartTypeR
      */
-    public int getEcartTypeR() {
+    public double getEcartTypeR() {
         return ecartTypeR;
     }
 
@@ -79,7 +79,7 @@ public class ResUplet {
      *
      * @return moyenneR
      */
-    public int getMoyenneR() {
+    public double getMoyenneR() {
         return moyenneR;
     }
 
@@ -88,7 +88,7 @@ public class ResUplet {
      *
      * @return ecartTypeV
      */
-    public int getEcartTypeV() {
+    public double getEcartTypeV() {
         return ecartTypeV;
     }
 
@@ -97,7 +97,7 @@ public class ResUplet {
      *
      * @return moyenneV
      */
-    public int getMoyenneV() {
+    public double getMoyenneV() {
         return moyenneV;
     }
 
@@ -106,7 +106,7 @@ public class ResUplet {
      *
      * @return ecartTypeB
      */
-    public int getEcartTypeB() {
+    public double getEcartTypeB() {
         return ecartTypeB;
     }
 
@@ -115,7 +115,7 @@ public class ResUplet {
      *
      * @return moyenneB
      */
-    public int getMoyenneB() {
+    public double getMoyenneB() {
         return moyenneB;
     }
 
