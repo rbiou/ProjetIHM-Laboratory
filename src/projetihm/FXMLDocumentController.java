@@ -1355,10 +1355,16 @@ public class FXMLDocumentController implements Initializable {
                         try {
                             Statement stmt = con.createStatement();
                             ResultSet rs = stmt.executeQuery("UPDATE EXPERIENCE SET STATUT_EXP = 'en cours' WHERE ID_EXPERIENCE = " + Idexperience + " ");
-                            TableExp();
                         } catch (SQLException ex) {
                             System.out.println(ex);
                         }
+                        try {
+                            Statement stmt = con.createStatement();
+                            ResultSet rs = stmt.executeQuery("UPDATE EXPERIENCE SET DATE_DEB_EXP = SYSDATE WHERE ID_EXPERIENCE = " + Idexperience + " ");
+                        } catch (SQLException ex) {
+                            System.out.println(ex);
+                        }
+                        TableExp();
                     });
                 }
                 //Création du deuxième bouton : STOP et de son listener associé
@@ -1374,7 +1380,6 @@ public class FXMLDocumentController implements Initializable {
                         } catch (SQLException ex) {
                             System.out.println(ex);
                         }
-                        //Mise à jour du tableau des expériences pour afficher en directe les modifications 
                         TableExp();
                     });
                 }
@@ -1446,7 +1451,11 @@ public class FXMLDocumentController implements Initializable {
                         datafrequenceLabel.setText(String.valueOf(getTableView().getItems().get(getIndex()).getFrequence()) + " u.a");
                         datatypeLabel.setText(getTableView().getItems().get(getIndex()).getType_exp());
                         datadatedemandeLabel.setText(getTableView().getItems().get(getIndex()).getDate_demande());
-                        datadatedebutLabel.setText(getTableView().getItems().get(getIndex()).getDate_deb());
+                        if (getTableView().getItems().get(getIndex()).getDate_deb() == null) {
+                            datadatedebutLabel.setText("Expérience non démarrée");
+                        } else {
+                            datadatedebutLabel.setText(getTableView().getItems().get(getIndex()).getDate_deb());
+                        }
                         datanbslotsLabel.setText(String.valueOf(getTableView().getItems().get(getIndex()).getNb_slot()) + " u.a");
                         datadureeLabel.setText(String.valueOf(getTableView().getItems().get(getIndex()).getDuree()) + " heure(s)");
                         dataa3Label.setText(String.valueOf(getTableView().getItems().get(getIndex()).getA3()) + " u.a");
@@ -1646,13 +1655,13 @@ public class FXMLDocumentController implements Initializable {
 
         //cas où uniquement le statut est renseigné
         for (int i = 0; i < listExp.size(); i++) {
-            if (listExp.get(i).getStatut().equals(searchstatutTextField.getText())) {
+            if (listExp.get(i).getStatut().toUpperCase().equals(searchstatutTextField.getText().toUpperCase())) {
                 listExpSearchStatut.add(listExp.get(i));
             }
         }
         //cas où uniquement l'équipe est renseignée
         for (int i = 0; i < listExp.size(); i++) {
-            if (listExp.get(i).getEmail_equipe().equals(searchEquipeTextField.getText())) {
+            if (listExp.get(i).getEmail_equipe().toUpperCase().equals(searchEquipeTextField.getText().toUpperCase())) {
                 listExpSearchEquipe.add(listExp.get(i));
             }
         }
@@ -1669,26 +1678,26 @@ public class FXMLDocumentController implements Initializable {
             }
             //La date et l'équipe sont renseignés
             for (int i = 0; i < listExp.size(); i++) {
-                if (listExp.get(i).getEmail_equipe().equals(searchEquipeTextField.getText()) && listExp.get(i).getDate_demande().equals(searchDate)) {
+                if (listExp.get(i).getEmail_equipe().toUpperCase().equals(searchEquipeTextField.getText().toUpperCase()) && listExp.get(i).getDate_demande().equals(searchDate)) {
                     listExpSearchEquipeDate.add(listExp.get(i));
                 }
             }
             //La date et le statut sont renseignés
             for (int i = 0; i < listExp.size(); i++) {
-                if (listExp.get(i).getStatut().equals(searchstatutTextField.getText()) && listExp.get(i).getDate_demande().equals(searchDate)) {
+                if (listExp.get(i).getStatut().toUpperCase().equals(searchstatutTextField.getText().toUpperCase()) && listExp.get(i).getDate_demande().equals(searchDate)) {
                     listExpSearchStatutDate.add(listExp.get(i));
                 }
             }
             //La date, le statut et l'équipe sont renseignés
             for (int i = 0; i < listExp.size(); i++) {
-                if (listExp.get(i).getStatut().equals(searchstatutTextField.getText()) && listExp.get(i).getDate_demande().equals(searchDate) && listExp.get(i).getEmail_equipe().equals(searchEquipeTextField.getText())) {
+                if (listExp.get(i).getStatut().toUpperCase().equals(searchstatutTextField.getText().toUpperCase()) && listExp.get(i).getDate_demande().equals(searchDate) && listExp.get(i).getEmail_equipe().toUpperCase().equals(searchEquipeTextField.getText().toUpperCase())) {
                     listExpSearchAll.add(listExp.get(i));
                 }
             }
         }
         //L'équipe et le statut sont renseignés
         for (int i = 0; i < listExp.size(); i++) {
-            if (listExp.get(i).getEmail_equipe().equals(searchEquipeTextField.getText()) && listExp.get(i).getStatut().equals(searchstatutTextField.getText())) {
+            if (listExp.get(i).getEmail_equipe().toUpperCase().equals(searchEquipeTextField.getText().toUpperCase()) && listExp.get(i).getStatut().toUpperCase().equals(searchstatutTextField.getText().toUpperCase())) {
                 listExpSearchStatutEquipe.add(listExp.get(i));
             }
         }
@@ -2261,6 +2270,7 @@ public class FXMLDocumentController implements Initializable {
 
     /**
      * Listener permettant le retour à la liste des expériences
+     *
      * @param : event
      */
     @FXML
