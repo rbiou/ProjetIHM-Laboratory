@@ -57,7 +57,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private Rectangle instructionsRectangle;
     @FXML
-    private ImageView homeIcon, expIcon, upletIcon, eyeIcon, addIcon, plaqueIcon, instruction3ImageView, instruction4ImageView;
+    private ImageView homeIcon, expIcon, upletIcon, eyeIcon, addIcon, bulbIcon, plaqueIcon, instruction3ImageView, instruction4ImageView;
     @FXML
     private AnchorPane topPanel, welcomePanel, navPanel, loginPanel, menuPanel, insertPanel, viewPanel, upletPanel;
     @FXML
