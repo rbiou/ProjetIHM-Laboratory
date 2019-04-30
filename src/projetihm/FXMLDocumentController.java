@@ -33,6 +33,8 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.Pane;
+import javafx.scene.text.Text;
 import javafx.util.Callback;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.KeyCode;
@@ -2278,7 +2280,34 @@ public class FXMLDocumentController implements Initializable {
         reloadTableauExp();
         viewdetailsPanel.setVisible(false);
     }
-
+    
+    /**
+     * Listener permettant d'afficher une aide pour l'utilisateur
+     *
+     * @param : event
+     */
+    @FXML
+    private void setHelpOn(MouseEvent event) {
+        bulbIcon.setImage(new Image(getClass().getResource("bulb_white.png").toExternalForm()));
+        helpPane.setVisible(true);
+        if ("laborantin".equals(functionUser)){
+            helpText.setText("Vous êtes un(e) "+functionUser+". \n◆ Gérer vos expériences !\nVia l'onglet 👁, changer le statut des expériences,\naccéder aux résultats ou transmetter-les au(x)\nchercheur(s).\n◆ Planifier vos analyses !\nVia l'onglet □, définisser les plaques sur lesquelles\nvous effectuez vos analyses.");
+        } else if ("chercheur".equals(functionUser)) {
+            helpText.setText("Vous êtes un(e) "+functionUser+". \n◆ Commander simplement des expériences !\nVia l'onglet +, demander simplement la réalisation de vos\nexpériences à l'aide de notre assistant\nvous assurant une qualité optimale.\n◆ Préciser vos protocoles !\nVia l'onglet ○, préciser à nos services\nles protocoles précis que vous souhaitez\nmettre en place pour chaque réplica d'essai\nen les associant aux expériences.");
+        }
+    }
+    
+    /**
+     * Listener permettant de retirer l'aide pour l'utilisateur
+     *
+     * @param : event
+     */
+    @FXML
+    private void setHelpOff(MouseEvent event) {
+        bulbIcon.setImage(new Image(getClass().getResource("bulb_black.png").toExternalForm()));
+        helpPane.setVisible(false);
+    }
+    
     /**
      * Méthode d'initialisation des données de l'application()
      *
