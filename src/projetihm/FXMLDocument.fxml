@@ -41,6 +41,11 @@
                                 <Image url="@flask_black.png" />
                             </image>
                         </ImageView>
+                  <ImageView fx:id="bulbIcon" fitHeight="60.0" fitWidth="56.0" layoutX="27.0" layoutY="728.0" onMouseEntered="#setHelpOn" onMouseExited="#setHelpOff" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="14.0">
+                     <image>
+                        <Image url="@bulb_black.png" />
+                     </image>
+                  </ImageView>
                     </children>
                 </AnchorPane>
                 <AnchorPane fx:id="topPanel" prefHeight="104.0" prefWidth="590.0" style="-fx-background-color: #bdbdbd;" visible="false" AnchorPane.leftAnchor="110.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -763,6 +768,11 @@
                         </AnchorPane>
                     </content>
                 </ScrollPane>
+            <Pane fx:id="helpPane" prefHeight="178.0" prefWidth="317.0" style="-fx-background-color: GREY;" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="110.0">
+               <children>
+                  <Text fx:id="helpText" fill="WHITE" layoutX="14.0" layoutY="19.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" />
+               </children>
+            </Pane>
             </children>
         </AnchorPane>
         <AnchorPane fx:id="loginPanel" layoutX="1.0" prefHeight="500.0" prefWidth="700.0" style="-fx-alignment: CENTER;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
