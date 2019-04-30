@@ -65,6 +65,10 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private Label resInfoLabel, warningSearch, datasuiviLabel, fonctionLabel, welcomeLabel, loginErrorLabel, frequenceLabel, a3Label, frequenceviewLabel, a3viewLabel, datalibelleLabel, dataequipeLabel, datastatutLabel, dataa1Label, dataa2Label, datadatetransmissionLabel, datafrequenceLabel, datatypeLabel, datadatedemandeLabel, datadatedebutLabel, datanbslotsLabel, datadureeLabel, dataa3Label, slotsRestantsLabel, warningLabel, warningUpletLabel, plaqueErrorLabel, instruction1Label, instruction2Label, anySelectedLabel, errorInsertPlaqueLabel;
     @FXML
+    private Text helpText;
+    @FXML
+    private Pane helpPane;
+    @FXML
     private TableView viewTable;
     @FXML
     private TextField searchstatutTextField, searchEquipeTextField, mailTextField, passwordTextField, frequenceTextField, a3TextField, libelleTextField, a1TextField, a2TextField, nbSlotTextField, dureeExpTextField, qteCelluleTextField, qteAgentTextField, numPlaqueTextField;
